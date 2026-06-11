@@ -147,9 +147,9 @@ medas-platform/
 
 | Что | Ссылка |
 |---|---|
-| Production | TBD (VPS, домен уточнить) |
+| Production | https://med-as.ru |
 | GitHub | TBD (создать: medas-platform) |
-| Дизайн (Stitch) | TBD (Игорь даст ссылку/скрины) |
+| Дизайн | Главная.zip — код HTML + DESIGN.md ✅ |
 
 ---
 
