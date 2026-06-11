@@ -1,9 +1,11 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
+# Use Taobao npm mirror for better connectivity from Russia/VPS
+RUN npm config set registry https://registry.npmmirror.com
 COPY package*.json ./
-RUN npm install --frozen-lockfile
+RUN npm install
 COPY . .
-RUN npx next build
+RUN node_modules/.bin/next build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
