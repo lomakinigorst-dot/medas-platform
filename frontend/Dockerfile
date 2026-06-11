@@ -1,9 +1,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci && echo "=== npm ci done ===" && ls node_modules/.bin/next && echo "=== next OK ==="
 COPY . .
-RUN npm run build
+RUN ls -la && npx next build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
