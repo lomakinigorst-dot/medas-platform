@@ -1,7 +1,5 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-# Use Taobao npm mirror for better connectivity from Russia/VPS
-RUN npm config set registry https://registry.npmmirror.com
 COPY package*.json ./
 RUN npm install
 COPY . .

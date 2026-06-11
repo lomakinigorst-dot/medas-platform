@@ -4,11 +4,11 @@
 ---
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
-Проект: MEDAS | Дата: 2026-06-10
-Текущий блок: Фаза 1 — Главная страница локально работает на http://localhost:3000
-Последнее ✅: Next.js 15 инициализирован, главная страница собрана из HTML дизайна
-Следующее: GitHub URL от Игоря → git remote + push → FastAPI backend → Docker
-Важно: Домен med-as.ru. Цвета: #003087 (синий) + #00a982 (зелёный). Dev сервер: npm run dev в frontend/
+Проект: MEDAS | Дата: 2026-06-11
+Текущий блок: Фаза 1 завершена — 14 страниц задеплоены на VPS
+Последнее ✅: Деплой на saas.med-as.ru (HTTP 200 OK), SITE_PLAN.md создан
+Следующее: SSL-сертификат (Let's Encrypt) + FastAPI backend + страница /register
+Важно: Образ собирается ЛОКАЛЬНО на Mac, загружается на VPS. VPS: /app/medas-platform/, compose-файл: docker-compose.vps.yml. Системный nginx ОСТАНОВЛЕН (замен Docker nginx).
 
 ---
 
