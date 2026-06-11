@@ -1,9 +1,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci && echo "=== npm ci done ===" && ls node_modules/.bin/next && echo "=== next OK ==="
+RUN npm install --frozen-lockfile
 COPY . .
-RUN ls -la && npx next build
+RUN npx next build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
