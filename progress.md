@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-12
-Текущий блок: Фаза C — страница /search (SearchClient.tsx)
-Последнее ✅: Фаза B завершена — framer-motion анимации главной задеплоены (HTTP 200, контент в бандле)
-Следующее: C.1 — создать frontend/src/components/search/SearchClient.tsx ('use client', useState, фильтры, 9 карточек)
-Важно: framer-motion v12 — ease должен быть "easeOut" as const, Variants требует явный тип
+Текущий блок: Фазы B+C завершены — главная + /search с интерактивными фильтрами
+Последнее ✅: C.9 — SearchClient.tsx задеплоен, бандл содержит "ДМС" (grep подтверждён)
+Следующее: Следующая страница по SITE_PLAN.md (например /doctor/[slug] детальная страница)
+Важно: framer-motion v12 — ease = "easeOut" as const, Variants требует явный тип; useSearchParams требует Suspense в page.tsx
 
 ---
 
