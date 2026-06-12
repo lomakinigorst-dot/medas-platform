@@ -89,32 +89,60 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* Right: Doctor image + badge */}
-        <motion.div className="relative hidden lg:block" {...fadeRight}>
-          <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white">
-            <Image
-              src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&q=80"
-              alt="Врач в клинике"
-              fill
-              className="object-cover"
-            />
-          </div>
+        {/* Right: Doctor image + decorative framing */}
+        <motion.div className="relative hidden lg:flex items-center justify-center" {...fadeRight}>
+          {/* Background glow blob */}
+          <div className="absolute w-[480px] h-[480px] rounded-full bg-gradient-to-br from-secondary/25 via-primary/10 to-transparent blur-3xl pointer-events-none" />
 
-          {/* Floating badge */}
-          <motion.div
-            className="absolute -bottom-10 -left-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20 max-w-xs"
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" as const }}
-          >
-            <div className="flex gap-1 mb-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <StarIcon key={i} className="w-5 h-5 text-secondary" />
-              ))}
+          {/* Photo with offset decorative layer */}
+          <div className="relative z-10 w-[380px]">
+            {/* Colored offset shadow layer */}
+            <div className="absolute inset-0 translate-x-4 translate-y-4 rounded-[2.5rem] bg-secondary/35" />
+            <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-2xl ring-[6px] ring-white">
+              <Image
+                src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200&q=90"
+                alt="Врач в клинике"
+                fill
+                className="object-cover object-top"
+                sizes="380px"
+                priority
+              />
             </div>
-            <p className="font-headline font-bold text-on-surface">500+ Клиник-партнёров</p>
-            <p className="text-sm text-on-surface-variant">Реальные отзывы пациентов по каждому врачу.</p>
-          </motion.div>
+
+            {/* Floating badge — bottom left */}
+            <motion.div
+              className="absolute -bottom-6 -left-14 z-20 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-outline-variant/20"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" as const }}
+            >
+              <div className="flex gap-0.5 mb-1.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <StarIcon key={i} className="w-4 h-4 text-secondary" />
+                ))}
+              </div>
+              <p className="font-headline font-bold text-on-surface text-sm">500+ Клиник-партнёров</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">Реальные отзывы по каждому врачу</p>
+            </motion.div>
+
+            {/* Floating badge — top right */}
+            <motion.div
+              className="absolute -top-5 -right-12 z-20 bg-white/95 backdrop-blur-md px-4 py-3 rounded-xl shadow-xl border border-outline-variant/20 flex items-center gap-3"
+              initial={{ opacity: 0, x: 20, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" as const }}
+            >
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-headline font-bold text-sm text-on-surface">10 000+ врачей</p>
+                <p className="text-xs text-on-surface-variant">проверено MEDAS</p>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
