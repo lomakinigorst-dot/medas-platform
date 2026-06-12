@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
 
 const clinics = [
   {
@@ -48,13 +51,29 @@ function StarIcon({ filled = true }: { filled?: boolean }) {
   );
 }
 
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+};
+
+const cardVariant: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+};
+
 export default function ClinicsSection() {
   const [featured, horizontal, ...small] = clinics;
 
   return (
     <section className="py-24 px-6 bg-surface-container-low">
       <div className="max-w-screen-2xl mx-auto">
-        <div className="mb-12 text-center">
+        <motion.div
+          className="mb-12 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" as const }}
+        >
           <h2 className="font-headline text-4xl font-extrabold tracking-tight mb-4 text-on-surface">
             Лучшие клиники
           </h2>
@@ -62,11 +81,20 @@ export default function ClinicsSection() {
             Откройте для себя медицинские учреждения, проверенные на соответствие
             стандартам качества и удовлетворенности пациентов.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 lg:h-[700px]">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 lg:h-[700px]"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+        >
           {/* Featured clinic — big */}
-          <div className="md:col-span-2 md:row-span-2 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-col group cursor-pointer">
+          <motion.div
+            className="md:col-span-2 md:row-span-2 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-col group cursor-pointer"
+            variants={cardVariant}
+          >
             <div className="relative flex-1 overflow-hidden min-h-[300px]">
               <Image
                 src={featured.image}
@@ -108,10 +136,13 @@ export default function ClinicsSection() {
                 Записаться на приём
               </Link>
             </div>
-          </div>
+          </motion.div>
 
           {/* Horizontal clinic */}
-          <div className="md:col-span-2 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-row group cursor-pointer">
+          <motion.div
+            className="md:col-span-2 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-row group cursor-pointer"
+            variants={cardVariant}
+          >
             <div className="w-1/3 relative overflow-hidden min-h-[160px]">
               <Image
                 src={horizontal.image}
@@ -139,13 +170,14 @@ export default function ClinicsSection() {
                 </svg>
               </Link>
             </div>
-          </div>
+          </motion.div>
 
           {/* Small clinics */}
           {small.map((clinic) => (
-            <div
+            <motion.div
               key={clinic.id}
               className="md:col-span-1 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm group cursor-pointer"
+              variants={cardVariant}
             >
               <div className="h-1/2 relative overflow-hidden min-h-[140px]">
                 <Image
@@ -171,9 +203,9 @@ export default function ClinicsSection() {
                   Запись
                 </Link>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

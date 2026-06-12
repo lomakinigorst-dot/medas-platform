@@ -1,5 +1,20 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.65, delay, ease: "easeOut" as const },
+});
+
+const fadeRight = {
+  initial: { opacity: 0, x: 40 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.75, delay: 0.2, ease: "easeOut" as const },
+};
 
 export default function HeroSection() {
   return (
@@ -7,17 +22,26 @@ export default function HeroSection() {
       <div className="max-w-screen-2xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* Left: Heading + Search */}
         <div>
-          <h1 className="font-headline text-5xl lg:text-7xl font-extrabold tracking-tighter text-on-surface leading-[1.1] mb-6">
+          <motion.h1
+            className="font-headline text-5xl lg:text-7xl font-extrabold tracking-tighter text-on-surface leading-[1.1] mb-6"
+            {...fadeUp(0.05)}
+          >
             Медицинская забота,{" "}
             <span className="text-secondary">отобранная</span> для вашей жизни.
-          </h1>
-          <p className="text-on-surface-variant text-xl mb-10 max-w-xl">
+          </motion.h1>
+          <motion.p
+            className="text-on-surface-variant text-xl mb-10 max-w-xl"
+            {...fadeUp(0.2)}
+          >
             Ощутите клиническое совершенство через наш высококлассный агрегатор.
             Найдите лучших специалистов и бутик-клиники в вашем районе.
-          </p>
+          </motion.p>
 
           {/* Search Bar */}
-          <div className="bg-surface-container-lowest p-2 rounded-xl shadow-xl shadow-blue-900/5 flex flex-col md:flex-row gap-2">
+          <motion.div
+            className="bg-surface-container-lowest p-2 rounded-xl shadow-xl shadow-blue-900/5 flex flex-col md:flex-row gap-2"
+            {...fadeUp(0.35)}
+          >
             <div className="flex-1 flex items-center px-4 gap-3 bg-surface-container-low rounded-lg focus-within:ring-2 ring-primary/10 transition-all">
               <svg className="w-5 h-5 text-outline flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -43,11 +67,11 @@ export default function HeroSection() {
             <button className="btn-primary-gradient text-white px-8 py-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-transform active:scale-95">
               Поиск
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* Right: Doctor image + badge */}
-        <div className="relative hidden lg:block">
+        <motion.div className="relative hidden lg:block" {...fadeRight}>
           <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white">
             <Image
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1AZIgGrFEhJgC69aFoT5u_uxpWZ1Nz3-31VxcDuyU9GIAlHjaFYr-rftAGOjaI11K-jDo5QrkCrn1xcK9iMqBAWTnzQzK-D_oMavx2mJRR0WjC5a9RPae7dOTgQLxm6BHVAEQCSLqOviik4GQA3jcEc8nGjI_ZwxLBkV5mXz7MUl6NjYmKQbm3UT2ld6maSvncePIS-HjKLKICeh9-WuWFKobc8PXVCTgbGpN8tEdt6DhMCQ_DWNmO9g_pEHZbzUYYmw4qgy3C2s"
@@ -59,7 +83,12 @@ export default function HeroSection() {
           </div>
 
           {/* Floating badge */}
-          <div className="absolute -bottom-10 -left-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20 max-w-xs">
+          <motion.div
+            className="absolute -bottom-10 -left-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20 max-w-xs"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" as const }}
+          >
             <div className="flex gap-1 mb-2">
               {Array.from({ length: 5 }).map((_, i) => (
                 <svg key={i} className="w-5 h-5 text-secondary" fill="currentColor" viewBox="0 0 20 20">
@@ -69,8 +98,8 @@ export default function HeroSection() {
             </div>
             <p className="font-headline font-bold text-on-surface">5,000+ Доверенных клиник</p>
             <p className="text-sm text-on-surface-variant">Экспертный подход к выбору поставщиков медицинских услуг.</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

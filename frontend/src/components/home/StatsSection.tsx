@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, type Variants } from "framer-motion";
 
 const stats = [
   {
@@ -94,6 +95,16 @@ function StatCard({ stat, active }: { stat: typeof stats[0]; active: boolean }) 
   );
 }
 
+const container: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1 } },
+};
+
+const cardItem: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+};
+
 export default function StatsSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
@@ -111,11 +122,19 @@ export default function StatsSection() {
 
   return (
     <section ref={ref} className="py-4 px-6 bg-surface-container-lowest border-y border-outline-variant/40">
-      <div className="max-w-screen-2xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-outline-variant/40">
+      <motion.div
+        className="max-w-screen-2xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-outline-variant/40"
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-40px" }}
+      >
         {stats.map((s, i) => (
-          <StatCard key={i} stat={s} active={active} />
+          <motion.div key={i} variants={cardItem}>
+            <StatCard stat={s} active={active} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

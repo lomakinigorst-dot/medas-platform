@@ -120,6 +120,36 @@ Auth:
 
 ---
 
+---
+
+## Сессия 2026-06-12 — Анализ /search page
+
+### Текущее состояние page.tsx (225 строк)
+- Чистый server component (нет 'use client')
+- Статический массив `doctors` — 3 записи
+- Фильтры — только визуальные, без логики (checkbox/radio без обработчиков)
+- Toggle сортировки — `<select>` без обработчика
+- Кнопка «Записаться» ведёт на `/doctor/{id}` (должно быть `/doctor/{slug}`)
+- Нет поисковой строки
+
+### Архитектурное решение
+Вариант 1 (простой): всё в одном файле page.tsx, 'use client', useState + useSearchParams
+Вариант 2 (разделённый): page.tsx остаётся server, выносим SearchClient.tsx с 'use client'
+
+→ **Выбираем Вариант 2**: в Next.js App Router лучше оставить page.tsx server component и вынести интерактив в `SearchClient.tsx`. Это правильный паттерн.
+
+Файлы которые будут созданы/изменены:
+- `frontend/src/app/search/page.tsx` — минимальные изменения (импорт SearchClient)
+- `frontend/src/components/search/SearchClient.tsx` — вся интерактивность (новый файл)
+
+### Дизайн-токены (из SITE_PLAN.md + DESIGN.md)
+- Primary: #003087 | Secondary: #00a982 | BG: #f7f9fb
+- Manrope (заголовки, extrabold) | Inter (текст)
+- rounded-2xl карточки, rounded-xl кнопки, rounded-3xl модалки
+
+### Открытые вопросы
+- Стоит ли использовать компоненты 21st.dev? (Игорь спросил в сессии 2026-06-12)
+
 ### Приоритеты Phase 0
 
 1. Выяснить как получить дизайн из Stitch
