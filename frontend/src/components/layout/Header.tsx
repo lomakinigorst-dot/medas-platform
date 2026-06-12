@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/search", label: "Найти врача" },
@@ -11,19 +12,10 @@ const navLinks = [
 ];
 
 function Logo({ size = "md" }: { size?: "md" | "sm" }) {
-  const t = size === "md" ? "text-3xl" : "text-2xl";
-  const sep = size === "md" ? "h-6" : "h-5";
+  const w = size === "md" ? 156 : 120;
+  const h = size === "md" ? 44 : 34;
   return (
-    <div className="flex items-center gap-0.5">
-      <span className={`font-headline font-extrabold ${t} text-primary tracking-tight leading-none`}>
-        MED
-      </span>
-      <span className="inline-flex items-center bg-secondary rounded-full px-2 py-0.5 gap-0.5">
-        <span className={`font-headline font-extrabold ${t} text-white leading-none`}>A</span>
-        <span className={`w-px ${sep} bg-white/40`} />
-        <span className={`font-headline font-extrabold ${t} text-white leading-none`}>S</span>
-      </span>
-    </div>
+    <Image src="/logo-dark.png" alt="MEDAS" width={w} height={h} priority className="object-contain" />
   );
 }
 
