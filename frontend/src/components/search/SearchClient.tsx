@@ -7,7 +7,7 @@ import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { LayoutList, MapPin, X, Search } from "lucide-react";
 
-type ViewMode = "list" | "map";
+type SortKey = "rating" | "experience" | "price";
 type Gender = "any" | "male" | "female";
 type Experience = "any" | "5+" | "10+";
 
@@ -201,11 +201,12 @@ export default function SearchClient() {
     ...INIT_FILTERS,
     query: searchParams?.get("q") ?? "",
   });
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [isMapView, setIsMapView] = useState(false);
   const [metroOpen, setMetroOpen] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("rating");
 
   const filtered = useMemo(() => {
-    return DOCTORS.filter((doc) => {
+    const result = DOCTORS.filter((doc) => {
       if (filters.query) {
         const q = filters.query.toLowerCase();
         if (
@@ -230,7 +231,12 @@ export default function SearchClient() {
       if (filters.online && !doc.online) return false;
       return true;
     });
-  }, [filters]);
+    return [...result].sort((a, b) => {
+      if (sortKey === "experience") return b.experience - a.experience;
+      if (sortKey === "price") return a.price - b.price;
+      return parseFloat(b.rating) - parseFloat(a.rating);
+    });
+  }, [filters, sortKey]);
 
   const activeChips = useMemo(() => {
     const chips: { label: string; remove: () => void }[] = [];
@@ -289,20 +295,10 @@ export default function SearchClient() {
     return chips;
   }, [filters]);
 
-  const toggleAvailability = (val: string) =>
+  const toggleArrayFilter = (key: "availability" | "metro", val: string) =>
     setFilters((p) => ({
       ...p,
-      availability: p.availability.includes(val)
-        ? p.availability.filter((a) => a !== val)
-        : [...p.availability, val],
-    }));
-
-  const toggleMetro = (val: string) =>
-    setFilters((p) => ({
-      ...p,
-      metro: p.metro.includes(val)
-        ? p.metro.filter((m) => m !== val)
-        : [...p.metro, val],
+      [key]: p[key].includes(val) ? p[key].filter((v) => v !== val) : [...p[key], val],
     }));
 
   return (
@@ -332,9 +328,9 @@ export default function SearchClient() {
           </div>
           <div className="flex items-center bg-white border border-[#c3c6d7]/30 rounded-xl p-1 shadow-sm">
             <button
-              onClick={() => setViewMode("list")}
+              onClick={() => setIsMapView(false)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                viewMode === "list"
+                !isMapView
                   ? "bg-[#003087] text-white"
                   : "text-[#737686] hover:text-[#003087]"
               }`}
@@ -343,9 +339,9 @@ export default function SearchClient() {
               <span className="hidden sm:inline">Список</span>
             </button>
             <button
-              onClick={() => setViewMode("map")}
+              onClick={() => setIsMapView(true)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                viewMode === "map"
+                isMapView
                   ? "bg-[#003087] text-white"
                   : "text-[#737686] hover:text-[#003087]"
               }`}
@@ -421,7 +417,7 @@ export default function SearchClient() {
                       <input
                         type="checkbox"
                         checked={filters.availability.includes(item)}
-                        onChange={() => toggleAvailability(item)}
+                        onChange={() => toggleArrayFilter("availability", item)}
                         className="rounded w-4 h-4 text-[#003087] border-[#c3c6d7] cursor-pointer accent-[#003087]"
                       />
                       <span className="text-sm font-medium group-hover:text-[#003087] transition-colors">
@@ -443,7 +439,7 @@ export default function SearchClient() {
                       <input
                         type="checkbox"
                         checked={filters.metro.includes(m)}
-                        onChange={() => toggleMetro(m)}
+                        onChange={() => toggleArrayFilter("metro", m)}
                         className="rounded w-4 h-4 cursor-pointer accent-[#003087]"
                       />
                       <span className="text-sm font-medium group-hover:text-[#003087] transition-colors">
@@ -524,40 +520,22 @@ export default function SearchClient() {
                 </h3>
                 {(
                   [
-                    {
-                      key: "dms" as const,
-                      label: "Принимает ДМС",
-                      value: filters.dms,
-                      toggle: () =>
-                        setFilters((p) => ({ ...p, dms: !p.dms })),
-                    },
-                    {
-                      key: "online" as const,
-                      label: "Онлайн-консультация",
-                      value: filters.online,
-                      toggle: () =>
-                        setFilters((p) => ({ ...p, online: !p.online })),
-                    },
-                    {
-                      key: "homeVisit" as const,
-                      label: "Выезд на дом",
-                      value: filters.homeVisit,
-                      toggle: () =>
-                        setFilters((p) => ({ ...p, homeVisit: !p.homeVisit })),
-                    },
-                  ] as const
-                ).map(({ key, label, value, toggle }) => (
+                    { key: "dms", label: "Принимает ДМС" },
+                    { key: "online", label: "Онлайн-консультация" },
+                    { key: "homeVisit", label: "Выезд на дом" },
+                  ] as Array<{ key: "dms" | "online" | "homeVisit"; label: string }>
+                ).map(({ key, label }) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm font-medium">{label}</span>
                     <button
-                      onClick={toggle}
+                      onClick={() => setFilters((p) => ({ ...p, [key]: !p[key] }))}
                       className={`w-10 h-5 rounded-full relative transition-colors flex-shrink-0 ${
-                        value ? "bg-[#003087]" : "bg-[#e6e8ea]"
+                        filters[key] ? "bg-[#003087]" : "bg-[#e6e8ea]"
                       }`}
                     >
                       <div
                         className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                          value ? "translate-x-5" : "translate-x-0.5"
+                          filters[key] ? "translate-x-5" : "translate-x-0.5"
                         }`}
                       />
                     </button>
@@ -607,15 +585,19 @@ export default function SearchClient() {
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
                 <span className="text-[#737686]">Сортировать:</span>
-                <select className="bg-transparent border-none font-bold text-[#003087] focus:ring-0 p-0 cursor-pointer text-sm">
-                  <option>По рейтингу</option>
-                  <option>По стажу</option>
-                  <option>Сначала дешевле</option>
+                <select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value as SortKey)}
+                  className="bg-transparent border-none font-bold text-[#003087] focus:ring-0 p-0 cursor-pointer text-sm"
+                >
+                  <option value="rating">По рейтингу</option>
+                  <option value="experience">По стажу</option>
+                  <option value="price">Сначала дешевле</option>
                 </select>
               </div>
             </div>
 
-            {viewMode === "map" ? (
+            {isMapView ? (
               <div className="relative bg-[#e8eef5] rounded-2xl overflow-hidden h-[560px] flex items-center justify-center border border-[#c3c6d7]/30">
                 <div
                   className="absolute inset-0 opacity-20 pointer-events-none"

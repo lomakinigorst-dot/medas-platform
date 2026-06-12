@@ -1,7 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+
+const container: Variants = {
+  hidden: { opacity: 0, y: 40, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.75, ease: "easeOut", staggerChildren: 0.1, delayChildren: 0.1 },
+  },
+};
+
+const child: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
 
 export default function CTASection() {
   return (
@@ -9,37 +24,28 @@ export default function CTASection() {
       <div className="max-w-screen-2xl mx-auto">
         <motion.div
           className="bg-slate-900 rounded-[3rem] p-12 lg:p-24 text-center relative overflow-hidden"
-          initial={{ opacity: 0, y: 40, scale: 0.97 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          variants={container}
+          initial="hidden"
+          whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.75, ease: "easeOut" as const }}
         >
           <div className="relative z-10">
             <motion.h2
               className="font-headline text-4xl lg:text-6xl font-extrabold text-white tracking-tighter mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" as const }}
+              variants={child}
             >
               Готовы найти своего врача?
             </motion.h2>
             <motion.p
               className="text-slate-400 text-xl max-w-2xl mx-auto mb-12"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" as const }}
+              variants={child}
             >
               Присоединяйтесь к тысячам пациентов, которые доверяют Med-as в
               вопросах первичной и специализированной медицинской помощи.
             </motion.p>
             <motion.div
               className="flex flex-col sm:flex-row gap-4 justify-center"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.35, ease: "easeOut" as const }}
+              variants={child}
             >
               <Link
                 href="/register"
