@@ -35,13 +35,8 @@ export default function CabinetLayout({
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col h-full w-64 bg-slate-50 border-r border-[#eceef0] fixed left-0 top-0 z-40 p-4 gap-2">
         <div className="mb-8 px-2">
-          <Link href="/" className="flex items-center gap-1">
-            <span className="font-[family-name:var(--font-manrope)] font-extrabold text-xl text-[#003087]">MED</span>
-            <span className="inline-flex items-center bg-[#00a982] rounded-full px-1.5 py-0.5">
-              <span className="font-[family-name:var(--font-manrope)] font-extrabold text-lg text-white leading-none">A</span>
-              <span className="w-px h-3.5 bg-white/40 mx-0.5" />
-              <span className="font-[family-name:var(--font-manrope)] font-extrabold text-lg text-white leading-none">S</span>
-            </span>
+          <Link href="/">
+            <Image src="/logo-dark.png" alt="MEDAS" width={110} height={32} className="object-contain" />
           </Link>
           <p className="text-[10px] text-slate-500 tracking-widest uppercase mt-2">
             {role === "patient" ? "Панель пациента" : role === "clinic" ? "Панель клиники" : "Панель врача"}

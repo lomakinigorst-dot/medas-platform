@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -6,16 +7,7 @@ export default function Footer() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-10 py-16 max-w-screen-2xl mx-auto">
         {/* Brand */}
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-1 opacity-70">
-            <span className="font-headline font-extrabold text-xl text-primary tracking-tight">
-              MED
-            </span>
-            <span className="inline-flex items-center bg-secondary rounded-full px-1.5 py-0.5">
-              <span className="font-headline font-extrabold text-xl text-white leading-none">A</span>
-              <span className="w-px h-4 bg-white/40 mx-0.5" />
-              <span className="font-headline font-extrabold text-xl text-white leading-none">S</span>
-            </span>
-          </div>
+          <Image src="/logo-dark.png" alt="MEDAS" width={120} height={34} className="object-contain" />
           <p className="text-slate-500 normal-case tracking-normal text-sm">
             Лидерство в области экспертного медицинского совершенства. Соединяем
             вас с качественной помощью, которую вы заслуживаете.

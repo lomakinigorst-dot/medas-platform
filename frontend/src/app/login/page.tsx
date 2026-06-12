@@ -1,17 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7f9fb] to-[#e6f9f4] flex items-center justify-center px-4">
       {/* Logo */}
       <div className="absolute top-6 left-6">
-        <Link href="/" className="flex items-center gap-1">
-          <span className="font-[family-name:var(--font-manrope)] font-extrabold text-2xl text-[#003087]">MED</span>
-          <span className="inline-flex items-center bg-[#00a982] rounded-full px-1.5 py-0.5">
-            <span className="font-[family-name:var(--font-manrope)] font-extrabold text-xl text-white leading-none">A</span>
-            <span className="w-px h-4 bg-white/40 mx-0.5" />
-            <span className="font-[family-name:var(--font-manrope)] font-extrabold text-xl text-white leading-none">S</span>
-          </span>
+        <Link href="/">
+          <Image src="/logo-dark.png" alt="MEDAS" width={130} height={38} className="object-contain" />
         </Link>
       </div>
 
