@@ -8,6 +8,7 @@ import ClinicsSection from "@/components/home/ClinicsSection";
 import OffersSection from "@/components/home/OffersSection";
 import ArticlesSection from "@/components/home/ArticlesSection";
 import CTASection from "@/components/home/CTASection";
+import DoctorsSection from "@/components/home/DoctorsSection";
 
 export const metadata: Metadata = {
   title: "MEDAS — Медицинский агрегатор: найти врача и клинику онлайн",
@@ -36,6 +37,7 @@ export default function HomePage() {
       <main className="pt-[68px] lg:pt-[104px]">
         <HeroSection />
         <StatsSection />
+        <DoctorsSection />
         <SpecialtiesSection />
         <ClinicsSection />
         <OffersSection />

@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, type Variants } from "framer-motion";
+import { memo, useEffect, useRef } from "react";
+import { motion, useMotionValue, useTransform, animate, type Variants } from "framer-motion";
 
-const stats = [
+type Stat = {
+  icon: React.ReactNode;
+  end: number;
+  format: (v: number) => string;
+  label: string;
+  sub: string;
+  color: string;
+  bg: string;
+};
+
+const stats: Stat[] = [
   {
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-7 h-7" stroke="currentColor" strokeWidth={1.8}>
@@ -11,7 +21,7 @@ const stats = [
       </svg>
     ),
     end: 10000,
-    display: "10 000+",
+    format: (v) => `${Math.round(v / 1000)} 000+`,
     label: "Врачей",
     sub: "проверенных специалистов",
     color: "text-primary",
@@ -24,7 +34,7 @@ const stats = [
       </svg>
     ),
     end: 500,
-    display: "500+",
+    format: (v) => `${Math.round(v)}+`,
     label: "Клиник",
     sub: "по всей России",
     color: "text-secondary",
@@ -37,7 +47,11 @@ const stats = [
       </svg>
     ),
     end: 1000000,
-    display: "1 000 000+",
+    format: (v) => {
+      if (v < 1000) return `${Math.round(v)}+`;
+      if (v < 1000000) return `${Math.floor(v / 1000)} 000+`;
+      return "1 000 000+";
+    },
     label: "Пациентов",
     sub: "воспользовались сервисом",
     color: "text-primary",
@@ -50,7 +64,7 @@ const stats = [
       </svg>
     ),
     end: 49,
-    display: "4.9",
+    format: (v) => (v / 10).toFixed(1),
     label: "Рейтинг",
     sub: "средняя оценка врачей",
     color: "text-secondary",
@@ -58,42 +72,40 @@ const stats = [
   },
 ];
 
-function useCountUp(target: number, active: boolean, duration = 1600) {
-  const [value, setValue] = useState(0);
-  const frame = useRef(0);
+const StatCard = memo(function StatCard({ stat }: { stat: Stat }) {
+  const count = useMotionValue(0);
+  const display = useTransform(count, stat.format);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!active) return;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      const eased = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-      setValue(Math.round(eased * target));
-      if (p < 1) frame.current = requestAnimationFrame(tick);
-    };
-    frame.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame.current);
-  }, [active, target, duration]);
-
-  return value;
-}
-
-function StatCard({ stat, active }: { stat: typeof stats[0]; active: boolean }) {
-  useCountUp(stat.end, active);
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          animate(count, stat.end, { duration: 1.8, ease: "easeOut" });
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [count, stat.end, stat.format]);
 
   return (
-    <div className="flex flex-col items-center text-center px-6 py-8 lg:py-10">
+    <div ref={ref} className="flex flex-col items-center text-center px-6 py-8 lg:py-10">
       <div className={`w-14 h-14 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-5 shrink-0`}>
         {stat.icon}
       </div>
-      <div className={`font-headline text-4xl lg:text-5xl font-extrabold tracking-tight ${stat.color} mb-2 whitespace-nowrap`}>
-        {stat.display}
-      </div>
+      <motion.div className={`font-headline text-4xl lg:text-5xl font-extrabold tracking-tight ${stat.color} mb-2 whitespace-nowrap`}>
+        {display}
+      </motion.div>
       <div className="font-headline font-bold text-on-surface text-lg mb-1">{stat.label}</div>
       <div className="text-on-surface-variant text-sm leading-snug max-w-[140px]">{stat.sub}</div>
     </div>
   );
-}
+});
 
 const container: Variants = {
   hidden: {},
@@ -106,22 +118,8 @@ const cardItem: Variants = {
 };
 
 export default function StatsSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setActive(true); io.disconnect(); } },
-      { threshold: 0.25 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
   return (
-    <section ref={ref} className="py-4 px-6 bg-surface-container-lowest border-y border-outline-variant/40">
+    <section className="py-4 px-6 bg-surface-container-lowest border-y border-outline-variant/40">
       <motion.div
         className="max-w-screen-2xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-outline-variant/40"
         variants={container}
@@ -131,7 +129,7 @@ export default function StatsSection() {
       >
         {stats.map((s, i) => (
           <motion.div key={i} variants={cardItem}>
-            <StatCard stat={s} active={active} />
+            <StatCard stat={s} />
           </motion.div>
         ))}
       </motion.div>

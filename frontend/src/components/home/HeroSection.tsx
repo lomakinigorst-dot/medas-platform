@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { StarIcon } from "@/components/ui/StarIcon";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 28 },
@@ -16,6 +17,11 @@ const fadeRight = {
   transition: { duration: 0.75, delay: 0.2, ease: "easeOut" as const },
 };
 
+const POPULAR_QUERIES = ["Стоматолог", "Терапевт", "Кардиолог", "Гинеколог", "Педиатр"].map((q) => ({
+  label: q,
+  href: `/search?q=${encodeURIComponent(q)}`,
+}));
+
 export default function HeroSection() {
   return (
     <section className="hero-gradient px-6 pb-20 lg:pb-28 pt-10 lg:pt-14">
@@ -26,15 +32,14 @@ export default function HeroSection() {
             className="font-headline text-5xl lg:text-7xl font-extrabold tracking-tighter text-on-surface leading-[1.1] mb-6"
             {...fadeUp(0.05)}
           >
-            Медицинская забота,{" "}
-            <span className="text-secondary">отобранная</span> для вашей жизни.
+            Найдите врача и{" "}
+            <span className="text-secondary">запишитесь</span> онлайн — без звонков и очередей.
           </motion.h1>
           <motion.p
             className="text-on-surface-variant text-xl mb-10 max-w-xl"
             {...fadeUp(0.2)}
           >
-            Ощутите клиническое совершенство через наш высококлассный агрегатор.
-            Найдите лучших специалистов и бутик-клиники в вашем районе.
+            Выберите из 10 000+ проверенных специалистов, прочитайте отзывы пациентов и запишитесь онлайн за 2 минуты.
           </motion.p>
 
           {/* Search Bar */}
@@ -68,13 +73,27 @@ export default function HeroSection() {
               Поиск
             </button>
           </motion.div>
+
+          {/* Popular search chips */}
+          <motion.div className="flex flex-wrap items-center gap-2 mt-4" {...fadeUp(0.5)}>
+            <span className="text-on-surface-variant text-sm">Популярные:</span>
+            {POPULAR_QUERIES.map((chip) => (
+              <Link
+                key={chip.label}
+                href={chip.href}
+                className="px-3 py-1.5 rounded-full bg-surface-container-low text-on-surface text-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                {chip.label}
+              </Link>
+            ))}
+          </motion.div>
         </div>
 
         {/* Right: Doctor image + badge */}
         <motion.div className="relative hidden lg:block" {...fadeRight}>
           <div className="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white">
             <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1AZIgGrFEhJgC69aFoT5u_uxpWZ1Nz3-31VxcDuyU9GIAlHjaFYr-rftAGOjaI11K-jDo5QrkCrn1xcK9iMqBAWTnzQzK-D_oMavx2mJRR0WjC5a9RPae7dOTgQLxm6BHVAEQCSLqOviik4GQA3jcEc8nGjI_ZwxLBkV5mXz7MUl6NjYmKQbm3UT2ld6maSvncePIS-HjKLKICeh9-WuWFKobc8PXVCTgbGpN8tEdt6DhMCQ_DWNmO9g_pEHZbzUYYmw4qgy3C2s"
+              src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&q=80"
               alt="Врач в клинике"
               fill
               className="object-cover"
@@ -91,13 +110,11 @@ export default function HeroSection() {
           >
             <div className="flex gap-1 mb-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg key={i} className="w-5 h-5 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                <StarIcon key={i} className="w-5 h-5 text-secondary" />
               ))}
             </div>
-            <p className="font-headline font-bold text-on-surface">5,000+ Доверенных клиник</p>
-            <p className="text-sm text-on-surface-variant">Экспертный подход к выбору поставщиков медицинских услуг.</p>
+            <p className="font-headline font-bold text-on-surface">500+ Клиник-партнёров</p>
+            <p className="text-sm text-on-surface-variant">Реальные отзывы пациентов по каждому врачу.</p>
           </motion.div>
         </motion.div>
       </div>
