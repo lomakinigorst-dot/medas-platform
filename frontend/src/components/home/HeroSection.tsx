@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="hero-gradient px-6 py-20 lg:py-32">
+    <section className="hero-gradient px-6 pb-20 lg:pb-28 pt-10 lg:pt-14">
       <div className="max-w-screen-2xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
         {/* Left: Heading + Search */}
         <div>

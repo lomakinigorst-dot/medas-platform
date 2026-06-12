@@ -33,7 +33,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main className="pt-24">
+      <main className="pt-[68px] lg:pt-[104px]">
         <HeroSection />
         <StatsSection />
         <SpecialtiesSection />
