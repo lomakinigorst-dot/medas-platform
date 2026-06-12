@@ -12,7 +12,7 @@ echo "==> Сборка Docker образа..."
 docker build \
   --platform linux/amd64 \
   -t ${IMAGE_NAME}:latest \
-  "${PROJECT_DIR}"
+  "${PROJECT_DIR}/frontend"
 
 echo "==> Сохранение образа..."
 docker save ${IMAGE_NAME}:latest | gzip > "${TAR_FILE}"
