@@ -1,5 +1,5 @@
 # SKILLS — Справочник скиллов Claude Code
-> Обновлено: 2026-06-08 | Запустить `claude skills` для актуального списка
+> Обновлено: 2026-06-12 | Запустить `claude skills` для актуального списка
 
 ---
 
@@ -164,6 +164,91 @@
 
 ---
 
+## ФИНАНСОВОЕ И БИЗНЕС-ПЛАНИРОВАНИЕ
+
+> Установлено: 2026-06-12. Команды доступны как `/stratarts:имя-команды`. Skills доступны автоматически.
+> Путь команд: `.claude/commands/stratarts/` | Путь skills: `.claude/skills/`
+
+---
+
+### Стратегия и бизнес-план (stratarts — 27 команд)
+
+Используются для подготовки финансового плана, инвесторского питча и стратегии MEDAS.
+
+| Команда | Что делает | Когда использовать |
+|---|---|---|
+| `/stratarts:business-idea-validator` | Валидация бизнес-идеи (JTBD, BMC, скоринг 1-10) | Перед началом — проверить гипотезы MEDAS |
+| `/stratarts:market-opportunity-analyzer` | TAM/SAM/SOM + конкурентная карта | Оценить объём рынка медмаркетплейсов РФ |
+| `/stratarts:financial-model-architect` | 3-5 летняя финансовая модель, P&L, cash flow, сценарии | **Основной** — строить финмодель MEDAS |
+| `/stratarts:investor-pitch-deck-builder` | 10-15 слайдов pitch deck для инвесторов | Подготовка к инвесторским встречам |
+| `/stratarts:investor-brief-writer` | Краткий инвестиционный меморандум (1-2 стр.) | Перед питч-деком — outline для инвестора |
+| `/stratarts:fundraising-strategy-planner` | Стратегия привлечения инвестиций (раунд, оценка, тайминг) | Планирование раунда |
+| `/stratarts:competitive-intelligence` | Глубокий анализ конкурентов | Анализ Напоправку / СберЗдоровье / Продокторов |
+| `/stratarts:go-to-market-planner` | GTM стратегия: каналы, сегменты, тактика запуска | Как привлекать первые клиники и пациентов |
+| `/stratarts:value-proposition-crafter` | Ценностное предложение для каждого сегмента | УТП для клиник, врачей, пациентов |
+| `/stratarts:pricing-strategy-architect` | Модель ценообразования и тарифные планы | Комиссия / подписка / продвижение |
+| `/stratarts:strategic-roadmap-builder` | Дорожная карта с OKR и milestones | Привязать фазы ТЗ к дате |
+| `/stratarts:metrics-dashboard-designer` | Ключевые метрики и дашборд | KPI для инвесторов и команды |
+| `/stratarts:customer-persona-builder` | Портреты целевых пользователей | Сегментация пациентов и клиник |
+| `/stratarts:growth-hacking-playbook` | Тактики роста на ранних стадиях | Как масштабироваться с 0 до первых 1000 пользователей |
+| `/stratarts:seo-content-planner` | SEO и контент-стратегия | Органический трафик — медицинские статьи, поиск врачей |
+| `/stratarts:operational-playbook-creator` | Операционные процессы и команда | SOP для онбординга клиник |
+
+**Полный список всех 27 команд:** `.claude/commands/stratarts/`
+
+---
+
+### Финансовый анализ (finance skills — 3 скилла)
+
+Используются для расчётов: юнит-экономика, оценка, финансовые коэффициенты.
+
+| Скилл | Что делает | Когда использовать |
+|---|---|---|
+| `saas-metrics-coach` | Рассчитывает ARR/MRR, CAC, LTV, churn, NRR, бенчмаркирует по индустрии | Проверить здоровье бизнеса, считать break-even |
+| `financial-analyst` | DCF-оценка, коэффициентный анализ, бюджет vs факт, прогнозы | Углублённый финансовый анализ, оценка компании |
+| `finance-skills` | Общий финансовый советник (сценарный анализ, тренды) | Быстрые финансовые расчёты и советы |
+
+**Пример использования saas-metrics-coach:**
+Просто напиши: «Текущий MRR — 150 000 руб., прошлый месяц — 120 000 руб., клиентов — 8 клиник, отток — 1 клиника»
+Claude рассчитает MRR growth, churn rate, LTV:CAC и сравнит с бенчмарками SaaS.
+
+---
+
+### Рекомендованный порядок работы для финплана MEDAS
+
+```
+1. /stratarts:business-idea-validator     → проверить гипотезы (уже можно пропустить)
+2. /stratarts:market-opportunity-analyzer → TAM/SAM/SOM рынка медмаркетплейсов РФ
+3. /stratarts:competitive-intelligence   → анализ Напоправку, СберЗдоровье, Продокторов
+4. /stratarts:value-proposition-crafter  → УТП MEDAS для клиник, врачей, пациентов
+5. /stratarts:pricing-strategy-architect → финальная модель монетизации
+6. saas-metrics-coach                    → юнит-экономика (CAC, LTV, break-even)
+7. /stratarts:financial-model-architect  → 5-летняя финансовая модель с 3 сценариями
+8. /stratarts:strategic-roadmap-builder  → дорожная карта с OKR по фазам
+9. /stratarts:investor-pitch-deck-builder → pitch deck для инвесторов
+```
+
+---
+
+### Как установить эти скиллы в новый проект
+
+```bash
+# Команды stratarts (27 команд)
+git clone --depth=1 https://github.com/maigentic/stratarts.git /tmp/stratarts
+mkdir -p .claude/commands/stratarts
+cp /tmp/stratarts/stratarts/commands/*.md .claude/commands/stratarts/
+
+# Finance skills (юнит-экономика, DCF, SaaS-метрики)
+git clone --depth=1 --filter=blob:none --sparse https://github.com/alirezarezvani/claude-skills.git /tmp/claude-skills
+cd /tmp/claude-skills && git sparse-checkout set finance
+mkdir -p .claude/skills
+cp -r /tmp/claude-skills/finance/skills/financial-analyst .claude/skills/
+cp -r /tmp/claude-skills/finance/skills/saas-metrics-coach .claude/skills/
+cp -r /tmp/claude-skills/finance/skills/finance-skills .claude/skills/
+```
+
+---
+
 ## БЫСТРАЯ ШПАРГАЛКА
 
 | Задача | Команда |
@@ -183,3 +268,10 @@
 | Убрать AI-стиль из текста | `/humanizer` |
 | Генерация видео/изображений | `/runway-api:*` |
 | Настроить хуки/MCP | `/update-config` |
+| **Финансовая модель (P&L, cash flow, сценарии)** | `/stratarts:financial-model-architect` |
+| **Pitch deck для инвесторов** | `/stratarts:investor-pitch-deck-builder` |
+| **Анализ рынка (TAM/SAM/SOM)** | `/stratarts:market-opportunity-analyzer` |
+| **Конкурентный анализ** | `/stratarts:competitive-intelligence` |
+| **GTM стратегия** | `/stratarts:go-to-market-planner` |
+| **SaaS метрики (CAC/LTV/churn/NRR)** | `saas-metrics-coach` (skill) |
+| **DCF оценка + финансовые коэффициенты** | `financial-analyst` (skill) |
