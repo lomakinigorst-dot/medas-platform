@@ -97,7 +97,6 @@ export default function HeroSection() {
               alt="Врач в клинике"
               fill
               className="object-cover"
-              unoptimized
             />
           </div>
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { memo, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform, animate, type Variants } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { staggerContainer, fadeUpItem } from "@/lib/motion";
 
 type Stat = {
   icon: React.ReactNode;
@@ -107,15 +108,8 @@ const StatCard = memo(function StatCard({ stat }: { stat: Stat }) {
   );
 });
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
-
-const cardItem: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
-};
+const container = staggerContainer();
+const cardItem = fadeUpItem();
 
 export default function StatsSection() {
   return (

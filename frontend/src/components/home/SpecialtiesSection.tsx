@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeUpItem } from "@/lib/motion";
 
 const specialties = [
   { icon: "❤️", name: "Кардиология", slug: "cardiology" },
@@ -12,15 +13,8 @@ const specialties = [
   { icon: "👶", name: "Педиатрия", slug: "pediatrics" },
 ];
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
+const container = staggerContainer(0.07);
+const item = fadeUpItem(20, 0.5);
 
 export default function SpecialtiesSection() {
   return (

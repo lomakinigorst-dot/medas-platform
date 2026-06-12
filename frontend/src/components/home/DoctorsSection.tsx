@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 import { StarIcon } from "@/components/ui/StarIcon";
+import { staggerContainer, fadeUpItem } from "@/lib/motion";
 
 type DoctorStatus = "online" | "today";
 
@@ -66,15 +67,8 @@ const doctors: Doctor[] = [
   },
 ];
 
-const container: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12 } },
-};
-
-const cardItem: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
+const container = staggerContainer(0.12);
+const cardItem = fadeUpItem(24, 0.5);
 
 function StarRating({ rating, reviews }: { rating: number; reviews: number }) {
   const filled = Math.round(rating);
@@ -105,7 +99,6 @@ function DoctorCard({ doctor }: { doctor: Doctor }) {
               width={64}
               height={64}
               className="object-cover"
-              unoptimized
             />
           </div>
           <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white ${statusCfg.dot}`} />
