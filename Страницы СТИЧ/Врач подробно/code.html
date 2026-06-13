@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Профиль врача | Med-as</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#e0e3e5",
+              "on-error-container": "#93000a",
+              "on-tertiary-fixed-variant": "#004b74",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#89f5e7",
+              "primary-fixed": "#dbe1ff",
+              "on-error": "#ffffff",
+              "secondary": "#00ab8e", // Adjusted to match Med-as green
+              "on-background": "#191c1e",
+              "on-primary-container": "#eeefff",
+              "inverse-surface": "#2d3133",
+              "surface-tint": "#003366", // Adjusted to match Med-as blue
+              "on-tertiary-container": "#e6f1ff",
+              "inverse-on-surface": "#eff1f3",
+              "surface-dim": "#d8dadc",
+              "primary-container": "#003366",
+              "on-surface-variant": "#434655",
+              "error-container": "#ffdad6",
+              "on-surface": "#191c1e",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed-variant": "#003ea8",
+              "tertiary-container": "#1b72ab",
+              "on-secondary-fixed-variant": "#005049",
+              "secondary-fixed-dim": "#6bd8cb",
+              "outline": "#737686",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-primary-fixed": "#00174b",
+              "tertiary-fixed-dim": "#94ccff",
+              "background": "#f7f9fb",
+              "on-primary": "#ffffff",
+              "on-secondary-container": "#006f66",
+              "surface": "#f7f9fb",
+              "surface-bright": "#f7f9fb",
+              "on-secondary-fixed": "#00201d",
+              "surface-container": "#eceef0",
+              "surface-container-low": "#f2f4f6",
+              "surface-container-high": "#e6e8ea",
+              "tertiary-fixed": "#cde5ff",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#c3c6d7",
+              "error": "#ba1a1a",
+              "secondary-container": "#e0fcf6",
+              "surface-container-highest": "#e0e3e5",
+              "on-tertiary-fixed": "#001d32",
+              "inverse-primary": "#b4c5ff",
+              "primary": "#003366", // Med-as Dark Blue
+              "tertiary": "#00598a"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Навигация -->
+<nav class="fixed top-0 w-full z-50 bg-white shadow-sm font-headline antialiased">
+<div class="flex justify-between items-center px-6 py-3 max-w-screen-2xl mx-auto w-full">
+<div class="flex items-center">
+<img alt="Med-as Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ug2Uy9AMmXxu99ZGYjJJe-tL1Xa8BnJDkAnEH7xgN-wngwOll6U304mY8x1N7HjUR2v57P0S8_K3jVkqvNJo7ZFoMMLFOGdAau0LKOt8wSSPxKmy54Huj4_XUE_l-LHjxAkrObNnPX1j7RHxJePwWwdeLkUUdmgZ4vmMoYZeVl9ABUod0y_aAVkPnuvvh_aCnI-YVBu2Yd6UUJtu69BjyiDenN1fU9Z-unCzypqPfFCkgECaX_dm2V45dxuJ5z2b1v6B6nnQxVqpiE"/>
+</div>
+<div class="hidden md:flex gap-8 items-center text-sm font-semibold">
+<a class="text-slate-600 hover:text-primary transition-colors" href="#">Найти врача</a>
+<a class="text-slate-600 hover:text-primary transition-colors" href="#">Клиники</a>
+<a class="text-slate-600 hover:text-primary transition-colors" href="#">Специализации</a>
+</div>
+<div class="flex gap-4 items-center">
+<button class="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 transition-colors rounded-lg text-sm">Вход для врачей</button>
+<button class="px-5 py-2.5 bg-primary text-white font-semibold rounded-lg shadow-sm active:scale-95 transition-transform text-sm">Личный кабинет</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20 max-w-screen-2xl mx-auto px-6">
+<!-- Хлебные крошки -->
+<nav class="flex items-center gap-2 mb-8 text-sm text-on-surface-variant">
+<a class="hover:text-primary" href="#">Поиск</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<a class="hover:text-primary" href="#">Кардиология</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="font-medium text-on-surface">Д-р Джулианна Стерлинг</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Левая колонка -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Основная информация -->
+<section class="flex flex-col md:flex-row gap-8 items-start">
+<div class="relative w-48 h-48 flex-shrink-0">
+<img alt="Д-р Джулианна Стерлинг" class="w-full h-full object-cover rounded-2xl shadow-lg border-4 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDEuWj7FQdk1mrMMYIsic7qhPY1GoZo3F_KPpf8u7H0j6nWuPSi1dsHIsqb6U-JDBfqyWnGT-p5kd9bz5wZPAkmXsVvHB_fRF_tfNOy1gsNhqkTzfUsXKw9D9nVa7GsDSQl16dU_L1NdwHGeIcYjGiGYr9tPkFkrJ5xEFWiDyXDHE6-zkHuqF4EGaoxhqF0IO3sWI2NEAw0X1KvAnkhF1oVU_9CzHjpnj_wo1jpD9YNSXz2-Y2ffjLkdQAT_c_YpCBIk9ZqLdjjDxU"/>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-white p-2 rounded-full shadow-md flex items-center justify-center">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-secondary text-white text-[10px] font-bold rounded uppercase tracking-wider">Топ рейтинг 2024</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded uppercase">Опыт 12+ лет</span>
+</div>
+<h1 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface">Д-р Джулианна Стерлинг, MD</h1>
+<p class="text-xl text-primary font-semibold">Интервенционный кардиолог и специалист по ритму сердца</p>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-amber-500" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-lg">4.9</span>
+<span class="text-on-surface-variant text-sm">(1,240 отзывов)</span>
+</div>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">translate</span>
+<span class="text-sm">Английский, Испанский, Французский</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Биография -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold font-headline border-l-4 border-secondary pl-4">Профессиональная биография</h2>
+<div class="bg-white p-8 rounded-2xl leading-relaxed text-on-surface-variant shadow-sm border border-outline-variant/10">
+                        Д-р Джулианна Стерлинг — всемирно известный интервенционный кардиолог, специализирующийся на малоинвазивных процедурах на сердце и сложном управлении ритмом. Имея более чем десятилетний опыт работы в Институте сердца Метрополитен, она стала пионером в методах транскатетерной замены аортального клапана (TAVR). Её подход, ориентированный на пациента, обеспечивает превосходное медицинское обслуживание, гарантируя каждому индивидуальный план лечения, сочетающий передовую науку и сострадание.
+                    </div>
+</section>
+<!-- Квалификация и Специализации -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">school</span>
+<h3 class="font-bold font-headline">Образование и подготовка</h3>
+</div>
+<ul class="space-y-4">
+<li class="flex items-start gap-3">
+<div class="w-2 h-2 mt-2 rounded-full bg-secondary"></div>
+<div>
+<p class="font-bold text-sm">Медицинская школа Джонса Хопкинса</p>
+<p class="text-xs text-on-surface-variant">Доктор медицины (MD)</p>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<div class="w-2 h-2 mt-2 rounded-full bg-secondary"></div>
+<div>
+<p class="font-bold text-sm">Высшая школа клиники Майо</p>
+<p class="text-xs text-on-surface-variant">Ординатура по сердечно-сосудистым заболеваниям</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
+<div class="flex items-center gap-3 text-secondary">
+<span class="material-symbols-outlined">medical_services</span>
+<h3 class="font-bold font-headline">Клинические специализации</h3>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-lg">Сердечная недостаточность</span>
+<span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-lg">Ангиопластика</span>
+<span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-lg">Эхокардиография</span>
+<span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-lg">Лечение гипертонии</span>
+<span class="px-3 py-1.5 bg-secondary-container text-secondary text-xs font-bold rounded-lg">Аритмия</span>
+</div>
+</div>
+</section>
+<!-- Информация о клинике -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-6">
+<h2 class="text-2xl font-bold font-headline border-l-4 border-secondary pl-4">Информация о клинике</h2>
+<div class="p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10 space-y-4">
+<div class="flex items-center gap-4">
+<img alt="Metropolitan Heart Institute" class="w-16 h-16 object-cover rounded-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnsw9D9e2ss0YXOOSSzGFgX-CA0C0_UlOYoQIUbyeAgNxXTkkLgieoKkt5g8w9Rl87NlyFKhVGtfbpqx7FLFKyhX1U6kmHdmEfsdDWSKkaB-LPAflanCCHWfy7KVPgmceorhLQ-6r4Kdy371pogOFNN3CFufqiu4SF1MkBpLuWVgwcwCC_Qed26-FoKraSLa2vVDSsCZowhMos-oYR3KjQu-eeL6K2WgE65WaDhnTpSE1NEwKqFA-b2xO7faVCj_fS-_v6AWRiFj_y"/>
+<div>
+<p class="font-bold text-primary">Институт сердца Метрополитен</p>
+<p class="text-sm text-on-surface-variant">Главный медицинский центр, офис 400</p>
+</div>
+</div>
+<div class="space-y-3 pt-4 border-t border-slate-100">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Пн - Пт</span>
+<span class="font-semibold">08:00 – 18:00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Суббота</span>
+<span class="font-semibold">09:00 – 13:00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="h-full min-h-[300px] rounded-2xl overflow-hidden bg-surface-container-high relative border border-outline-variant/10 shadow-sm">
+<img alt="Карта" class="w-full h-full object-cover grayscale opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOwjVbhmnLGi6MiN49IJCgfaacqP7kWrcJ50i0OUbc53DcCGxfclXyPott8Z-50VQxcxrLOM1-wshRgNH1S1J6UgDZ_H7xxwg2j61C1Z38n2FgYOx2AJC269hQyDLV-YtHwloEuGNwvKHB2wDd4-OFKHq_Sc8ApKqI9BtQG77f5ybzSWZnrnH4YKUCqpyXxp3b0uP732vlKEI7aPs79sP67Jo_gDcWC_68e6MIjvi9RJ-0yPJULbSJNGTZI-AY7tvfhnCQ_faemY8V"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-xl">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Отзывы -->
+<section class="space-y-8">
+<div class="flex justify-between items-end">
+<h2 class="text-2xl font-bold font-headline border-l-4 border-secondary pl-4">Отзывы пациентов</h2>
+<button class="text-secondary font-bold text-sm hover:underline">Все 1,240 отзывов</button>
+</div>
+<div class="space-y-4">
+<div class="p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="flex justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-secondary flex items-center justify-center font-bold">СМ</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Сара Митчелл</p>
+<p class="text-xs text-on-surface-variant">2 дня назад</p>
+</div>
+</div>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm italic">"Д-р Стерлинг была невероятно внимательна. Она уделила время, чтобы объяснить мою процедуру так, что все мои тревоги исчезли. Рекомендую всем, кому нужна кардиологическая помощь."</p>
+</div>
+<div class="p-6 bg-white rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="flex justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-secondary flex items-center justify-center font-bold">РХ</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Роберт Хейнс</p>
+<p class="text-xs text-on-surface-variant">1 неделю назад</p>
+</div>
+</div>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm">star_half</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm italic">"Профессиональный персонал и минимальное время ожидания. Клиника безупречно чистая и современная."</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Правая колонка: Виджет бронирования -->
+<div class="lg:col-span-4">
+<div class="sticky top-28 space-y-6">
+<div class="bg-white rounded-2xl shadow-xl shadow-blue-900/5 overflow-hidden border border-outline-variant/10">
+<div class="bg-primary p-6 text-white">
+<h3 class="text-xl font-bold font-headline">Запись на прием</h3>
+<p class="text-xs opacity-90 mt-1">Ближайшее время: Завтра в 10:30</p>
+</div>
+<div class="p-6 space-y-6">
+<!-- Календарь -->
+<div class="space-y-4">
+<div class="flex justify-between items-center px-1">
+<span class="font-bold text-sm text-on-surface">Октябрь 2024</span>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-slate-100 rounded-lg"><span class="material-symbols-outlined text-lg">chevron_left</span></button>
+<button class="p-1 hover:bg-slate-100 rounded-lg"><span class="material-symbols-outlined text-lg">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-7 text-center text-[10px] font-bold text-on-surface-variant mb-2">
+<span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center">
+<span class="p-2 text-xs text-slate-300">30</span>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">1</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">2</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">3</button>
+<button class="p-2 text-xs bg-secondary text-white font-bold rounded-lg shadow-sm">4</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">5</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">6</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">7</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">8</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">9</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">10</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">11</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">12</button>
+<button class="p-2 text-xs hover:bg-secondary-container rounded-lg">13</button>
+</div>
+</div>
+<!-- Слоты -->
+<div class="space-y-3">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Доступное время</p>
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2.5 text-xs font-semibold bg-surface-container-high rounded-lg hover:bg-secondary-container transition-colors">09:00</button>
+<button class="py-2.5 text-xs font-semibold bg-secondary text-white rounded-lg border border-secondary shadow-sm">10:30</button>
+<button class="py-2.5 text-xs font-semibold bg-surface-container-high rounded-lg hover:bg-secondary-container transition-colors">11:45</button>
+<button class="py-2.5 text-xs font-semibold bg-surface-container-high rounded-lg hover:bg-secondary-container transition-colors">14:00</button>
+<button class="py-2.5 text-xs font-semibold bg-surface-container-high rounded-lg hover:bg-secondary-container transition-colors">15:30</button>
+<button class="py-2.5 text-xs font-semibold bg-surface-container-high rounded-lg hover:bg-secondary-container transition-colors">16:45</button>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/10 space-y-4">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface-variant">Стоимость консультации</span>
+<span class="font-bold text-primary">15 500 ₽</span>
+</div>
+<button class="w-full py-4 bg-secondary text-white font-bold rounded-xl shadow-lg shadow-secondary/20 active:scale-95 transition-transform">Подтвердить запись</button>
+<p class="text-[10px] text-center text-on-surface-variant">Предоплата не требуется. Действует политика отмены.</p>
+</div>
+</div>
+</div>
+<!-- Дополнительная информация -->
+<div class="p-5 bg-white rounded-2xl border border-outline-variant/10 flex items-center gap-4 shadow-sm">
+<span class="material-symbols-outlined text-secondary text-2xl">verified_user</span>
+<div>
+<p class="font-bold text-xs text-on-surface">Страхование</p>
+<p class="text-[11px] text-on-surface-variant">Принимаем полисы ДМС крупных компаний</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Футер -->
+<footer class="w-full bg-white border-t border-slate-100 font-inter mt-20">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 px-10 py-16 max-w-screen-2xl mx-auto">
+<div class="space-y-4">
+<img alt="Med-as Logo" class="h-8 w-auto object-contain mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0ug2Uy9AMmXxu99ZGYjJJe-tL1Xa8BnJDkAnEH7xgN-wngwOll6U304mY8x1N7HjUR2v57P0S8_K3jVkqvNJo7ZFoMMLFOGdAau0LKOt8wSSPxKmy54Huj4_XUE_l-LHjxAkrObNnPX1j7RHxJePwWwdeLkUUdmgZ4vmMoYZeVl9ABUod0y_aAVkPnuvvh_aCnI-YVBu2Yd6UUJtu69BjyiDenN1fU9Z-unCzypqPfFCkgECaX_dm2V45dxuJ5z2b1v6B6nnQxVqpiE"/>
+<p class="text-slate-500 text-sm leading-relaxed">Новый стандарт медицинского поиска и качественного обслуживания пациентов через цифровые технологии.</p>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-bold text-primary text-sm mb-2">Ресурсы</span>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">Политика конфиденциальности</a>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">Условия использования</a>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">Медицинский отказ</a>
+</div>
+<div class="flex flex-col gap-3">
+<span class="font-bold text-primary text-sm mb-2">Компания</span>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">Партнерство для клиник</a>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">Поддержка</a>
+<a class="text-slate-500 hover:text-secondary text-sm transition-colors" href="#">О нас</a>
+</div>
+<div class="space-y-4">
+<span class="font-bold text-primary text-sm mb-2">Рассылка</span>
+<p class="text-slate-500 text-sm mb-4">Получайте актуальные медицинские новости.</p>
+<div class="flex bg-slate-50 rounded-lg p-1 border border-slate-200">
+<input class="bg-transparent border-none px-3 py-2 text-sm w-full focus:ring-0" placeholder="Ваш e-mail" type="email"/>
+<button class="bg-primary text-white p-2 rounded-md"><span class="material-symbols-outlined text-sm">send</span></button>
+</div>
+</div>
+</div>
+<div class="border-t border-slate-100 py-8 px-10 text-center text-slate-400 text-xs">
+            © 2024 Med-as. Передовые медицинские технологии для здоровья.
+        </div>
+</footer>
+</body></html>

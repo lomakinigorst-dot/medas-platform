@@ -1,10 +1,10 @@
 # MEDAS — Полный план разработки
-**Версия:** 3.0 | **Дата:** 2026-06-12 | **Статус:** 🔄 В работе
+**Версия:** 4.0 | **Дата:** 2026-06-12 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Фаза A — Настройка инструментов (framer-motion + 21st.dev MCP)
+Фаза D — Страница /doctor/[slug] (профиль врача)
 
 ---
 
@@ -13,52 +13,77 @@
 ### Фазы 1–4 — Главная страница (базовый редизайн)
 **Статус:** ✅ complete (задеплоено 2026-06-12)
 
-- [x] 1.1–1.3 HeroSection, OffersSection, StatsSection — критические фиксы
-- [x] 2.1–2.4 Header v1 — логотип, навигация, topbar, CTA
-- [x] 3.1–3.4 Логотип logo-dark.png везде
-- [x] 4.1–4.3 Деплой + верификация бандла
-
----
-
-### Фаза A — Настройка инструментов
-**Статус:** ⏸️ pending → стартуем сейчас
-
-- [ ] A.1 Подключить 21st.dev MCP (`@21st-dev/magic`) через /update-config скилл
-      Токен: в .claude/settings.json (НЕ коммитить в git)
-- [ ] A.2 Установить framer-motion: `cd frontend && npm install framer-motion`
-      Проверить: grep framer-motion frontend/package.json
-
----
+### Фаза A — Настройка инструментов (framer-motion + 21st.dev MCP)
+**Статус:** ✅ complete (framer-motion v12.40.0 установлен, 21st.dev MCP подключён)
 
 ### Фаза B — Редизайн главной страницы с анимациями
-**Статус:** ⏸️ pending (после A)
-**Файлы:** components/layout/Header.tsx, components/home/*.tsx
+**Статус:** ✅ complete (StatsSection, HeroSection, DoctorsSection, StarIcon, lib/motion.ts)
 
-- [ ] B.1 Header.tsx — мобильное гамбургер-меню (useState, lg:hidden)
-- [ ] B.2 HeroSection.tsx — framer-motion fadeIn + slideUp при загрузке
-- [ ] B.3 StatsSection.tsx — анимированные счётчики + секция «Доверие»
-      (500 000+ пациентов, 10 000+ врачей, 95% довольных — с анимацией цифр)
-- [ ] B.4 ClinicsSection.tsx + SpecialtiesSection.tsx — stagger hover-анимации карточек
-- [ ] B.5 CTASection.tsx — viewport animation (появление при скролле)
-- [ ] B.6 Деплой главной на VPS + верификация (`curl https://saas.med-as.ru/ | grep "Записаться"`)
+### Фаза C — Страница /search (интерактивная)
+**Статус:** ✅ complete (SearchClient.tsx — фильтры + 9 карточек врачей)
 
 ---
 
-### Фаза C — Страница /search (интерактивная)
-**Статус:** ⏸️ pending (после B)
-**Файлы:** app/search/page.tsx + NEW: components/search/SearchClient.tsx
+### Фаза D — Страница /doctor/[slug] (профиль врача)
+**Статус:** 🔄 in_progress
+**Файлы:**
+- `frontend/src/app/doctor/[slug]/page.tsx` — рефакторинг заглушки
+- `frontend/src/components/doctor/DoctorHero.tsx` — новый компонент
+- `frontend/src/components/doctor/DoctorTabs.tsx` — новый компонент
+- `frontend/src/components/doctor/AppointmentSidebar.tsx` — новый компонент
+- `frontend/src/components/doctor/SimilarDoctors.tsx` — новый компонент
+- `frontend/src/components/ui/Breadcrumb.tsx` — переиспользуемый компонент
 
-- [ ] C.1 Создать `components/search/SearchClient.tsx` ('use client')
-      - useState для query, filters, viewMode
-      - useSearchParams для URL-параметров
-- [ ] C.2 Поисковая строка вверху (по имени / специальности / симптому)
-- [ ] C.3 Расширенные фильтры: +метро, +ДМС, +онлайн-приём
-- [ ] C.4 Чипы активных фильтров с × (сброс конкретного)
-- [ ] C.5 9 карточек врачей (добавить 6 моковых записей с разными специальностями)
-- [ ] C.6 framer-motion stagger-анимация карточек при появлении/фильтрации
-- [ ] C.7 Переключатель «Список / Карта» (карта = заглушка с иконой MapPin)
-- [ ] C.8 Обновить `app/search/page.tsx` — импортировать SearchClient
-- [ ] C.9 Деплой /search + верификация (`curl https://saas.med-as.ru/search | grep "ДМС"`)
+**Что есть (заглушка):** структура есть, но: иностранное имя, inline #hex вместо токенов, нет табов, нет generateMetadata, нет schema.org, нет похожих врачей, фото из lh3 (нестабильные).
+
+- [ ] D.1 Типы + моки + metadata
+      - Создать `frontend/src/lib/doctors.ts` — типы Doctor, Review, Service, TimeSlot
+      - Mock-данные: Анна Соколова (Кардиолог, slug: anna-sokolova) — bio, образование, услуги с ценами, 3 отзыва, слоты
+      - generateMetadata + schema.org/Physician JSON-LD в page.tsx
+      - Breadcrumb компонент (переиспользуемый для /clinic/[slug])
+
+- [ ] D.2 DoctorHero.tsx
+      - Фото 320×400px (правильное соотношение), обёрнутое в offset-frame как в HeroSection
+      - Имя, специальность, опыт (N лет)
+      - Рейтинг со звёздами (StarIcon), количество отзывов
+      - Бейджи: «Проверен MEDAS» (зелёный), «Принимает ДМС» (синий), «Онлайн-приём» (серый)
+      - Бейдж «Принимает сегодня» — зелёный, выделенный
+      - Кнопка «Записаться» с ценой (видна в мобиле)
+
+- [ ] D.3 DoctorTabs.tsx (О враче / Услуги и цены / Отзывы)
+      - Таб «О враче»: bio-текст + образование (вуз, год, степень) + теги специализаций
+      - Таб «Услуги и цены»: таблица — услуга | длительность | цена + кнопка «Записаться»
+      - Таб «Отзывы»: сводный рейтинг (4.9 / 5) + рейтинг-бары (5★: 87%, 4★: 8%...) + 3 карточки отзывов
+      - useSearchParams для сохранения активного таба в URL (?tab=reviews)
+
+- [ ] D.4 AppointmentSidebar.tsx (sticky на десктопе)
+      - 5 дней: «Сегодня» / «Завтра» / «Пн» / «Вт» / «Ср» — горизонтальный выбор
+      - Слоты по группам: Утро / День / Вечер
+      - Цена консультации + CTA «Записаться» → /doctor/[slug]/booking
+      - На мобиле: фиксированная кнопка внизу экрана (fixed bottom bar)
+
+- [ ] D.5 SimilarDoctors.tsx + сборка page.tsx
+      - 3 карточки врачей той же специальности (из моков)
+      - Анимация stagger при появлении
+      - Собрать page.tsx: Breadcrumb + DoctorHero + двухколоночный layout + DoctorTabs/AppointmentSidebar + SimilarDoctors
+
+- [ ] D.6 Деплой + верификация
+      - git commit + push
+      - ./deploy.sh
+      - curl https://saas.med-as.ru/doctor/anna-sokolova → HTTP 200
+      - grep бандл: «Принимает сегодня»
+
+---
+
+### Фаза E — Страница /clinic/[slug] ⏳
+- [ ] E.1 После /doctor/[slug] — аналогичная структура для клиники
+
+### Фаза F — Страница /doctor/[slug]/booking ⏳
+- [ ] F.1 Форма записи (шаги): выбор слота → контакты → подтверждение
+
+### Фаза G — /promotions и /articles ⏳
+- [ ] G.1 Список акций (сейчас 404)
+- [ ] G.2 Список статей / блог (сейчас 404)
 
 ---
 
@@ -69,9 +94,13 @@
 | 1 | Переписывать компоненты, не создавать новые файлы | Не нужно менять импорты в page.tsx |
 | 2 | Без Stitch — чистый профессиональный дизайн | Игорь попросил "по навыкам, без Stitch" |
 | 3 | whitespace-nowrap на числах цен | Предотвратит перенос "35 000 ₽" |
-| 4 | page.tsx остаётся server component | App Router паттерн: интерактив → SearchClient.tsx |
-| 5 | framer-motion для анимаций | Уже нет в проекте, даст плавность без лишнего кода |
-| 6 | 21st.dev через MCP, не npm | Компоненты вдохновляют дизайн, но код пишется под токены MEDAS |
+| 4 | page.tsx остаётся server component | App Router паттерн: интерактив → отдельные компоненты |
+| 5 | framer-motion для анимаций | Уже в проекте, даёт плавность без лишнего кода |
+| 6 | 21st.dev через MCP, не npm | Компоненты вдохновляют дизайн, код под токены MEDAS |
+| 7 | lib/motion.ts (staggerContainer/fadeUpItem) | Убирает дублирование Variants во всех компонентах |
+| 8 | Компоненты doctor/ — отдельная папка | Изоляция: не смешивать с home/ компонентами |
+| 9 | Breadcrumb — ui/ (переиспользуемый) | Нужен и для /clinic/[slug], /articles, /speciality |
+| 10 | AppointmentSidebar — sticky top-28 desktop / fixed bottom mobile | По паттерну конкурентов (СберЗдоровье, НаПоправку) |
 
 ---
 

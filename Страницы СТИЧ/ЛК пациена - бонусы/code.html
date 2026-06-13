@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Med-as | Программа лояльности</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#ffdbcd",
+              "outline-variant": "#c4c6d1",
+              "inverse-on-surface": "#f1f0f5",
+              "primary-container": "#002d62",
+              "on-surface-variant": "#43474f",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "outline": "#747781",
+              "on-primary-fixed": "#001b3f",
+              "tertiary": "#330e00",
+              "error": "#ba1a1a",
+              "surface-container-low": "#f4f3f8",
+              "on-primary-container": "#7796d1",
+              "background": "#f8fafc",
+              "tertiary-container": "#541d02",
+              "on-tertiary-fixed": "#360f00",
+              "surface": "#faf9fe",
+              "on-primary-fixed-variant": "#24467c",
+              "secondary-container": "#70fcb7",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e3e2e7",
+              "surface-container": "#f1f5f9",
+              "error-container": "#ffdad6",
+              "secondary-fixed-dim": "#50df9c",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#002112",
+              "surface-container-high": "#e8e7ed",
+              "on-primary": "#ffffff",
+              "on-background": "#1a1b1f",
+              "surface-bright": "#faf9fe",
+              "on-tertiary-container": "#d4815d",
+              "surface-tint": "#3e5e95",
+              "secondary": "#10b981",
+              "surface-variant": "#e3e2e7",
+              "primary": "#002d62",
+              "on-secondary": "#ffffff",
+              "primary-fixed-dim": "#abc7ff",
+              "tertiary-fixed-dim": "#ffb597",
+              "primary-fixed": "#d7e2ff",
+              "on-secondary-fixed-variant": "#005233",
+              "on-secondary-container": "#00734a",
+              "surface-dim": "#dad9df",
+              "secondary-fixed": "#70fcb7",
+              "inverse-surface": "#2f3034",
+              "on-surface": "#1a1b1f",
+              "inverse-primary": "#abc7ff",
+              "on-tertiary-fixed-variant": "#743417"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .tonal-shift { transition: background-color 0.3s ease; }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- TopNavBar (Unified Style) -->
+<header class="bg-white/80 backdrop-blur-md sticky top-0 w-full z-50 border-b border-slate-100">
+<div class="flex justify-between items-center h-16 px-6 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<a class="flex items-center gap-2" href="#">
+<img alt="Med-as Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0uhGPdGDhU09NR6nnWNuevZWF_7gfUdzoZ-028lRJdxOavb6qwrKKhHN6vvBkafoy6S6FVuPZNjZ2c54Mm--eyXvT_4A-P_1mdSt6OBxO-AMV7k8l6X0UzY8ZdGgTw2ghVgkhDIVvCh7M8yRjwVyJlE92tT91Xk1qCh89tRyLiIP9I7mMBAseHjYAXob4SYGasO_6KcXUhw14S5Df0MowCLloUGpmeCWaOPiSn8LZ4i6KYnNalYM9eCRvC7E1X5-gZi_I_SlDcyrC8I"/>
+</a>
+<nav class="hidden md:flex gap-6">
+<a class="text-slate-500 font-medium hover:text-primary transition-colors duration-200" href="#">Найти врача</a>
+<a class="text-slate-500 font-medium hover:text-primary transition-colors duration-200" href="#">Клиники</a>
+<a class="text-primary font-bold border-b-2 border-secondary pb-1" href="#">Мой баланс</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-slate-200 cursor-pointer ring-2 ring-transparent hover:ring-secondary/30 transition-all">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_z7MJwBrO3oCzHW7beF1iiO3wkFxfVNzCswfPoLq68JXh8uch3lgBeopPdHW0-6xNUetANw7tHUutFvP32j_wsHVT2uOIsoulY6n6PftqIPEvCgvwgYZ0Hk8uAL4krqTzpk-Pvb2Hyy_ZljHHOIjhiJ64Fq5I4BPIUmcWI6gpTCmf48ugKbOFkvFafeSLH4yMsaK428IcfPMdCGLxDqprqrwCJrCIHm67TdZIvP0RoUrb08j2x2dbEsNaZLj_dpOuUVs0TTTYzLkF"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-12 pb-20 px-6 max-w-7xl mx-auto min-h-screen">
+<!-- Header Section -->
+<div class="mb-10">
+<span class="font-label text-sm tracking-widest uppercase font-semibold text-secondary mb-2 block">Личный кабинет пациента</span>
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary">Лояльность и награды</h1>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Balance and How it Works -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Balance Card -->
+<div class="bg-[#002d62] p-8 rounded-2xl relative overflow-hidden text-white shadow-xl shadow-blue-900/10">
+<div class="relative z-10">
+<p class="font-label text-xs uppercase tracking-widest opacity-70 mb-2">Текущий баланс</p>
+<div class="flex items-baseline gap-2 mb-8">
+<span class="text-5xl font-extrabold tracking-tighter">1,500</span>
+<span class="text-xl font-medium text-emerald-400">баллов</span>
+</div>
+<div class="flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+<span class="material-symbols-outlined text-emerald-400" data-icon="payments">payments</span>
+<p class="text-sm font-medium">Эквивалентно 1,500 руб.</p>
+</div>
+</div>
+</div>
+<!-- How it Works Card -->
+<div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-500 shadow-sm">
+<h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500" data-icon="info">info</span>
+                        Как это работает
+                    </h3>
+<p class="text-slate-600 text-sm leading-relaxed">
+                        Med-as сотрудничает с клиниками для оптимизации ухода за пациентами. Когда вы записываетесь через наш сервис, <span class="text-primary font-bold">мы возвращаем вам часть стоимости лида, оплаченной клиниками</span>, в виде баллов лояльности.
+                    </p>
+<div class="mt-4 pt-4 border-t border-slate-100">
+<p class="text-xs text-slate-400 italic font-medium">Тратьте баллы на визиты, диагностические тесты и эксклюзивные медицинские обследования.</p>
+</div>
+</div>
+</div>
+<!-- Middle Column: Transaction History -->
+<div class="lg:col-span-5 space-y-6">
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex justify-between items-center mb-8">
+<h2 class="font-headline text-xl font-bold text-primary">История транзакций</h2>
+<button class="text-emerald-600 text-sm font-bold flex items-center gap-1 hover:text-emerald-700 transition-colors">
+                            Показать все <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-200">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Начислено за визит в Клинику X</p>
+<p class="text-[11px] text-slate-400">12 мая 2024 • ID: #99283</p>
+</div>
+</div>
+<span class="text-emerald-600 font-extrabold text-sm">+500</span>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-200">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined" data-icon="remove_circle" style="font-variation-settings: 'FILL' 1;">remove_circle</span>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Списано за визит к Врачу Y</p>
+<p class="text-[11px] text-slate-400">05 мая 2024 • ID: #98124</p>
+</div>
+</div>
+<span class="text-slate-700 font-extrabold text-sm">-300</span>
+</div>
+<!-- Transaction Item -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-200">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</div>
+<div>
+<p class="font-bold text-primary text-sm">Начислено за ежегодный осмотр</p>
+<p class="text-[11px] text-slate-400">28 апреля 2024 • ID: #97441</p>
+</div>
+</div>
+<span class="text-emerald-600 font-extrabold text-sm">+1,300</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Partner Clinics -->
+<div class="lg:col-span-3 space-y-6">
+<div class="bg-slate-100/50 p-6 rounded-2xl border border-slate-200">
+<h2 class="font-headline text-lg font-bold text-primary mb-6">Где потратить баллы</h2>
+<div class="space-y-4">
+<!-- Clinic Card -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="w-12 h-12 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="local_hospital">local_hospital</span>
+</div>
+<div class="min-w-0">
+<p class="text-sm font-bold truncate">Клинический центр Св. Луки</p>
+<p class="text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">Премиум партнер</p>
+</div>
+</div>
+<!-- Clinic Card -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="w-12 h-12 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+</div>
+<div class="min-w-0">
+<p class="text-sm font-bold truncate">Радиология и лаборатории Pro</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Диагностика</p>
+</div>
+</div>
+<!-- Clinic Card -->
+<div class="bg-white p-4 rounded-xl flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="w-12 h-12 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="health_and_safety">health_and_safety</span>
+</div>
+<div class="min-w-0">
+<p class="text-sm font-bold truncate">Велнес Грин Вэлли</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Восстановление</p>
+</div>
+</div>
+<button class="w-full mt-4 py-4 bg-[#002d62] text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-blue-900 transition-colors active:scale-[0.98]">
+                            Все 42 клиники
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Unified Style) -->
+<footer class="w-full border-t border-slate-200 bg-slate-50 mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center py-12 px-6 max-w-7xl mx-auto gap-8">
+<div class="flex items-center gap-3">
+<img alt="Med-as Footer Logo" class="h-6 w-auto grayscale opacity-70" src="https://lh3.googleusercontent.com/aida/ADBb0uhGPdGDhU09NR6nnWNuevZWF_7gfUdzoZ-028lRJdxOavb6qwrKKhHN6vvBkafoy6S6FVuPZNjZ2c54Mm--eyXvT_4A-P_1mdSt6OBxO-AMV7k8l6X0UzY8ZdGgTw2ghVgkhDIVvCh7M8yRjwVyJlE92tT91Xk1qCh89tRyLiIP9I7mMBAseHjYAXob4SYGasO_6KcXUhw14S5Df0MowCLloUGpmeCWaOPiSn8LZ4i6KYnNalYM9eCRvC7E1X5-gZi_I_SlDcyrC8I"/>
+<span class="text-sm font-bold text-slate-400">Med-as</span>
+</div>
+<div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors" href="#">Найти врача</a>
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors" href="#">Клиники</a>
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors" href="#">Медицинские услуги</a>
+<a class="text-sm font-semibold text-slate-500 hover:text-primary transition-colors" href="#">Политика конфиденциальности</a>
+</div>
+<p class="text-[11px] text-slate-400 text-center md:text-right">
+                © 2024 Med-as Clinical Sanctuary. Все права защищены.
+            </p>
+</div>
+</footer>
+</body></html>
