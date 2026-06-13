@@ -4,7 +4,7 @@
 ---
 
 ## Current Phase
-Фаза D — Страница /doctor/[slug] (профиль врача)
+Фаза F — Страница /doctor/[slug]/booking (форма записи)
 
 ---
 
@@ -126,8 +126,8 @@
       - curl https://saas.med-as.ru/clinic/centr-sovremennoy-meditsiny → HTTP 200
       - grep бандл: «Проверена MEDAS»
 
-### Фаза E2 — Редизайн /clinic/[slug] «10x лучше конкурентов» ⏳
-**Статус:** pending
+### Фаза E2 — Редизайн /clinic/[slug] «10x лучше конкурентов»
+**Статус:** ✅ complete (коммит 1ec30e5, задеплоено 2026-06-12)
 **Файлы:**
 - `frontend/src/lib/clinics.ts` — ОБНОВИТЬ (7 новых полей)
 - `frontend/src/components/ui/ReviewCard.tsx` — СОЗДАТЬ (единый)
@@ -177,10 +177,80 @@
       - curl https://saas.med-as.ru/clinic/centr-sovremennoy-meditsiny → 200
       - grep бандл: «записей за последний месяц»
 
-### Фаза F — Страница /doctor/[slug]/booking ⏳
-- [ ] F.1 Форма записи (шаги): выбор слота → контакты → подтверждение
-- [ ] F.2 Экран подтверждения: «Запись принята + вам начислено X бонусов»
-- [ ] F.3 Для незарегистрированных: баннер «Зарегистрируйтесь и получите 500 бонусов»
+### Фаза F — Страница /doctor/[slug]/booking 🔄
+**Статус:** in_progress
+**Stitch-дизайн:** «Запись к врачу с бонусами» (screen.png) — зафиксирован
+**Конкуренты:** НаПоправку/СберЗдоровье заблокировали fetch — опираемся на Stitch + SITE_STRUCTURE.md
+
+**Что делаем лучше конкурентов (ни у кого нет):**
+1. Прогресс-шаги: Услуга → Дата → Пациент → Подтверждение (шаг подсвечен)
+2. «Популярные слоты» — зелёная отметка «Последние 2 места»
+3. Блок бонусов с живым перерасчётом — сразу рублёвая экономия
+4. Экран успеха встроен (без редиректа) — slide-in анимация
+5. Sticky нижняя панель на мобиле с итогом + кнопкой
+
+**Файлы:**
+- `frontend/src/app/doctor/[slug]/booking/page.tsx` — ПЕРЕПИСАТЬ (server, await params)
+- `frontend/src/components/doctor/booking/DoctorBookingCard.tsx` — СОЗДАТЬ (server)
+- `frontend/src/components/doctor/booking/BookingForm.tsx` — СОЗДАТЬ («use client», весь интерактив)
+
+- [ ] F.1 Переписать `booking/page.tsx`
+      - `params: Promise<{slug}>`, await params, getDoctorBySlug → notFound()
+      - generateMetadata: «Запись к [Имя] — [специальность] | MEDAS»
+      - Layout: хлебные крошки + grid lg:col-span-8/4
+      - Импорт: DoctorBookingCard (левая колонка) + BookingForm (правая / основная)
+      - Убрать старый хардкод (Александр Волков, lh3 фото, inline цвета)
+
+- [ ] F.2 Создать `DoctorBookingCard.tsx` (server component)
+      - Фото врача (80×80 круглое, из doctor.photo) + имя + специальность + опыт
+      - Рейтинг (StarIcon) + кол-во отзывов
+      - Verified badge («Проверенный специалист»)
+      - «← Назад к профилю» ссылка + «Изменить врача» (→ /search)
+      - Клиника: название + адрес (из doctor.clinic)
+
+- [ ] F.3 Создать `BookingForm.tsx` («use client», полный интерактив)
+      Состояние: selectedService | selectedDay | selectedSlot | useBonuses | name | phone | forWhom | agreed | submitted
+      
+      **Секция 1 — Выбор услуги:**
+      - 3 карточки: «Первичная» 2 500₽ / «Повторная» 1 800₽ / «Онлайн» 2 000₽
+      - Активная карточка — border-primary + bg-primary/5
+      
+      **Секция 2 — Дата и время:**
+      - 5 дней (из doctor.slots): Сегодня / Завтра / Пт 13 / Сб 14 / Пн 16
+      - Активный день — подсвечен primary
+      - Слоты по группам «Утро / День / Вечер»
+      - Популярные слоты (первые 2 в каждой группе): зелёная точка + «Популярно»
+      - Недоступные слоты: серые, cursor-not-allowed
+
+      **Секция 3 — Данные пациента:**
+      - Input имя + Input телефон (с +7 prefix)
+      - «Для кого»: radio [Для себя / Для члена семьи]
+      - Textarea «Жалобы / цель визита» (необязательно)
+      - Чекбокс согласия на обработку данных
+
+      **Секция 4 — Бонусы + итог (правый sticky сайдбар на desktop, внизу формы на мобиле):**
+      - «Использовать бонусы» toggle (баланс: 1 500 бонусов = 1 500 ₽)
+      - Скидка до 10% от суммы: -250₽ (живой перерасчёт)
+      - Итог к оплате (зачёркнутая цена если есть скидка)
+      - «Вы получите +X бонусов за этот визит» (5% от цены)
+      - Кнопка «Подтвердить запись» (primary, large, disabled если не выбраны дата+слот+согласие)
+      
+      **После submit → BookingSuccess (state: submitted = true):**
+      - Анимация slide-in (transition opacity+translate)
+      - Иконка ✓ в зелёном кружке + «Запись подтверждена!»
+      - Детали: врач + дата + время + клиника
+      - Зелёная карточка: «Начислено X бонусов»
+      - Кнопки: «Перейти в Личный кабинет» + «Вернуться на главную»
+
+      **Мобильная нижняя панель (fixed bottom, lg:hidden):**
+      - Итоговая сумма + «Подтвердить запись» кнопка
+      - Видна только если выбран слот
+
+- [ ] F.4 Деплой + верификация
+      - git commit + push
+      - SSH на VPS: git clone + docker build --no-cache -t medas-frontend:latest + force-recreate
+      - curl https://saas.med-as.ru/doctor/anna-sokolova/booking → HTTP 200
+      - grep бандл: «Подтвердить запись»
 
 ### Фаза G — /promotions и /articles ⏳
 - [ ] G.1 Список акций (сейчас 404)
