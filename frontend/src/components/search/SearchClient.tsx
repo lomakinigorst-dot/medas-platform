@@ -11,7 +11,7 @@ type SortKey = "rating" | "experience" | "price";
 type Gender = "any" | "male" | "female";
 type Experience = "any" | "5+" | "10+";
 
-interface Doctor {
+export interface Doctor {
   id: number;
   name: string;
   specialty: string;
@@ -195,7 +195,8 @@ const cardItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
-export default function SearchClient() {
+export default function SearchClient({ initialDoctors = [] }: { initialDoctors?: Doctor[] }) {
+  const doctors = initialDoctors.length > 0 ? initialDoctors : DOCTORS;
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
     ...INIT_FILTERS,
@@ -206,7 +207,7 @@ export default function SearchClient() {
   const [sortKey, setSortKey] = useState<SortKey>("rating");
 
   const filtered = useMemo(() => {
-    const result = DOCTORS.filter((doc) => {
+    const result = doctors.filter((doc) => {
       if (filters.query) {
         const q = filters.query.toLowerCase();
         if (
@@ -236,7 +237,7 @@ export default function SearchClient() {
       if (sortKey === "price") return a.price - b.price;
       return parseFloat(b.rating) - parseFloat(a.rating);
     });
-  }, [filters, sortKey]);
+  }, [filters, sortKey, doctors]);
 
   const activeChips = useMemo(() => {
     const chips: { label: string; remove: () => void }[] = [];
