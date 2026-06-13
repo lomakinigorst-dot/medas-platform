@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза J ✅ — Shared AppointmentCalendar + редизайн /clinics (коммиты 1d6e692, c1ea33b)
-Последнее ✅: J.1 shared AppointmentCalendar + 2-col BookingForm; J.2 редизайн ClinicCard+ClinicsClient с hero
-Следующее: J.3 — создать /doctors (редирект или страница врачей); Фаза H — бонусная система
-Важно: deploy = git pull в /tmp/medas-platform → docker build --no-cache → force-recreate (НЕ run_in_background+&)
+Текущий блок: Фазы K+/docs ✅ — K.1 (12 клиник), K.2 (пагинация+поиск+метро), ClinicCard (♡+акции), /doctors, ТЗ v2.0
+Последнее ✅: ТЗ v2.0 обновлён — разделы 1-14, полный статус реализации (страницы, компоненты, мок-данные, приоритеты)
+Следующее: Backend API (FastAPI) + PostgreSQL — Фаза 1 серверной части
+Важно: 12 клиник в lib/clinics.ts; пагинация 6/стр; /doctors страница создана; deploy = docker build --no-cache --no-background
 
 ---
 
