@@ -76,9 +76,55 @@
 ---
 
 ### Фаза E — Страница /clinic/[slug] ⏳
-- [ ] E.1 После /doctor/[slug] — аналогичная структура для клиники
-- [ ] E.2 Блок врачей клиники (карточки с бонусами)
-- [ ] E.3 Карта, отзывы, акции клиники
+**Файлы:**
+- `frontend/src/lib/clinics.ts` — СОЗДАТЬ (типы + 2 мока)
+- `frontend/src/components/clinic/ClinicHero.tsx` — СОЗДАТЬ
+- `frontend/src/components/clinic/ClinicContent.tsx` — СОЗДАТЬ
+- `frontend/src/components/clinic/ClinicInfoSidebar.tsx` — СОЗДАТЬ
+- `frontend/src/app/clinic/[slug]/page.tsx` — ПЕРЕПИСАТЬ
+
+- [ ] E.1 Типы + моки: `frontend/src/lib/clinics.ts`
+      - Тип Clinic: slug, name, address, phone, rating, reviewCount, description
+      - hours: { weekdays, weekends }, acceptsDMS, stats: { specialties, doctors, patientsPerYear }
+      - services: string[], reviews: Review[], doctorSlugs: string[]
+      - Мок 1: "centr-sovremennoy-meditsiny" — 4.9 / 1240 отз / ДМС: true / Пн-Пт 8-21 / Сб-Вс 9-18
+      - Мок 2: "klinika-zdorovye" — 4.7 / 560 отз / ДМС: false / Пн-Сб 9-20
+      - getClinicBySlug(), getClinics()
+
+- [ ] E.2 ClinicHero.tsx (server component)
+      - Заголовок, бейджи: «Проверена MEDAS» (зелёный), «ДМС» (синий, если acceptsDMS)
+      - Рейтинг со звёздами, кол-во отзывов
+      - Адрес, часы работы
+      - Кнопка «Записаться» → /search?clinic=[slug] + кнопка «Поделиться»
+
+- [ ] E.3 ClinicContent.tsx (server component)
+      - AboutSection: bio + 3 стат-карточки с border-l-4 border-secondary
+      - DoctorsSection: карточки врачей из doctorSlugs (getDoctorBySlug из lib/doctors.ts)
+      - GallerySection: 6 плейсхолдеров 3×2, rounded-xl bg-surface-container
+      - ServicesSection: теги направлений
+      - ReviewsSection: карточки + empty state (если reviews.length === 0)
+      - Заголовки секций: border-l-4 border-secondary pl-4
+
+- [ ] E.4 ClinicInfoSidebar.tsx (client component — для sticky)
+      - sticky top-[110px] max-h-[calc(100vh-126px)] overflow-y-auto
+      - Блок «Информация»: адрес, телефон, часы ПН-ПТ / СБ-ВС
+      - Кнопка «Записаться на приём» → /search?clinic=[slug]
+      - Бонусный блок: «За каждый визит в клинике — бонусы MEDAS»
+      - ДМС-карточка (если acceptsDMS): «Принимаем полисы ДМС»
+
+- [ ] E.5 Переписать page.tsx
+      - params: Promise<{slug}>, await params, getClinicBySlug → notFound()
+      - generateMetadata: title = «[Название] — клиника в Москве | MEDAS»
+      - schema.org/MedicalOrganization JSON-LD
+      - Breadcrumb: Главная → Клиники → [название]
+      - Layout: ClinicHero + grid lg:col-span-8/4 + мобильный сайдбар после контента
+
+- [ ] E.6 Деплой + верификация
+      - docker build -t medas-frontend:latest
+      - docker save | gzip | ssh | gunzip | docker load
+      - docker compose up -d --force-recreate frontend
+      - curl https://saas.med-as.ru/clinic/centr-sovremennoy-meditsiny → HTTP 200
+      - grep бандл: «Проверена MEDAS»
 
 ### Фаза F — Страница /doctor/[slug]/booking ⏳
 - [ ] F.1 Форма записи (шаги): выбор слота → контакты → подтверждение
