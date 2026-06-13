@@ -6,31 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { LayoutList, MapPin, X, Search } from "lucide-react";
+import type { Doctor } from "@/lib/api";
+
+export type { Doctor };
 
 type SortKey = "rating" | "experience" | "price";
 type Gender = "any" | "male" | "female";
 type Experience = "any" | "5+" | "10+";
-
-export interface Doctor {
-  id: number;
-  name: string;
-  specialty: string;
-  badge: { label: string; color: string };
-  rating: string;
-  reviews: number;
-  price: number;
-  experience: number;
-  district: string;
-  metro: string;
-  languages: string;
-  tags: string[];
-  dms: boolean;
-  online: boolean;
-  homeVisit: boolean;
-  gender: "male" | "female";
-  availability: string[];
-  image: string;
-}
 
 interface FilterState {
   query: string;
@@ -67,7 +49,7 @@ const INIT_FILTERS: FilterState = {
 
 const DOCTORS: Doctor[] = [
   {
-    id: 1,
+    id: 1, slug: "dr-julian-vane",
     name: "Др. Юлиан Вейн",
     specialty: "Ведущий кардиолог",
     badge: { label: "Проверен", color: "bg-[#e3fcef] text-[#006644]" },
@@ -80,7 +62,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCKTYoAneGY9KsJF08Mzt1EmzImK-gCJzb-H9R8_ajgoOd2kadkgiZjWpNAPmzVSJKgLhh_64a59PCBuwyd-6bkhU0dpVH4RflsMaodnfScl7gY3GG2oYCB-TVbrHPbYczFcuIHxxU_gm04L4Umve52x5JRUKmFXGsexgrkuCCJW9-qAN1WsV3wo3yBAJp7vlm3ZAD_ChQWC0ZLJAB914SAAsGkP9LMCasx1X4K7IUeVXp1lWpUWuFMIkqh_rku-GWuQ6gFekpl7pvl",
   },
   {
-    id: 2,
+    id: 2, slug: "dr-sara-chen",
     name: "Др. Сара Чэнь",
     specialty: "Неврология и медицина сна",
     badge: { label: "Высокий рейтинг", color: "bg-[#cde5ff] text-[#001d32]" },
@@ -93,7 +75,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_kO26lNndjzlxZIowSIAJR3giIFdAEseTqhy9fCWMojDJ-C2lzsIAMHqs0UCPfueCWsh0dzH96DmHGO55X6UzJ0l_8FvoUTEsX48QTmtozk7dNJFOScvMkR7Aa0rSN7PlFT-Npu2JsCHmElG0hm8Dy41_dUozbFRnXBl1A-yKCQ_ObT7tY44evjrwXgLhGGzQaaj81tCA7b5ojAg0NI_ILY2lh42UreYHTUyp_jZEEKxe3PuETO6SPr4IlubRQBZw0MCpTF58URX2",
   },
   {
-    id: 3,
+    id: 3, slug: "dr-markus-torn",
     name: "Др. Маркус Торн",
     specialty: "Травматолог-ортопед",
     badge: { label: "Доступно сегодня", color: "bg-[#ffdad6] text-[#93000a]" },
@@ -106,7 +88,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB7zrgvascA2D-A5c_fKnMbj97L5kIpG8n6mVSyruXIPtl-smjfYpAqUfN6RSi3T0fVA81781M0WBYGtC68vqypTdkkamLaogY8HZ29kdN4lNfl2QcWjtRfohdrTagMB0l63cgSSh27D3lVXzG9bdRhz6840W_0PRWFeOOSbINAS5OXaB4Rl8y7foS6WVLjFGKhk636iGe90ktnUTOQpaj2wnzcRHFkZcD4IKZcSn97ejZDU4raPJILOc38Wm6ytsv8wXi_ahbTuUwG",
   },
   {
-    id: 4,
+    id: 4, slug: "dr-olga-kuznetsova",
     name: "Др. Ольга Кузнецова",
     specialty: "Педиатр",
     badge: { label: "Проверен", color: "bg-[#e3fcef] text-[#006644]" },
@@ -119,7 +101,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBKtcddeCJo2aaollHWQh_nxi13IbCEBciLCk2L0LwoWwj3hVhhLsCJJiqxL65YlPRx860rs051QsGmZqVKH8czhe5YeYBwzAuRZPKNrjOHTPs2-TD9XrvNsOZMdR20GjPafAKx_PSy0LjqHCAHizEpY6DB3WEYh8ZfaJImxwEkCDtNBlEcAVAn2ywR4kwE9oIW74-l4CdRZ_XdWasCPEdZNLvicNgFivd2dJ2mVPDqr0eXkucz68s7KHxlZpCoXTlUQqdwZneWVjVC",
   },
   {
-    id: 5,
+    id: 5, slug: "dr-aleksey-romanov",
     name: "Др. Алексей Романов",
     specialty: "Офтальмолог",
     badge: { label: "Высокий рейтинг", color: "bg-[#cde5ff] text-[#001d32]" },
@@ -132,7 +114,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDq1AZIgGrFEhJgC69aFoT5u_uxpWZ1Nz3-31VxcDuyU9GIAlHjaFYr-rftAGOjaI11K-jDo5QrkCrn1xcK9iMqBAWTnzQzK-D_oMavx2mJRR0WjC5a9RPae7dOTgQLxm6BHVAEQCSLqOviik4GQA3jcEc8nGjI_ZwxLBkV5mXz7MUl6NjYmKQbm3UT2ld6maSvncePIS-HjKLKICeh9-WuWFKobc8PXVCTgbGpN8tEdt6DhMCQ_DWNmO9g_pEHZbzUYYmw4qgy3C2s",
   },
   {
-    id: 6,
+    id: 6, slug: "dr-natalya-sokolova",
     name: "Др. Наталья Соколова",
     specialty: "Дерматолог-косметолог",
     badge: { label: "Доступно сегодня", color: "bg-[#ffdad6] text-[#93000a]" },
@@ -145,7 +127,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDfji4DzvQwAS_vE5WAW1Qu2Uc-h0Bk70_CUz_K7Yn39JxEK_STOGWXKepw505VCwfRs2E1BeZ9yhXxT9kM07iDPePMliXk0HWzD3nPfMVBOpxWBVsPLqCNZVGfXQUu-VCsLh85FiLJy960lRGhAV8XlpjDMR8lkDoU9bhQHoa8GnecMg2XCJtRflsRrc3dJcodhmSoLBTMUIM744Gf582JtC1M_aV_fNp4gJ2auPQTXR7fD9FM5VOkZ5Uybr2umOGl_uTOUwpjvPGA",
   },
   {
-    id: 7,
+    id: 7, slug: "dr-viktor-petrov",
     name: "Др. Виктор Петров",
     specialty: "Гастроэнтеролог",
     badge: { label: "Проверен", color: "bg-[#e3fcef] text-[#006644]" },
@@ -158,7 +140,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCxlrGg968dc2U1Hgky8rtnaBSdYNDDFa24b4sKya2ivDVfCLjWWE8WhzbbYD18znoAl6a_MFIlQa-UftXOWpAJZw2u99qGlOrHXDxQXZgoY8igyEFm4a5MktvR4EsHDbkoB2UXz1xUHINjYND3eyJ2lID0ZejBWs4nfV26uvtBob1QsISLf1Cy4RYkLGSgOuzggsrjDH9xvDmb4renk3a_IJTtcBfJock8u7pW9uDv7wwnvXmRr_3swZq4t",
   },
   {
-    id: 8,
+    id: 8, slug: "dr-irina-volkova",
     name: "Др. Ирина Волкова",
     specialty: "Эндокринолог",
     badge: { label: "Высокий рейтинг", color: "bg-[#cde5ff] text-[#001d32]" },
@@ -171,7 +153,7 @@ const DOCTORS: Doctor[] = [
     image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA_kO26lNndjzlxZIowSIAJR3giIFdAEseTqhy9fCWMojDJ-C2lzsIAMHqs0UCPfueCWsh0dzH96DmHGO55X6UzJ0l_8FvoUTEsX48QTmtozk7dNJFOScvMkR7Aa0rSN7PlFT-Npu2JsCHmElG0hm8Dy41_dUozbFRnXBl1A-yKCQ_ObT7tY44evjrwXgLhGGzQaaj81tCA7b5ojAg0NI_ILY2lh42UreYHTUyp_jZEEKxe3PuETO6SPr4IlubRQBZw0MCpTF58URX2",
   },
   {
-    id: 9,
+    id: 9, slug: "dr-andrey-lebedev",
     name: "Др. Андрей Лебедев",
     specialty: "Психотерапевт",
     badge: { label: "Проверен", color: "bg-[#e3fcef] text-[#006644]" },
@@ -764,7 +746,7 @@ export default function SearchClient({ initialDoctors = [] }: { initialDoctors?:
                             ))}
                           </div>
                           <Link
-                            href={`/doctor/${doc.id}`}
+                            href={`/doctor/${doc.slug}`}
                             className="bg-[#003087] text-white px-7 py-2.5 rounded-lg font-bold text-sm hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-[#003087]/10"
                           >
                             Записаться
