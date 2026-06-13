@@ -155,6 +155,112 @@ function BookingSuccess({
   );
 }
 
+// ─── Mini calendar ────────────────────────────────────────────────────────────
+
+const RU_MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+const RU_DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+
+function labelToDayNum(label: string, today: Date): number {
+  if (label === "Сегодня") return today.getDate();
+  if (label === "Завтра")  return today.getDate() + 1;
+  const m = label.match(/(\d+)$/);
+  return m ? parseInt(m[1]) : -1;
+}
+
+function MiniCalendar({
+  doctorSlots,
+  selectedDayIdx,
+  onSelect,
+}: {
+  doctorSlots: { label: string; slots: { morning: { time: string; available: boolean }[]; afternoon: { time: string; available: boolean }[]; evening: { time: string; available: boolean }[] } }[];
+  selectedDayIdx: number;
+  onSelect: (idx: number) => void;
+}) {
+  const today = new Date();
+  const year  = today.getFullYear();
+  const month = today.getMonth();
+
+  const daysInMonth   = new Date(year, month + 1, 0).getDate();
+  const firstWeekday  = new Date(year, month, 1).getDay(); // 0=Sun
+  // Convert to Mon-based offset (Mon=0 … Sun=6)
+  const startOffset   = firstWeekday === 0 ? 6 : firstWeekday - 1;
+
+  // Map available labels → day numbers in this month
+  const availMap = new Map<number, number>(); // dayNum → slotIdx
+  doctorSlots.forEach((s, idx) => {
+    const d = labelToDayNum(s.label, today);
+    if (d > 0) availMap.set(d, idx);
+  });
+
+  const selectedDayNum = selectedDayIdx >= 0 ? labelToDayNum(doctorSlots[selectedDayIdx]?.label ?? "", today) : -1;
+
+  const cells: (number | null)[] = [
+    ...Array(startOffset).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+  // Pad to full rows
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <div>
+      {/* Month header */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-bold text-on-surface text-sm">
+          {RU_MONTHS[month]} {year}
+        </span>
+        <span className="text-xs text-on-surface-variant">
+          {doctorSlots.filter((_, i) => availMap.has(labelToDayNum(doctorSlots[i].label, today))).length} дней со слотами
+        </span>
+      </div>
+
+      {/* Day-of-week header */}
+      <div className="grid grid-cols-7 mb-1">
+        {RU_DOW.map((d) => (
+          <div key={d} className="text-center text-[11px] font-bold text-on-surface-variant py-1">
+            {d}
+          </div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div className="grid grid-cols-7 gap-y-1">
+        {cells.map((day, i) => {
+          if (!day) return <div key={`e-${i}`} />;
+
+          const isPast     = day < today.getDate();
+          const isToday    = day === today.getDate();
+          const isAvail    = availMap.has(day);
+          const isSelected = day === selectedDayNum;
+          const slotIdx    = availMap.get(day) ?? -1;
+
+          return (
+            <button
+              key={day}
+              disabled={!isAvail}
+              onClick={() => isAvail && onSelect(slotIdx)}
+              className={[
+                "relative mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all",
+                isSelected
+                  ? "bg-primary text-white shadow-md shadow-primary/25"
+                  : isAvail
+                    ? "bg-secondary/10 text-secondary font-bold hover:bg-secondary/20 cursor-pointer"
+                    : isPast
+                      ? "text-outline-variant/40 cursor-default"
+                      : "text-on-surface-variant cursor-default",
+              ].join(" ")}
+            >
+              {day}
+              {isToday && !isSelected && (
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function BookingForm({ doctor }: { doctor: Doctor }) {
@@ -185,7 +291,16 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
   // ── Derived ──
   const selectedService = services[selectedSvcIdx];
   const selectedDay = doctor.slots[selectedDayIdx];
-  const daySlots = selectedDay?.slots ?? { morning: [], afternoon: [], evening: [] };
+
+  // Flat sorted time slots (no morning/afternoon/evening grouping)
+  const flatSlots = useMemo(() => {
+    if (!selectedDay) return [];
+    return [
+      ...selectedDay.slots.morning,
+      ...selectedDay.slots.afternoon,
+      ...selectedDay.slots.evening,
+    ].sort((a, b) => a.time.localeCompare(b.time));
+  }, [selectedDay]);
 
   const maxBonusDeduct = Math.floor(selectedService.price * BONUS_MAX_SPEND_RATE);
   const bonusDeduct = useBonuses ? Math.min(BONUS_BALANCE, maxBonusDeduct) : 0;
@@ -230,13 +345,6 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
       />
     );
   }
-
-  // ── Slot group renderer ──
-  const slotGroups = [
-    { key: "morning" as const, label: "Утро", emoji: "🌅" },
-    { key: "afternoon" as const, label: "День", emoji: "☀️" },
-    { key: "evening" as const, label: "Вечер", emoji: "🌆" },
-  ];
 
   return (
     <>
@@ -307,100 +415,52 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
 
           {/* ── Step 2: Date & Time ───────────────────────────────────────── */}
           <FormSection step={2} title="Дата и время" complete={selectedSlot !== null}>
-            {/* Day tabs */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
-              {doctor.slots.map((day, i) => {
-                const active = selectedDayIdx === i;
-                const hasAvail = Object.values(day.slots).some((g) =>
-                  g.some((s) => s.available)
-                );
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleSelectDay(i)}
-                    className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                      active
-                        ? "bg-primary text-white shadow-md shadow-primary/20"
-                        : hasAvail
-                          ? "bg-surface-container text-on-surface hover:bg-surface-container-highest"
-                          : "bg-surface-container text-outline-variant opacity-60 cursor-not-allowed"
-                    }`}
-                    disabled={!hasAvail}
-                  >
-                    {day.label}
-                    {hasAvail && !active && (
-                      <span className="ml-1.5 w-1.5 h-1.5 bg-secondary rounded-full inline-block align-middle" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Mini calendar */}
+            <MiniCalendar
+              doctorSlots={doctor.slots}
+              selectedDayIdx={selectedDayIdx}
+              onSelect={handleSelectDay}
+            />
 
-            {/* Slot groups */}
-            <div className="mt-5 space-y-5">
-              {slotGroups.map(({ key, label, emoji }) => {
-                const slots = daySlots[key] ?? [];
-                const availableSlots = slots.filter((s) => s.available);
-                if (slots.length === 0) return null;
-                return (
-                  <div key={key}>
-                    <p className="flex items-center gap-1.5 text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-3">
-                      <span className="text-sm">{emoji}</span>
-                      {label}
-                      {availableSlots.length > 0 && (
-                        <span className="ml-1 text-secondary normal-case font-semibold">
-                          ({availableSlots.length} свободно)
-                        </span>
-                      )}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {slots.map((slot, idx) => {
-                        const isSelected = selectedSlot === slot.time;
-                        const isPopular = slot.available && idx === 0;
-                        return (
-                          <button
-                            key={slot.time}
-                            disabled={!slot.available}
-                            onClick={() => slot.available && setSelectedSlot(slot.time)}
-                            title={isPopular ? "Популярное время" : undefined}
-                            className={`relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                              !slot.available
-                                ? "bg-surface-container text-outline-variant cursor-not-allowed opacity-40"
-                                : isSelected
-                                  ? "bg-primary text-white shadow-md shadow-primary/25 scale-105"
-                                  : isPopular
-                                    ? "bg-secondary/8 text-secondary border border-secondary/25 hover:bg-secondary/15"
-                                    : "bg-surface-container text-on-surface hover:bg-surface-container-highest"
-                            }`}
-                          >
-                            {slot.time}
-                            {isPopular && slot.available && !isSelected && (
-                              <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-secondary rounded-full border-2 border-white shadow-sm" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Legend */}
-              <div className="flex items-center gap-4 pt-1 border-t border-outline-variant/10">
-                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                  <span className="w-3 h-3 bg-secondary/20 border border-secondary/30 rounded" />
-                  Популярное время
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                  <span className="w-3 h-3 bg-primary rounded" />
-                  Выбрано
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-                  <span className="w-3 h-3 bg-surface-container border border-outline-variant/20 rounded opacity-40" />
-                  Занято
+            {/* Flat time slots */}
+            {selectedDay && (
+              <div className="mt-5 pt-5 border-t border-outline-variant/10">
+                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-3">
+                  Доступное время —{" "}
+                  <span className="text-secondary normal-case font-semibold">
+                    {flatSlots.filter((s) => s.available).length} свободно
+                  </span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {flatSlots.map((slot) => {
+                    const isSelected = selectedSlot === slot.time;
+                    return (
+                      <button
+                        key={slot.time}
+                        disabled={!slot.available}
+                        onClick={() => slot.available && setSelectedSlot(slot.time)}
+                        className={[
+                          "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all",
+                          !slot.available
+                            ? "bg-surface-container text-outline-variant cursor-not-allowed opacity-40 line-through"
+                            : isSelected
+                              ? "bg-primary text-white shadow-md shadow-primary/25"
+                              : "bg-surface-container text-on-surface hover:bg-surface-container-high",
+                        ].join(" ")}
+                      >
+                        {slot.time}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
+            )}
+
+            {!selectedDay && (
+              <p className="mt-5 text-sm text-on-surface-variant text-center py-4">
+                Выберите дату в календаре выше
+              </p>
+            )}
           </FormSection>
 
           {/* ── Step 3: Patient info ──────────────────────────────────────── */}
