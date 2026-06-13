@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getToken, clearToken } from "@/lib/auth";
 
 const navLinks = [
   { href: "/search",  label: "Найти врача" },
@@ -24,16 +25,41 @@ function Logo({ compact = false }: { compact?: boolean }) {
   );
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
+
+interface AuthUser {
+  name: string;
+  bonus_balance: number;
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll(); // check on mount
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${API_BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data && setUser({ name: data.name, bonus_balance: data.bonus_balance }))
+      .catch(() => null);
+  }, []);
+
+  function handleLogout() {
+    clearToken();
+    setUser(null);
+    window.location.href = "/";
+  }
 
   return (
     <>
@@ -113,21 +139,46 @@ export default function Header() {
 
           {/* Desktop right actions */}
           <div className="hidden lg:flex items-center gap-2">
-            <Link
-              href="/login?role=doctor"
-              className="text-on-surface-variant hover:text-primary font-semibold text-[14px] px-4 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200 whitespace-nowrap"
-            >
-              Вход для врачей
-            </Link>
-            <Link
-              href="/search"
-              className="bg-secondary text-white px-5 py-2.5 rounded-xl font-bold text-[14px] shadow-sm hover:bg-secondary/90 transition-all duration-200 active:scale-95 flex items-center gap-2 whitespace-nowrap"
-            >
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              Записаться к врачу
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/cabinet/patient"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200"
+                >
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-xs">{user.name.charAt(0)}</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-[13px] text-on-surface leading-none">{user.name}</p>
+                    <p className="text-[11px] text-secondary font-medium leading-none mt-0.5">{user.bonus_balance} бонусов</p>
+                  </div>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-on-surface-variant hover:text-primary font-semibold text-[14px] px-4 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200 whitespace-nowrap"
+                >
+                  Выйти
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-on-surface-variant hover:text-primary font-semibold text-[14px] px-4 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200 whitespace-nowrap"
+                >
+                  Войти
+                </Link>
+                <Link
+                  href="/search"
+                  className="bg-secondary text-white px-5 py-2.5 rounded-xl font-bold text-[14px] shadow-sm hover:bg-secondary/90 transition-all duration-200 active:scale-95 flex items-center gap-2 whitespace-nowrap"
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Записаться к врачу
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile: phone + hamburger */}
@@ -188,36 +239,66 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <div className="my-3 border-t border-outline-variant/20" />
-          <Link
-            href="/login?role=doctor"
-            onClick={() => setOpen(false)}
-            className="px-4 py-3 rounded-xl text-on-surface-variant font-semibold text-[15px] hover:bg-surface-container-low transition-colors"
-          >
-            Вход для врачей
-          </Link>
+          {!user && (
+            <>
+              <div className="my-3 border-t border-outline-variant/20" />
+              <Link
+                href="/login?role=doctor"
+                onClick={() => setOpen(false)}
+                className="px-4 py-3 rounded-xl text-on-surface-variant font-semibold text-[15px] hover:bg-surface-container-low transition-colors"
+              >
+                Вход для врачей
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="px-6 pb-8 pt-4 border-t border-outline-variant/20 space-y-3">
-          <a
-            href="tel:+78001234567"
-            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant text-primary font-semibold text-[15px] hover:bg-primary/5 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-            </svg>
-            8 800 123-45-67
-          </a>
-          <Link
-            href="/search"
-            onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-white font-bold text-[15px] hover:bg-secondary/90 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            Записаться к врачу
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/cabinet/patient"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 py-3 px-4 rounded-xl bg-primary/5 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-bold text-sm">{user.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <p className="font-bold text-[15px] text-on-surface">{user.name}</p>
+                  <p className="text-xs text-secondary font-medium">{user.bonus_balance} бонусов</p>
+                </div>
+              </Link>
+              <button
+                onClick={() => { setOpen(false); handleLogout(); }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant text-on-surface-variant font-semibold text-[15px] hover:bg-surface-container-low transition-colors"
+              >
+                Выйти
+              </button>
+            </>
+          ) : (
+            <>
+              <a
+                href="tel:+78001234567"
+                className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant text-primary font-semibold text-[15px] hover:bg-primary/5 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                8 800 123-45-67
+              </a>
+              <Link
+                href="/search"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-white font-bold text-[15px] hover:bg-secondary/90 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Записаться к врачу
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </>

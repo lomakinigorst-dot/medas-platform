@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { clearToken } from "@/lib/auth";
 
 type NavItem = {
   href: string;
@@ -29,6 +30,12 @@ export default function CabinetLayout({
   headerTitle,
 }: CabinetLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  function handleLogout() {
+    clearToken();
+    router.push("/");
+  }
 
   return (
     <div className="flex min-h-screen overflow-hidden bg-[#f7f9fb]">
@@ -83,9 +90,12 @@ export default function CabinetLayout({
           <Link href="/cabinet/settings" className="flex items-center gap-3 p-3 rounded-lg text-slate-500 hover:text-[#003087] hover:bg-[#f2f4f6] transition-all text-sm">
             <span>⚙️</span> Настройки
           </Link>
-          <Link href="/logout" className="flex items-center gap-3 p-3 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 p-3 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm w-full"
+          >
             <span>🚪</span> Выйти
-          </Link>
+          </button>
         </div>
       </aside>
 
