@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 1 Backend ✅ ЗАПУЩЕНА — API работает на http://api.med-as.ru (HTTP, без SSL пока)
-Последнее ✅: backend + postgres + redis запущены; seed выполнен (5 клиник, 3 врача в БД); ClinicCard ♡ inline; /doctors 6 врачей в 2 колонки
-Следующее: SSL сертификат для api.med-as.ru через certbot (команда в project_dev_status.md) → потом Фаза 2 Auth (JWT + SMS)
-Важно: api.med-as.ru работает HTTP. HTTPS добавить через certbot. POSTGRES_PASSWORD=medas7a3f1d2e9b4c (VPS only)
+Текущий блок: Фаза 2.3 — /login подключён к реальному API ✅
+Последнее ✅: LoginForm.tsx (OTP флоу: phone→register/login→verify-otp→setToken→redirect) задеплоен
+Следующее: Header.tsx — показывать имя пользователя когда залогинен (GET /auth/me)
+Важно: OTP = "123456" (mock). Cookie = "medas_token". proxy.ts (Next.js 16). login/page.tsx = Suspense wrapper; LoginForm.tsx = "use client".
 
 ---
 
