@@ -60,8 +60,11 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
     ? `/doctor/${doctor.slug}/booking?date=${viewYear}-${viewMonth+1}-${selectedDay}&time=${encodeURIComponent(selectedTime)}`
     : `/doctor/${doctor.slug}/booking`;
 
+  const bonusEarn = Math.floor(doctor.price * 0.05);
+  const bonusRedeem = Math.floor(doctor.price * 0.1);
+
   return (
-    <div className="sticky top-28 space-y-4">
+    <div className="sticky top-[110px] max-h-[calc(100vh-126px)] overflow-y-auto space-y-4 [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-outline-variant/40 [&::-webkit-scrollbar-thumb]:rounded-full">
       <div className="bg-surface-container-lowest rounded-2xl shadow-xl shadow-primary/5 overflow-hidden">
         {/* Navy header */}
         <div className="bg-primary px-6 py-5 text-white">
@@ -168,6 +171,22 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
                 {ruPrice.format(doctor.price)} ₽
               </span>
             </div>
+
+            {/* Bonus block */}
+            <div className="flex items-start gap-2.5 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+              <svg className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+              <div>
+                <p className="text-[11px] font-bold text-amber-700">
+                  +{ruPrice.format(bonusEarn)} бонусов за визит
+                </p>
+                <p className="text-[10px] text-amber-600 mt-0.5">
+                  Можно списать до {ruPrice.format(bonusRedeem)} бонусов при оплате
+                </p>
+              </div>
+            </div>
+
             <Link
               href={bookingHref}
               className="block w-full py-4 bg-secondary text-white font-bold rounded-2xl shadow-lg shadow-secondary/20 text-center text-sm active:scale-95 transition-transform hover:opacity-95"
