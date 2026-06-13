@@ -7,7 +7,7 @@ export default function BookingPage({ params }: { params: { slug: string } }) {
   return (
     <>
       <Header />
-      <main className="pt-24 pb-20 max-w-screen-2xl mx-auto px-6">
+      <main className="pt-20 lg:pt-[110px] pb-20 max-w-screen-2xl mx-auto px-6">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 mb-8 text-sm text-[#434655]">
           <Link href="/search" className="hover:text-[#003087]">Поиск</Link>

@@ -109,7 +109,7 @@ export default async function DoctorProfilePageV2({ params }: Props) {
   return (
     <>
       <Header />
-      <main className="pt-24 pb-20 bg-surface">
+      <main className="pt-20 lg:pt-[110px] pb-20 bg-surface">
         <div className="max-w-screen-xl mx-auto px-6">
           {/* Version badge */}
           <div className="mb-4 flex items-center gap-3">

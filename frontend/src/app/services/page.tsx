@@ -81,7 +81,7 @@ export default function ServicesPage() {
   return (
     <>
       <Header />
-      <main className="pt-24 pb-20 max-w-screen-2xl mx-auto px-6">
+      <main className="pt-20 lg:pt-[110px] pb-20 max-w-screen-2xl mx-auto px-6">
         {/* Hero */}
         <section className="text-center mb-16">
           <h1 className="text-5xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-[#191c1e] mb-4">

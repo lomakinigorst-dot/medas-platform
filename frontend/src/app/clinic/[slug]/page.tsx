@@ -12,7 +12,7 @@ export default function ClinicProfilePage() {
   return (
     <>
       <Header />
-      <main className="pt-28 pb-20 max-w-7xl mx-auto px-8">
+      <main className="pt-20 lg:pt-[110px] pb-20 max-w-7xl mx-auto px-8">
         {/* Header */}
         <header className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
