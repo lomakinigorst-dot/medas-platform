@@ -4,9 +4,10 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import DoctorHero from "@/components/doctor/DoctorHero";
-import DoctorTabs from "@/components/doctor/DoctorTabs";
-import AppointmentSidebar from "@/components/doctor/AppointmentSidebar";
+import DoctorContentSections from "@/components/doctor/DoctorContentSections";
+import AppointmentSidebarV2 from "@/components/doctor/v2/AppointmentSidebarV2";
 import SimilarDoctors from "@/components/doctor/SimilarDoctors";
+import MobileBookingBar from "@/components/doctor/MobileBookingBar";
 import { getDoctorBySlug, getSimilarDoctors, type Doctor } from "@/lib/doctors";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -78,8 +79,9 @@ export default async function DoctorProfilePage({ params }: Props) {
     <>
       <PhysicianSchema doctor={doctor} />
       <Header />
-      <main className="pt-24 pb-20 bg-surface">
-        <div className="max-w-screen-xl mx-auto px-6">
+
+      <main className="pt-24 pb-28 lg:pb-20 bg-surface">
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
           <Breadcrumb
             items={[
               { label: "Главная", href: "/" },
@@ -88,26 +90,37 @@ export default async function DoctorProfilePage({ params }: Props) {
             ]}
           />
 
-          {/* Hero */}
-          <div className="mt-6">
+          {/* Hero — V1 style (большое фото + бейджи) */}
+          <div className="mt-6 mb-10">
             <DoctorHero doctor={doctor} />
           </div>
 
-          {/* Main content: tabs + sidebar */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+          {/* Two-column layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
+            {/* Left: expanded content sections (no tabs) */}
             <div className="lg:col-span-8">
-              <DoctorTabs doctor={doctor} />
+              <DoctorContentSections doctor={doctor} />
             </div>
-            <div className="lg:col-span-4">
-              <AppointmentSidebar doctor={doctor} />
+
+            {/* Right: sidebar with calendar — desktop only */}
+            <div className="lg:col-span-4 hidden lg:block">
+              <AppointmentSidebarV2 doctor={doctor} />
             </div>
           </div>
 
-          {/* Similar doctors */}
+          {/* Mobile sidebar — shown below content on small screens */}
+          <div className="lg:hidden mt-10">
+            <AppointmentSidebarV2 doctor={doctor} />
+          </div>
+
           <SimilarDoctors doctors={similar} />
         </div>
       </main>
+
       <Footer />
+
+      {/* Fixed mobile booking bar — appears over footer on small screens */}
+      <MobileBookingBar slug={doctor.slug} price={doctor.price} />
     </>
   );
 }

@@ -42,7 +42,10 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
     return date < todayMidnight;
   };
 
+  const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
+
   const prevMonth = () => {
+    if (isCurrentMonth) return; // нельзя уйти в прошлое
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
     else setViewMonth(m => m - 1);
     setSelectedDay(null);
@@ -77,7 +80,8 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
               <div className="flex gap-1">
                 <button
                   onClick={prevMonth}
-                  className="p-1.5 rounded-lg hover:bg-surface-container transition-colors"
+                  disabled={isCurrentMonth}
+                  className={`p-1.5 rounded-lg transition-colors ${isCurrentMonth ? "opacity-30 cursor-not-allowed" : "hover:bg-surface-container"}`}
                   aria-label="Предыдущий месяц"
                 >
                   <svg className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -171,8 +175,14 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
               {selectedTime ? `Записаться на ${selectedTime}` : "Выберите время"}
             </Link>
             <p className="text-[10px] text-center text-on-surface-variant">
-              Предоплата не требуется. Действует политика отмены.
+              Предоплата не требуется · Бесплатная отмена за 2 часа
             </p>
+            <div className="text-center">
+              <p className="text-[10px] text-on-surface-variant">Или позвоните нам:</p>
+              <a href="tel:+74951234567" className="text-xs font-bold text-primary hover:underline">
+                +7 (495) 123-45-67
+              </a>
+            </div>
           </div>
         </div>
       </div>
