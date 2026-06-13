@@ -8,14 +8,17 @@
 | Раздел | Строка |
 |---|---|
 | СТРУКТУРА ПРОЕКТА | 22 |
-| СТРАНИЦЫ → КОМПОНЕНТЫ | 42 |
-| КОМПОНЕНТЫ ГЛАВНОЙ | 58 |
-| LAYOUT-КОМПОНЕНТЫ | 72 |
-| BACKEND — API ENDPOINTS | 82 |
-| ДИЗАЙН-СИСТЕМА | 87 |
-| ДЕПЛОЙ — команды | 118 |
-| ФАЙЛЫ — НЕ ТРОГАТЬ | 148 |
-| ВАЖНЫЕ ПАТТЕРНЫ | 157 |
+| СТРАНИЦЫ → КОМПОНЕНТЫ | 48 |
+| КОМПОНЕНТЫ ДОКТОРА | 70 |
+| КОМПОНЕНТЫ КЛИНИКИ | 82 |
+| ОБЩИЕ UI-КОМПОНЕНТЫ | 95 |
+| КОМПОНЕНТЫ ГЛАВНОЙ | 105 |
+| LAYOUT-КОМПОНЕНТЫ | 119 |
+| BACKEND — API ENDPOINTS | 130 |
+| ДИЗАЙН-СИСТЕМА | 135 |
+| ДЕПЛОЙ — команды | 166 |
+| ФАЙЛЫ — НЕ ТРОГАТЬ | 196 |
+| ВАЖНЫЕ ПАТТЕРНЫ | 205 |
 
 ---
 
@@ -27,20 +30,25 @@
 │   ├── src/
 │   │   ├── app/                # App Router (страницы)
 │   │   │   ├── page.tsx        # Главная /
-│   │   │   ├── layout.tsx      # Root layout (шрифты, Header, Footer)
+│   │   │   ├── layout.tsx      # Root layout (шрифты, meta, noindex)
 │   │   │   ├── globals.css     # Дизайн-токены MEDAS + Tailwind v4
+│   │   │   ├── robots.ts       # robots.txt — disallow: / (dev mode)
 │   │   │   ├── login/          # /login — страница входа
 │   │   │   ├── search/         # /search — поиск врачей
 │   │   │   ├── services/       # /services — услуги
-│   │   │   ├── doctor/[slug]/  # /doctor/id — профиль врача + /booking
-│   │   │   ├── clinic/[slug]/  # /clinic/id — профиль клиники
+│   │   │   ├── doctor/[slug]/  # /doctor/[slug] — профиль врача + /booking
+│   │   │   ├── clinic/[slug]/  # /clinic/[slug] — профиль клиники
 │   │   │   └── cabinet/        # ЛК: /patient /clinic /doctor
 │   │   ├── components/
 │   │   │   ├── home/           # Секции главной страницы
 │   │   │   ├── layout/         # Header, Footer, CabinetLayout
-│   │   │   └── ui/             # shadcn/ui компоненты (button.tsx)
+│   │   │   ├── ui/             # Общие компоненты: ReviewCard, AddressMapBlock, StarIcon, button
+│   │   │   ├── doctor/         # Компоненты страницы врача
+│   │   │   └── clinic/         # Компоненты страницы клиники
 │   │   └── lib/
-│   │       └── utils.ts        # cn() helper
+│   │       ├── utils.ts        # cn() helper
+│   │       ├── doctors.ts      # Mock-данные врачей (типы + getDoctor)
+│   │       └── clinics.ts      # Mock-данные клиник (типы + 7 полей E2)
 │   ├── public/
 │   │   ├── logo-dark.png       # Логотип для светлых фонов (156×44)
 │   │   └── logo-light.png      # Логотип для тёмных фонов (156×44)
@@ -63,12 +71,12 @@
 | URL | Файл | Компоненты |
 |---|---|---|
 | `/` | `app/page.tsx` | HeroSection, StatsSection, SpecialtiesSection, OffersSection, ClinicsSection, ArticlesSection, CTASection |
-| `/login` | `app/login/page.tsx` | inline (нет отдельного компонента) |
-| `/search` | `app/search/page.tsx` | inline |
+| `/login` | `app/login/page.tsx` | inline |
+| `/search` | `app/search/page.tsx` | `SearchClient` (client) |
 | `/services` | `app/services/page.tsx` | inline |
-| `/doctor/[slug]` | `app/doctor/[slug]/page.tsx` | inline |
-| `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | inline |
-| `/clinic/[slug]` | `app/clinic/[slug]/page.tsx` | inline |
+| `/doctor/[slug]` | `app/doctor/[slug]/page.tsx` | `DoctorHero`, `DoctorContentSections`, `AppointmentSidebarV2` (client), `MobileBookingBar` (client), `SimilarDoctors` |
+| `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | заглушка — нет реальной формы |
+| `/clinic/[slug]` | `app/clinic/[slug]/page.tsx` | `ClinicHero`, `ClinicContent`, `ClinicInfoSidebar`, `ClinicServicesSearch` (client) |
 | `/cabinet/patient` | `app/cabinet/patient/page.tsx` | CabinetLayout |
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
 | `/cabinet/patient/family` | `app/cabinet/patient/family/page.tsx` | CabinetLayout |
@@ -76,6 +84,39 @@
 | `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout |
 | `/cabinet/clinic/reports` | `app/cabinet/clinic/reports/page.tsx` | CabinetLayout |
 | `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout |
+
+---
+
+## КОМПОНЕНТЫ ДОКТОРА (`src/components/doctor/`)
+
+| Компонент | Файл | Что делает |
+|---|---|---|
+| `DoctorHero` | `DoctorHero.tsx` | Фото + бейджи + рейтинг + CTA кнопки |
+| `DoctorContentSections` | `DoctorContentSections.tsx` | Биография, Образование, Услуги/цены, Клиника приёма (2 колонки), Отзывы (ReviewCard) |
+| `AppointmentSidebarV2` | `AppointmentSidebarV2.tsx` | `"use client"`. Мини-календарь + слоты + бонусы + ДМС. Sticky на desktop |
+| `MobileBookingBar` | `MobileBookingBar.tsx` | `"use client"`. Fixed bottom bar на мобиле (цена + «Записаться») |
+| `SimilarDoctors` | `SimilarDoctors.tsx` | 3 карточки похожих врачей |
+
+---
+
+## КОМПОНЕНТЫ КЛИНИКИ (`src/components/clinic/`)
+
+| Компонент | Файл | Что делает |
+|---|---|---|
+| `ClinicHero` | `ClinicHero.tsx` | Gradient hero (primary→#001f70), соцдоказательство «47 записей», isOpenNow(), CTA-ряд |
+| `ClinicContent` | `ClinicContent.tsx` | 8 секций: О клинике, Врачи сегодня (слоты), Поиск услуг, Рейтинг+отзывы (ReviewCard), Акции, Направления, Фото, Похожие клиники |
+| `ClinicInfoSidebar` | `ClinicInfoSidebar.tsx` | AddressMapBlock + расписание-сетка 7 дней (сегодня = highlight) + DMS-чипы + сертификаты + парковка |
+| `ClinicServicesSearch` | `ClinicServicesSearch.tsx` | `"use client"`. Поиск по услугам в реальном времени |
+
+---
+
+## ОБЩИЕ UI-КОМПОНЕНТЫ (`src/components/ui/`)
+
+| Компонент | Файл | Используется |
+|---|---|---|
+| `ReviewCard` | `ReviewCard.tsx` | Страница клиники (ClinicContent) + страница врача (DoctorContentSections) |
+| `AddressMapBlock` | `AddressMapBlock.tsx` | ClinicInfoSidebar (адрес + телефон + метро + SVG-карта + маршрут) |
+| `StarIcon` | `StarIcon.tsx` | DoctorHero, DoctorContentSections (рейтинговые звёзды) |
 
 ---
 
