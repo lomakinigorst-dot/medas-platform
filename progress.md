@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-12
-Текущий блок: Фазы B+C завершены — главная + /search с интерактивными фильтрами
-Последнее ✅: C.9 — SearchClient.tsx задеплоен, бандл содержит "ДМС" (grep подтверждён)
-Следующее: Следующая страница по SITE_PLAN.md (например /doctor/[slug] детальная страница)
-Важно: framer-motion v12 — ease = "easeOut" as const, Variants требует явный тип; useSearchParams требует Suspense в page.tsx
+Текущий блок: Фаза D — /doctor/[slug] ✅ ЗАВЕРШЕНА ПОЛНОСТЬЮ
+Последнее ✅: D.6 — деплой на saas.med-as.ru, title «Анна Соколова — Кардиолог» + schema.org/Physician проверены, коммит 09f7dc8
+Следующее: Фаза E — /clinic/[slug] (страница клиники)
+Важно: docker-compose использует образ medas-frontend:latest (не app-frontend:latest!) — всегда собирать с правильным тегом
 
 ---
 
