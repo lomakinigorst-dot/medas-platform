@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { DOCTORS } from "@/lib/doctors";
 import { StarIcon } from "@/components/ui/StarIcon";
 
@@ -265,27 +264,26 @@ export default function DoctorsPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 gap-4">
             {topDoctors.map((doctor) => (
               <Link
                 key={doctor.slug}
                 href={`/doctor/${doctor.slug}`}
-                className="group flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+                className="group flex items-center gap-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-5"
               >
-                {/* Avatar area */}
-                <div className="relative bg-gradient-to-br from-primary/8 to-primary/4 p-6 pb-0 flex justify-center">
-                  <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-white shadow-md">
-                    <Image
-                      src={doctor.photo || doctor.avatar}
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden ring-2 ring-primary/10 bg-primary/8">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={doctor.avatar}
                       alt={doctor.name}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   {doctor.verified && (
-                    <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center shadow-sm" title="Проверенный врач">
-                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-secondary flex items-center justify-center border-2 border-white shadow-sm">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     </div>
@@ -293,45 +291,42 @@ export default function DoctorsPage() {
                 </div>
 
                 {/* Info */}
-                <div className="flex flex-col p-5 pt-4 flex-1">
-                  <h3 className="font-headline font-bold text-on-surface text-lg leading-snug mb-0.5 group-hover:text-primary transition-colors">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-headline font-bold text-on-surface text-base sm:text-lg leading-snug group-hover:text-primary transition-colors">
                     {doctor.name}
                   </h3>
-                  <p className="text-primary font-medium text-sm mb-3">{doctor.specialty}</p>
-
-                  {/* Meta */}
-                  <div className="flex items-center gap-4 text-sm text-on-surface-variant mb-4">
+                  <p className="text-primary font-medium text-sm mb-2">{doctor.specialty}</p>
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-on-surface-variant mb-2">
                     <span className="flex items-center gap-1">
-                      <StarIcon className="w-4 h-4 text-amber-400" />
-                      <span className="font-bold text-on-surface">{doctor.rating}</span>
-                      <span className="text-xs">({doctor.reviewCount})</span>
+                      <StarIcon className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="font-bold text-on-surface text-xs">{doctor.rating}</span>
+                      <span className="text-xs opacity-70">({doctor.reviewCount})</span>
                     </span>
-                    <span>{doctor.experience} лет опыта</span>
+                    <span className="text-xs">{doctor.experience} лет опыта</span>
                   </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-4">
-                    {doctor.specializations.slice(0, 3).map((s) => (
-                      <span key={s} className="px-2.5 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-xs text-slate-600 font-medium">
+                  <div className="flex flex-wrap gap-1.5">
+                    {doctor.specializations.slice(0, 2).map((s) => (
+                      <span key={s} className="px-2.5 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-[11px] text-slate-600 font-medium">
                         {s}
                       </span>
                     ))}
                   </div>
+                </div>
 
-                  <div className="mt-auto flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-on-surface-variant">от</p>
-                      <p className="font-bold text-on-surface text-base">
-                        {RU_FORMAT.format(doctor.price)} ₽
-                      </p>
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-white text-xs font-bold group-hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
-                      Записаться
-                      <svg className="w-3.5 h-3.5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </span>
+                {/* Price + CTA */}
+                <div className="shrink-0 flex flex-col items-end gap-2.5">
+                  <div className="text-right">
+                    <p className="text-[11px] text-on-surface-variant">от</p>
+                    <p className="font-bold text-on-surface text-sm sm:text-base">
+                      {RU_FORMAT.format(doctor.price)} ₽
+                    </p>
                   </div>
+                  <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-primary text-white text-xs font-bold group-hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20 whitespace-nowrap">
+                    Записаться
+                    <svg className="w-3 h-3 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
                 </div>
               </Link>
             ))}

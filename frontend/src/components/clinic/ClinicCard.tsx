@@ -76,20 +76,7 @@ export default function ClinicCard({ clinic, isOpen }: Props) {
   const firstDisc = clinic.promotions[0]?.discount ?? null;
 
   return (
-    <div className="relative group">
-      {/* Favorite button */}
-      <button
-        onClick={handleFav}
-        aria-label={isFav ? "Убрать из избранного" : "Добавить в избранное"}
-        className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm border ${
-          isFav
-            ? "bg-rose-50 text-rose-500 border-rose-200"
-            : "bg-white/90 text-slate-300 border-slate-100 opacity-0 group-hover:opacity-100 hover:text-rose-400 hover:border-rose-100"
-        }`}
-      >
-        <HeartIcon filled={isFav} />
-      </button>
-
+    <div className="group">
       <Link
         href={`/clinic/${clinic.slug}`}
         className="flex bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
@@ -109,7 +96,7 @@ export default function ClinicCard({ clinic, isOpen }: Props) {
           <div className="flex-1 min-w-0 space-y-2.5">
 
             {/* Name row */}
-            <div className="flex flex-wrap items-center gap-2 pr-10">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-headline font-bold text-on-surface text-base sm:text-lg leading-snug group-hover:text-primary transition-colors">
                 {clinic.name}
               </h3>
@@ -181,7 +168,19 @@ export default function ClinicCard({ clinic, isOpen }: Props) {
           </div>
 
           {/* Right block */}
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:gap-4 shrink-0 sm:min-w-[110px]">
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-3 shrink-0 sm:min-w-[110px]">
+            {/* Favorite button — first item so it sits at top on desktop */}
+            <button
+              onClick={handleFav}
+              aria-label={isFav ? "Убрать из избранного" : "Добавить в избранное"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border ${
+                isFav
+                  ? "bg-rose-50 text-rose-500 border-rose-200"
+                  : "bg-white text-slate-300 border-slate-100 opacity-0 group-hover:opacity-100 hover:text-rose-400 hover:border-rose-100"
+              }`}
+            >
+              <HeartIcon filled={isFav} />
+            </button>
             {/* Rating */}
             <div className="flex flex-col items-center sm:items-end gap-0.5">
               <div className="flex items-center gap-1.5">
