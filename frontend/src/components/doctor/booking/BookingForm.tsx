@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { StarIcon } from "@/components/ui/StarIcon";
+import AppointmentCalendar from "@/components/ui/AppointmentCalendar";
 import type { Doctor } from "@/lib/doctors";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -155,111 +156,6 @@ function BookingSuccess({
   );
 }
 
-// ─── Mini calendar ────────────────────────────────────────────────────────────
-
-const RU_MONTHS = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-const RU_DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-
-function labelToDayNum(label: string, today: Date): number {
-  if (label === "Сегодня") return today.getDate();
-  if (label === "Завтра")  return today.getDate() + 1;
-  const m = label.match(/(\d+)$/);
-  return m ? parseInt(m[1]) : -1;
-}
-
-function MiniCalendar({
-  doctorSlots,
-  selectedDayIdx,
-  onSelect,
-}: {
-  doctorSlots: { label: string; slots: { morning: { time: string; available: boolean }[]; afternoon: { time: string; available: boolean }[]; evening: { time: string; available: boolean }[] } }[];
-  selectedDayIdx: number;
-  onSelect: (idx: number) => void;
-}) {
-  const today = new Date();
-  const year  = today.getFullYear();
-  const month = today.getMonth();
-
-  const daysInMonth   = new Date(year, month + 1, 0).getDate();
-  const firstWeekday  = new Date(year, month, 1).getDay(); // 0=Sun
-  // Convert to Mon-based offset (Mon=0 … Sun=6)
-  const startOffset   = firstWeekday === 0 ? 6 : firstWeekday - 1;
-
-  // Map available labels → day numbers in this month
-  const availMap = new Map<number, number>(); // dayNum → slotIdx
-  doctorSlots.forEach((s, idx) => {
-    const d = labelToDayNum(s.label, today);
-    if (d > 0) availMap.set(d, idx);
-  });
-
-  const selectedDayNum = selectedDayIdx >= 0 ? labelToDayNum(doctorSlots[selectedDayIdx]?.label ?? "", today) : -1;
-
-  const cells: (number | null)[] = [
-    ...Array(startOffset).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  // Pad to full rows
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  return (
-    <div>
-      {/* Month header */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="font-bold text-on-surface text-sm">
-          {RU_MONTHS[month]} {year}
-        </span>
-        <span className="text-xs text-on-surface-variant">
-          {doctorSlots.filter((_, i) => availMap.has(labelToDayNum(doctorSlots[i].label, today))).length} дней со слотами
-        </span>
-      </div>
-
-      {/* Day-of-week header */}
-      <div className="grid grid-cols-7 mb-1">
-        {RU_DOW.map((d) => (
-          <div key={d} className="text-center text-[11px] font-bold text-on-surface-variant py-1">
-            {d}
-          </div>
-        ))}
-      </div>
-
-      {/* Day cells */}
-      <div className="grid grid-cols-7 gap-y-1">
-        {cells.map((day, i) => {
-          if (!day) return <div key={`e-${i}`} />;
-
-          const isPast     = day < today.getDate();
-          const isToday    = day === today.getDate();
-          const isAvail    = availMap.has(day);
-          const isSelected = day === selectedDayNum;
-          const slotIdx    = availMap.get(day) ?? -1;
-
-          return (
-            <button
-              key={day}
-              disabled={!isAvail}
-              onClick={() => isAvail && onSelect(slotIdx)}
-              className={[
-                "relative mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all",
-                isSelected
-                  ? "bg-primary text-white shadow-md shadow-primary/25"
-                  : isAvail
-                    ? "bg-secondary/10 text-secondary font-bold hover:bg-secondary/20 cursor-pointer"
-                    : isPast
-                      ? "text-outline-variant/40 cursor-default"
-                      : "text-on-surface-variant cursor-default",
-              ].join(" ")}
-            >
-              {day}
-              {isToday && !isSelected && (
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -276,9 +172,36 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
     [doctor.services]
   );
 
+  // ── Calendar state ──
+  const today = useMemo(() => new Date(), []);
+  const [viewYear, setViewYear]   = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+
+  // Map doctor slot labels → calendar day numbers
+  const availableDayNums = useMemo(() => {
+    const set = new Set<number>();
+    doctor.slots.forEach((s) => {
+      if (s.label === "Сегодня") set.add(today.getDate());
+      else if (s.label === "Завтра") set.add(today.getDate() + 1);
+      else { const m = s.label.match(/(\d+)$/); if (m) set.add(parseInt(m[1])); }
+    });
+    return set;
+  }, [doctor.slots, today]);
+
+  // Find slot index by calendar day number
+  const findSlotIdx = useCallback((dayNum: number): number => {
+    return doctor.slots.findIndex((s) => {
+      if (s.label === "Сегодня") return dayNum === today.getDate();
+      if (s.label === "Завтра")  return dayNum === today.getDate() + 1;
+      const m = s.label.match(/(\d+)$/);
+      return m ? parseInt(m[1]) === dayNum : false;
+    });
+  }, [doctor.slots, today]);
+
   // ── State ──
   const [selectedSvcIdx, setSelectedSvcIdx] = useState(0);
-  const [selectedDayIdx, setSelectedDayIdx] = useState(0);
+  const [selectedDayIdx, setSelectedDayIdx] = useState(-1);
+  const [selectedDayNum, setSelectedDayNum] = useState<number | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [useBonuses, setUseBonuses] = useState(false);
   const [name, setName] = useState("Иван Иванов");
@@ -317,10 +240,12 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
     []
   );
 
-  const handleSelectDay = useCallback((idx: number) => {
+  const handleSelectDay = useCallback((dayNum: number) => {
+    const idx = findSlotIdx(dayNum);
+    setSelectedDayNum(dayNum);
     setSelectedDayIdx(idx);
     setSelectedSlot(null);
-  }, []);
+  }, [findSlotIdx]);
 
   const handleSubmit = useCallback(() => {
     if (!canSubmit) return;
@@ -415,52 +340,69 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
 
           {/* ── Step 2: Date & Time ───────────────────────────────────────── */}
           <FormSection step={2} title="Дата и время" complete={selectedSlot !== null}>
-            {/* Mini calendar */}
-            <MiniCalendar
-              doctorSlots={doctor.slots}
-              selectedDayIdx={selectedDayIdx}
-              onSelect={handleSelectDay}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* LEFT — calendar */}
+              <AppointmentCalendar
+                viewYear={viewYear}
+                viewMonth={viewMonth}
+                selectedDay={selectedDayNum}
+                today={today}
+                availableDays={availableDayNums}
+                onSelectDay={handleSelectDay}
+                onPrevMonth={() => {
+                  if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
+                  else setViewMonth(m => m - 1);
+                }}
+                onNextMonth={() => {
+                  if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+                  else setViewMonth(m => m + 1);
+                }}
+                canGoPrev={!(viewMonth === today.getMonth() && viewYear === today.getFullYear())}
+              />
 
-            {/* Flat time slots */}
-            {selectedDay && (
-              <div className="mt-5 pt-5 border-t border-outline-variant/10">
-                <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-3">
-                  Доступное время —{" "}
-                  <span className="text-secondary normal-case font-semibold">
-                    {flatSlots.filter((s) => s.available).length} свободно
-                  </span>
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {flatSlots.map((slot) => {
-                    const isSelected = selectedSlot === slot.time;
-                    return (
-                      <button
-                        key={slot.time}
-                        disabled={!slot.available}
-                        onClick={() => slot.available && setSelectedSlot(slot.time)}
-                        className={[
-                          "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all",
-                          !slot.available
-                            ? "bg-surface-container text-outline-variant cursor-not-allowed opacity-40 line-through"
-                            : isSelected
-                              ? "bg-primary text-white shadow-md shadow-primary/25"
-                              : "bg-surface-container text-on-surface hover:bg-surface-container-high",
-                        ].join(" ")}
-                      >
-                        {slot.time}
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* RIGHT — time slots */}
+              <div>
+                {selectedDay ? (
+                  <>
+                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wide mb-3">
+                      Доступное время{" "}
+                      <span className="text-secondary normal-case font-semibold">
+                        · {flatSlots.filter((s) => s.available).length} свободно
+                      </span>
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {flatSlots.map((slot) => {
+                        const isSel = selectedSlot === slot.time;
+                        return (
+                          <button
+                            key={slot.time}
+                            disabled={!slot.available}
+                            onClick={() => slot.available && setSelectedSlot(slot.time)}
+                            className={[
+                              "py-2.5 text-xs font-semibold rounded-xl transition-all",
+                              !slot.available
+                                ? "bg-surface-container text-outline-variant cursor-not-allowed opacity-40 line-through"
+                                : isSel
+                                  ? "bg-secondary text-white shadow-sm"
+                                  : "bg-surface-container text-on-surface hover:bg-secondary/10 hover:text-secondary",
+                            ].join(" ")}
+                          >
+                            {slot.time}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <p className="text-sm text-on-surface-variant text-center">
+                      ← Выберите дату<br />
+                      <span className="text-xs opacity-60">Доступные дни выделены синим</span>
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-
-            {!selectedDay && (
-              <p className="mt-5 text-sm text-on-surface-variant text-center py-4">
-                Выберите дату в календаре выше
-              </p>
-            )}
+            </div>
           </FormSection>
 
           {/* ── Step 3: Patient info ──────────────────────────────────────── */}

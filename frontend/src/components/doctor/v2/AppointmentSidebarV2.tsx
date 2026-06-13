@@ -3,22 +3,9 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { Doctor } from "@/lib/doctors";
+import AppointmentCalendar from "@/components/ui/AppointmentCalendar";
 
 const ruPrice = new Intl.NumberFormat("ru-RU");
-
-const WEEK_LABELS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
-const MONTH_NAMES = [
-  "Январь","Февраль","Март","Апрель","Май","Июнь",
-  "Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь",
-];
-
-function buildCalendar(year: number, month: number) {
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  // Shift to Monday=0
-  const startOffset = (firstDay + 6) % 7;
-  return { startOffset, daysInMonth };
-}
 
 const FLAT_SLOTS = ["09:00","10:30","11:45","13:00","14:30","16:00"];
 
@@ -29,23 +16,10 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
   const [selectedTime, setSelectedTime] = useState<string | null>("10:30");
 
-  const { startOffset, daysInMonth } = buildCalendar(viewYear, viewMonth);
-
-  const isToday = (d: number) =>
-    d === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear();
-
-  const isPast = (d: number) => {
-    const date = new Date(viewYear, viewMonth, d);
-    date.setHours(0,0,0,0);
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0,0,0,0);
-    return date < todayMidnight;
-  };
-
   const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
 
   const prevMonth = () => {
-    if (isCurrentMonth) return; // нельзя уйти в прошлое
+    if (isCurrentMonth) return;
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
     else setViewMonth(m => m - 1);
     setSelectedDay(null);
@@ -74,72 +48,16 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
 
         <div className="p-5 space-y-5">
           {/* Calendar */}
-          <div className="space-y-3">
-            {/* Month nav */}
-            <div className="flex justify-between items-center">
-              <span className="font-headline font-bold text-sm text-on-surface">
-                {MONTH_NAMES[viewMonth]} {viewYear}
-              </span>
-              <div className="flex gap-1">
-                <button
-                  onClick={prevMonth}
-                  disabled={isCurrentMonth}
-                  className={`p-1.5 rounded-lg transition-colors ${isCurrentMonth ? "opacity-30 cursor-not-allowed" : "hover:bg-surface-container"}`}
-                  aria-label="Предыдущий месяц"
-                >
-                  <svg className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextMonth}
-                  className="p-1.5 rounded-lg hover:bg-surface-container transition-colors"
-                  aria-label="Следующий месяц"
-                >
-                  <svg className="w-4 h-4 text-on-surface-variant" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Weekday headers */}
-            <div className="grid grid-cols-7 text-center">
-              {WEEK_LABELS.map((d) => (
-                <span key={d} className="text-[10px] font-bold text-on-surface-variant py-1">{d}</span>
-              ))}
-            </div>
-
-            {/* Days */}
-            <div className="grid grid-cols-7 gap-0.5 text-center">
-              {Array.from({ length: startOffset }).map((_, i) => (
-                <span key={`e-${i}`} />
-              ))}
-              {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
-                const past = isPast(d);
-                const selected = selectedDay === d;
-                const today_ = isToday(d);
-                return (
-                  <button
-                    key={d}
-                    disabled={past}
-                    onClick={() => { setSelectedDay(d); setSelectedTime(null); }}
-                    className={`py-2 text-xs rounded-lg font-semibold transition-all ${
-                      past
-                        ? "text-on-surface-variant/30 cursor-not-allowed"
-                        : selected
-                        ? "bg-secondary text-white shadow-sm"
-                        : today_
-                        ? "bg-secondary/15 text-secondary font-bold"
-                        : "hover:bg-secondary/10 text-on-surface"
-                    }`}
-                  >
-                    {d}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <AppointmentCalendar
+            viewYear={viewYear}
+            viewMonth={viewMonth}
+            selectedDay={selectedDay}
+            today={today}
+            onSelectDay={(d) => { setSelectedDay(d); setSelectedTime(null); }}
+            onPrevMonth={prevMonth}
+            onNextMonth={nextMonth}
+            canGoPrev={!isCurrentMonth}
+          />
 
           {/* Time slots */}
           <div className="space-y-2">
