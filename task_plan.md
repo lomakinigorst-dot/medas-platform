@@ -1,10 +1,10 @@
 # MEDAS — Полный план разработки
-**Версия:** 5.0 | **Дата:** 2026-06-13 | **Статус:** 🔄 В работе
+**Версия:** 5.2 | **Дата:** 2026-06-13 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Фаза 1 — Backend Foundation (FastAPI + PostgreSQL)
+Фаза 2 — Авторизация (JWT + mock OTP)
 
 ---
 
@@ -35,7 +35,7 @@
 
 ---
 
-### Фаза 1 — Backend Foundation 🔄 in_progress
+### Фаза 1 — Backend Foundation ✅ complete (2026-06-13)
 
 **Зачем:** без бэкенда все данные — моки. Нельзя показывать клиентам, нельзя принимать реальные записи.
 **Критерий готовности:** `GET /api/v1/health` → 200, PostgreSQL запущен, Alembic миграции применены, `GET /api/v1/clinics` → JSON список из БД.
@@ -74,43 +74,51 @@
 - [x] `api/v1/endpoints/clinics.py` — `GET /api/v1/clinics`, `GET /api/v1/clinics/{slug}`
 - [x] `api/v1/endpoints/doctors.py` — `GET /api/v1/doctors?specialty=`, `GET /api/v1/doctors/{slug}`
 
-#### 1.5 — Seed данных + деплой 🔄
-- [x] `scripts/seed.py` — 5 клиник + 3 врача (из frontend mock данных)
-- [ ] ⏳ ЖДЁМ: пользователь создаёт .env файлы на VPS → запускает `docker compose up -d`
-- [ ] Верификация: `curl http://api.med-as.ru/health` → 200
-- [ ] Верификация: `curl http://api.med-as.ru/api/v1/clinics` → JSON массив
-- [ ] SSL для api.med-as.ru через certbot (после запуска HTTP версии)
-- [ ] Frontend: заменить импорты из `lib/clinics.ts` на `fetch('https://api.med-as.ru/api/v1/clinics')`
+#### 1.5 — Seed данных + деплой ✅ (2026-06-13)
+- [x] `scripts/seed.py` — 5 клиник + 3 врача в PostgreSQL
+- [x] VPS: все контейнеры запущены (postgres, redis, backend, frontend, nginx)
+- [x] SSL для api.med-as.ru через certbot (истекает 2026-09-11)
+- [x] Frontend → API: `lib/api.ts` (fetchClinics/fetchDoctors с revalidate:60)
+- [x] `/clinics` и `/search` используют реальные данные из PostgreSQL
+- [x] Alembic baseline: revision 77dbb05f7c23 stamped head
+
+#### 1.6 — Доработки (текущая сессия)
+- [ ] **Т1**: `lib/api.ts` — fetchList возвращает null на ошибке (логировать + правильный fallback)
+- [ ] **Т2**: VPS crontab — auto-renewal certbot 1-го и 15-го числа в 3:00
 
 ---
 
-### Фаза 2 — Авторизация (JWT + SMS)
+### Фаза 2 — Авторизация (JWT + mock OTP) 🔄 in_progress
 
 **Зачем:** без реального входа нельзя брать реальные записи, нельзя показывать кабинет.
-**Критерий готовности:** реальный вход через форму → JWT в cookie → защищённый endpoint отвечает 200.
+**Критерий готовности:** POST /auth/register → code "123456" → POST /auth/verify-otp → JWT → /cabinet/* защищён middleware.
+**MVP-упрощение:** OTP = "123456" для всех (реальный SMS — Фаза 4). Cookie — обычный (не httpOnly, т.к. middleware.ts читает его).
 
-#### 2.1 — JWT авторизация
-- [ ] `core/security.py` — create_access_token, create_refresh_token, verify_token (python-jose)
-- [ ] `models/user.py` — добавить поле `hashed_password` (для email-входа) + `phone_verified`
-- [ ] `api/v1/endpoints/auth.py`:
-  - `POST /api/v1/auth/send-sms` — отправить SMS-код на телефон (через SMSC.ru или Twilio)
-  - `POST /api/v1/auth/verify-sms` — проверить код → выдать JWT + refresh
-  - `POST /api/v1/auth/refresh` — обновить access token по refresh
-  - `POST /api/v1/auth/logout` — инвалидировать refresh (в Redis)
-- [ ] `dependencies/auth.py` — `get_current_user` dependency (декодирует JWT из Bearer)
-- [ ] Redis: хранить SMS-коды с TTL 10 мин (`sms:{phone}` → code)
+#### 2.1 — Backend JWT Auth (**Т3**)
+- [ ] `backend/requirements.txt` — добавить `python-jose[cryptography]`
+- [ ] `backend/app/core/security.py` (NEW):
+  - `create_access_token(user_id, phone, expires_delta=7дней)` → str
+  - `verify_token(token)` → dict payload | None
+- [ ] `backend/app/schemas/auth.py` (NEW) — Pydantic v2:
+  - `RegisterRequest(phone, name)`, `LoginRequest(phone)`
+  - `OTPVerifyRequest(phone, code)`, `TokenResponse(access_token, token_type="bearer")`
+  - `UserResponse(id, phone, name, bonus_balance)`
+- [ ] `backend/app/api/v1/endpoints/auth.py` (NEW):
+  - `POST /auth/register` → upsert User → return `{"code": "123456"}`
+  - `POST /auth/login` → find User → return `{"code": "123456"}` (404 if not found)
+  - `POST /auth/verify-otp` → if code=="123456" → return TokenResponse(JWT)
+  - `GET /auth/me` → decode Bearer → return UserResponse
+- [ ] `backend/app/api/v1/router.py` — include auth_router
 
-#### 2.2 — Регистрация пациента
-- [ ] `POST /api/v1/auth/register` — создать User(phone, name, role=patient) + отправить SMS
-- [ ] Страница `/register` на фронтенде: форма имя + телефон + код + согласие
-- [ ] Страница `/login` — реальный запрос к API (не заглушка)
-- [ ] Хранить JWT в httpOnly cookie (не localStorage — безопасность)
-- [ ] Редирект после входа: пациент → /cabinet/patient, клиника → /cabinet/clinic
+#### 2.2 — Frontend middleware + auth utils (**Т3 продолжение**)
+- [ ] `frontend/src/lib/auth.ts` (NEW) — setToken/getToken/clearToken/isAuthenticated (cookie)
+- [ ] `frontend/src/middleware.ts` (NEW) — читать cookie "medas_token", redirect → /login?next=... для /cabinet/*
+- [ ] Matcher: `['/cabinet/:path*']`
 
-#### 2.3 — Защищённые endpoints
-- [ ] `GET /api/v1/me` — профиль текущего пользователя (requires auth)
-- [ ] Middleware: проверка JWT для всех `/cabinet/*` маршрутов на фронте (Next.js middleware.ts)
-- [ ] Обновить `Header.tsx` — показывать имя пользователя + баланс бонусов если авторизован
+#### 2.3 — (Фаза 4) Реальный SMS + httpOnly
+- [ ] SMSC.ru или Twilio интеграция
+- [ ] Redis TTL для OTP кодов
+- [ ] Переключить cookie на httpOnly + refresh token
 
 ---
 

@@ -12,7 +12,7 @@ export const metadata = {
 
 export default async function SearchPage() {
   const apiDoctors = await fetchDoctors();
-  const initialDoctors = apiDoctors.map(apiDoctorToDoctor);
+  const initialDoctors = (apiDoctors ?? []).map(apiDoctorToDoctor);
 
   return (
     <>

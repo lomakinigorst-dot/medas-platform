@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function ClinicsPage() {
   const apiClinics = await fetchClinics();
-  const clinics = apiClinics.length > 0
+  const clinics = apiClinics !== null
     ? apiClinics.map(apiClinicToClinic)
     : getClinics();
 

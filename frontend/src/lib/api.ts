@@ -51,21 +51,26 @@ export interface Doctor {
   image: string;
 }
 
-async function fetchList<T>(path: string): Promise<T[]> {
+async function fetchList<T>(path: string): Promise<T[] | null> {
+  const url = `${API_BASE}${path}`;
   try {
-    const res = await fetch(`${API_BASE}${path}`, { next: { revalidate: 60 } });
-    if (!res.ok) return [];
+    const res = await fetch(url, { next: { revalidate: 60 } });
+    if (!res.ok) {
+      console.error(`[api] ${url} → ${res.status} ${res.statusText}`);
+      return null;
+    }
     return ((await res.json()) as { items: T[] }).items;
-  } catch {
-    return [];
+  } catch (err) {
+    console.error(`[api] ${url} → network error`, err);
+    return null;
   }
 }
 
-export async function fetchClinics(): Promise<ApiClinic[]> {
+export async function fetchClinics(): Promise<ApiClinic[] | null> {
   return fetchList("/clinics?limit=50");
 }
 
-export async function fetchDoctors(specialty?: string): Promise<ApiDoctor[]> {
+export async function fetchDoctors(specialty?: string): Promise<ApiDoctor[] | null> {
   const qs = specialty
     ? `?specialty=${encodeURIComponent(specialty)}&limit=50`
     : "?limit=50";
