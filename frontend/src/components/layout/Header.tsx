@@ -82,8 +82,15 @@ export default function Header() {
             scrolled ? "py-2" : "py-3"
           }`}
         >
-          <Link href="/" className="flex items-center flex-shrink-0">
+          <Link href="/" className="flex items-center gap-3 flex-shrink-0">
             <Logo compact={scrolled} />
+            <div className={`hidden lg:flex items-center gap-3 transition-all duration-300 overflow-hidden ${scrolled ? "opacity-0 w-0 gap-0" : "opacity-100"}`}>
+              <div className="w-px h-8 bg-outline-variant/30 flex-shrink-0" />
+              <div className="flex-shrink-0">
+                <p className="text-[11px] font-bold text-on-surface leading-tight whitespace-nowrap">Медицинский агрегатор</p>
+                <p className="text-[10px] text-on-surface-variant whitespace-nowrap">10 000+ врачей · 500+ клиник</p>
+              </div>
+            </div>
           </Link>
 
           {/* Desktop nav */}
