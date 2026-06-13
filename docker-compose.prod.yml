@@ -9,6 +9,39 @@ services:
     networks:
       - medas_net
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - medas_net
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medas
+      POSTGRES_USER: medas
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medas_net
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - medas_net
+
   nginx:
     image: nginx:1.25-alpine
     ports:
@@ -21,6 +54,7 @@ services:
       - certbot_conf:/etc/letsencrypt:ro
     depends_on:
       - frontend
+      - backend
     restart: unless-stopped
     networks:
       - medas_net
@@ -34,6 +68,8 @@ services:
       - ssl
 
 volumes:
+  postgres_data:
+  redis_data:
   certbot_www:
   certbot_conf:
 

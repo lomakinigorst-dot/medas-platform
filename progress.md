@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 1 — Backend Foundation (FastAPI + PostgreSQL) — СТАРТ
-Последнее ✅: task_plan.md v5.0 + ТЗ v2.0 — честные статусы страниц + правильный порядок фаз 0→9
+Текущий блок: Фаза 1 — Backend Foundation (FastAPI + PostgreSQL)
+Последнее ✅: Fix ClinicCard ♡ (убран absolute, перемещена в правую колонку) + /doctors горизонтальные карточки (pravatar.cc) — коммит 313f55e, задеплоен
 Следующее: Фаза 1.1 — создать backend/ структуру FastAPI проекта (папки, main.py, config, database)
-Важно: НЕ делать новые фронтенд-страницы до готовности Фазы 2 (Auth); deploy = docker build --no-cache --no-background
+Важно: api.med-as.ru DNS → 85.239.44.14 уже настроен. saas.med-as.ru = тестовый, прод → med-as.ru
 
 ---
 

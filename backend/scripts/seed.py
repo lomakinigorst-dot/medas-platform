@@ -1,0 +1,145 @@
+"""
+Seed initial data: clinics + doctors from frontend mock data.
+Run: python -m scripts.seed
+"""
+import asyncio
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from app.core.config import settings
+from app.core.database import Base
+from app.models.clinic import Clinic
+from app.models.doctor import Doctor
+
+CLINICS = [
+    {
+        "slug": "medicina-na-tsvetnoy",
+        "name": "Медицина на Цветном",
+        "description": "Многопрофильный медицинский центр в центре Москвы с 20-летней историей.",
+        "address": "ул. Цветной бульвар, 30",
+        "metro": "Цветной бульвар",
+        "phone": "+7 (495) 123-45-67",
+        "website": "https://medicina-tsvetnoy.ru",
+        "rating": 4.9,
+        "review_count": 1247,
+        "accepts_dms": True,
+    },
+    {
+        "slug": "evromedservice",
+        "name": "ЕвроМедСервис",
+        "description": "Европейские стандарты диагностики и лечения.",
+        "address": "Ленинский пр., 123",
+        "metro": "Университет",
+        "phone": "+7 (495) 234-56-78",
+        "rating": 4.8,
+        "review_count": 893,
+        "accepts_dms": True,
+    },
+    {
+        "slug": "sm-klinika",
+        "name": "СМ-Клиника",
+        "description": "Сеть семейных клиник с педиатрическими отделениями.",
+        "address": "ул. Новочерёмушкинская, 65",
+        "metro": "Профсоюзная",
+        "phone": "+7 (495) 345-67-89",
+        "rating": 4.7,
+        "review_count": 2104,
+        "accepts_dms": False,
+    },
+    {
+        "slug": "stomatologiya-ulybka",
+        "name": "Стоматология Улыбка",
+        "description": "Современная стоматология — от диагностики до имплантации.",
+        "address": "ул. Арбат, 15",
+        "metro": "Арбатская",
+        "phone": "+7 (495) 456-78-90",
+        "rating": 4.6,
+        "review_count": 543,
+        "accepts_dms": False,
+    },
+    {
+        "slug": "semeynyy-doktor",
+        "name": "Семейный доктор",
+        "description": "Семейная клиника. Принимаем детей и взрослых.",
+        "address": "Кутузовский пр., 22",
+        "metro": "Кутузовская",
+        "phone": "+7 (495) 567-89-01",
+        "rating": 4.5,
+        "review_count": 731,
+        "accepts_dms": True,
+    },
+]
+
+DOCTORS = [
+    {
+        "slug": "anna-sokolova",
+        "name": "Соколова Анна Михайловна",
+        "specialty": "Кардиолог",
+        "bio": "Специалист по заболеваниям сердечно-сосудистой системы. Кандидат медицинских наук.",
+        "avatar": "https://i.pravatar.cc/150?u=anna-sokolova",
+        "experience": 15,
+        "rating": 4.9,
+        "review_count": 238,
+        "price": 3500,
+        "is_verified": True,
+        "clinic_slug": "medicina-na-tsvetnoy",
+    },
+    {
+        "slug": "igor-petrov",
+        "name": "Петров Игорь Сергеевич",
+        "specialty": "Хирург",
+        "bio": "Хирург высшей категории. Специализируется на малоинвазивных операциях.",
+        "avatar": "https://i.pravatar.cc/150?u=igor-petrov",
+        "experience": 22,
+        "rating": 4.8,
+        "review_count": 156,
+        "price": 4000,
+        "is_verified": True,
+        "clinic_slug": "evromedservice",
+    },
+    {
+        "slug": "maria-kozlova",
+        "name": "Козлова Мария Александровна",
+        "specialty": "Педиатр",
+        "bio": "Педиатр с многолетним опытом. Специализируется на раннем развитии и вакцинации.",
+        "avatar": "https://i.pravatar.cc/150?u=maria-kozlova",
+        "experience": 10,
+        "rating": 4.95,
+        "review_count": 412,
+        "price": 2500,
+        "is_verified": True,
+        "clinic_slug": "sm-klinika",
+    },
+]
+
+
+async def seed() -> None:
+    engine = create_async_engine(settings.DATABASE_URL, echo=True)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+    async with session_maker() as session:
+        # Clinics
+        clinic_map: dict[str, int] = {}
+        for data in CLINICS:
+            clinic = Clinic(**data)
+            session.add(clinic)
+            await session.flush()
+            clinic_map[data["slug"]] = clinic.id
+
+        # Doctors
+        for data in DOCTORS:
+            clinic_slug = data.pop("clinic_slug")
+            doctor = Doctor(**data, clinic_id=clinic_map.get(clinic_slug))
+            session.add(doctor)
+
+        await session.commit()
+
+    await engine.dispose()
+    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors.")
+
+
+if __name__ == "__main__":
+    asyncio.run(seed())
