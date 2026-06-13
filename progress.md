@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза G ✅ — /clinics ЗАДЕПЛОЕНА (коммит 0386bc3)
-Последнее ✅: страница /clinics — ClinicsClient с фильтрами, ClinicCard, 5 моков клиник
-Следующее: Фаза H — бонусная система (MobileBookingBar, бейдж в карточке врача на /search)
-Важно: docker-compose использует образ medas-frontend:latest (не app-frontend:latest!)
+Текущий блок: Фаза J ✅ — Shared AppointmentCalendar + редизайн /clinics (коммиты 1d6e692, c1ea33b)
+Последнее ✅: J.1 shared AppointmentCalendar + 2-col BookingForm; J.2 редизайн ClinicCard+ClinicsClient с hero
+Следующее: J.3 — создать /doctors (редирект или страница врачей); Фаза H — бонусная система
+Важно: deploy = git pull в /tmp/medas-platform → docker build --no-cache → force-recreate (НЕ run_in_background+&)
 
 ---
 
