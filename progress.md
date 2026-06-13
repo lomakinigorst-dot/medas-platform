@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 2.3 — /login подключён к реальному API ✅
-Последнее ✅: LoginForm.tsx (OTP флоу: phone→register/login→verify-otp→setToken→redirect) задеплоен
-Следующее: Header.tsx — показывать имя пользователя когда залогинен (GET /auth/me)
-Важно: OTP = "123456" (mock). Cookie = "medas_token". proxy.ts (Next.js 16). login/page.tsx = Suspense wrapper; LoginForm.tsx = "use client".
+Текущий блок: Фаза 3 — Реальное бронирование
+Последнее ✅: Фаза 2 complete. CabinetLayout + PatientHeroGreeting показывают реальное имя из /auth/me. Подтверждено скриншотом (9b34197).
+Следующее: Фаза 3.1 — модель DoctorSchedule + GET /doctors/{slug}/slots + seed расписания
+Важно: OTP = "123456" (mock). Phone в БД = "+7...". Cookie = "medas_token". Деплой: rsync → docker build → docker restart на VPS 85.239.44.14.
 
 ---
 

@@ -88,7 +88,7 @@
 
 ---
 
-### Фаза 2 — Авторизация (JWT + mock OTP) 🔄 in_progress
+### Фаза 2 — Авторизация (JWT + mock OTP) ✅ complete (2026-06-13)
 
 **Зачем:** без реального входа нельзя брать реальные записи, нельзя показывать кабинет.
 **Критерий готовности:** POST /auth/register → code "123456" → POST /auth/verify-otp → JWT → /cabinet/* защищён middleware.
