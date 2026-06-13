@@ -168,26 +168,25 @@ export default function ClinicCard({ clinic, isOpen }: Props) {
           </div>
 
           {/* Right block */}
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-3 shrink-0 sm:min-w-[110px]">
-            {/* Favorite button — first item so it sits at top on desktop */}
-            <button
-              onClick={handleFav}
-              aria-label={isFav ? "Убрать из избранного" : "Добавить в избранное"}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all border ${
-                isFav
-                  ? "bg-rose-50 text-rose-500 border-rose-200"
-                  : "bg-white text-slate-300 border-slate-100 opacity-0 group-hover:opacity-100 hover:text-rose-400 hover:border-rose-100"
-              }`}
-            >
-              <HeartIcon filled={isFav} />
-            </button>
-            {/* Rating */}
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:gap-4 shrink-0 sm:min-w-[110px]">
+            {/* Rating row: ★ 4.8 ♡ */}
             <div className="flex flex-col items-center sm:items-end gap-0.5">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <StarIcon className="w-4 h-4 text-amber-400" />
                 <span className="font-headline font-extrabold text-on-surface text-lg leading-none">
                   {clinic.rating}
                 </span>
+                <button
+                  onClick={handleFav}
+                  aria-label={isFav ? "Убрать из избранного" : "Добавить в избранное"}
+                  className={`ml-0.5 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                    isFav
+                      ? "text-rose-500"
+                      : "text-slate-300 hover:text-rose-400"
+                  }`}
+                >
+                  <HeartIcon filled={isFav} />
+                </button>
               </div>
               <span className="text-[11px] text-on-surface-variant">
                 {clinic.reviewCount} отзывов

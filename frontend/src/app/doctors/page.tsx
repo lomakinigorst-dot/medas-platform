@@ -1,10 +1,96 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DOCTORS } from "@/lib/doctors";
 import { StarIcon } from "@/components/ui/StarIcon";
 
-const RU_FORMAT    = new Intl.NumberFormat("ru-RU");
-const TOP_DOCTORS  = DOCTORS.slice(0, 3);
+const RU_FORMAT = new Intl.NumberFormat("ru-RU");
+
+type TopDoctorCard = {
+  slug: string;
+  name: string;
+  specialty: string;
+  avatar: string;
+  verified: boolean;
+  rating: number;
+  reviewCount: number;
+  experience: number;
+  specializations: string[];
+  price: number;
+};
+
+const TOP_DOCTORS: TopDoctorCard[] = [
+  {
+    slug: "anna-sokolova",
+    name: "Соколова Анна Михайловна",
+    specialty: "Кардиолог",
+    avatar: "https://i.pravatar.cc/150?u=anna-sokolova",
+    verified: true,
+    rating: 4.9,
+    reviewCount: 184,
+    experience: 12,
+    specializations: ["Ишемическая болезнь сердца", "Нарушения ритма"],
+    price: 2500,
+  },
+  {
+    slug: "igor-petrov",
+    name: "Петров Игорь Сергеевич",
+    specialty: "Хирург",
+    avatar: "https://i.pravatar.cc/150?u=igor-petrov",
+    verified: true,
+    rating: 4.8,
+    reviewCount: 212,
+    experience: 18,
+    specializations: ["Лапароскопические операции", "Грыжи брюшной стенки"],
+    price: 3000,
+  },
+  {
+    slug: "maria-kozlova",
+    name: "Козлова Мария Александровна",
+    specialty: "Педиатр",
+    avatar: "https://i.pravatar.cc/150?u=maria-kozlova",
+    verified: true,
+    rating: 5.0,
+    reviewCount: 147,
+    experience: 9,
+    specializations: ["ОРВИ и грипп", "Аллергия у детей"],
+    price: 1800,
+  },
+  {
+    slug: "dmitry-volkov",
+    name: "Волков Дмитрий Александрович",
+    specialty: "Невролог",
+    avatar: "https://i.pravatar.cc/150?u=dmitry-volkov",
+    verified: true,
+    rating: 4.85,
+    reviewCount: 167,
+    experience: 14,
+    specializations: ["Мигрень", "Остеохондроз"],
+    price: 3200,
+  },
+  {
+    slug: "elena-sidorova",
+    name: "Сидорова Елена Игоревна",
+    specialty: "Терапевт",
+    avatar: "https://i.pravatar.cc/150?u=elena-sidorova",
+    verified: false,
+    rating: 4.7,
+    reviewCount: 289,
+    experience: 11,
+    specializations: ["Гипертония", "Диабет 2 типа"],
+    price: 2200,
+  },
+  {
+    slug: "alexey-nikitin",
+    name: "Никитин Алексей Петрович",
+    specialty: "Ортопед",
+    avatar: "https://i.pravatar.cc/150?u=alexey-nikitin",
+    verified: true,
+    rating: 4.9,
+    reviewCount: 134,
+    experience: 16,
+    specializations: ["Артроз суставов", "Эндопротезирование"],
+    price: 4500,
+  },
+];
 
 export const metadata: Metadata = {
   title: "Врачи Москвы — каталог специалистов | MEDAS",
@@ -264,7 +350,7 @@ export default function DoctorsPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {topDoctors.map((doctor) => (
               <Link
                 key={doctor.slug}
