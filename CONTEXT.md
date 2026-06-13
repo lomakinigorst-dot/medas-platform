@@ -147,9 +147,13 @@ medas-platform/
 
 | Что | Ссылка |
 |---|---|
-| Production | https://med-as.ru |
-| GitHub | TBD (создать: medas-platform) |
+| Тестовый домен (текущий) | https://saas.med-as.ru ← **разработка** |
+| Production (будущий) | https://med-as.ru ← переезд после MVP |
+| API | https://api.med-as.ru (DNS: 85.239.44.14) |
+| GitHub | https://github.com/lomakinigorst-dot/medas-platform |
 | Дизайн | Главная.zip — код HTML + DESIGN.md ✅ |
+
+> ⚠️ `saas.med-as.ru` — ТЕСТОВЫЙ домен для разработки. Когда запускаем в продакшн — сайт переезжает на `med-as.ru`. Все CORS-настройки и ссылки должны включать ОБА домена.
 
 ---
 

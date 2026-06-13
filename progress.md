@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 1 — Backend Foundation (FastAPI + PostgreSQL)
-Последнее ✅: Fix ClinicCard ♡ (убран absolute, перемещена в правую колонку) + /doctors горизонтальные карточки (pravatar.cc) — коммит 313f55e, задеплоен
-Следующее: Фаза 1.1 — создать backend/ структуру FastAPI проекта (папки, main.py, config, database)
-Важно: api.med-as.ru DNS → 85.239.44.14 уже настроен. saas.med-as.ru = тестовый, прод → med-as.ru
+Текущий блок: Фаза 1 Backend — ЖДЁМ Игоря создать .env файлы на VPS и запустить docker compose up -d
+Последнее ✅: backend/ структура создана + образ медas-backend:latest собран на VPS (коммит 253c0e6)
+Следующее: После запуска backend — alembic revision + alembic upgrade head + seed + SSL certbot api.med-as.ru
+Важно: saas.med-as.ru = ТЕСТОВЫЙ, прод → med-as.ru. .env создаётся вручную: /app/medas-platform/backend.env + postgres.env
 
 ---
 

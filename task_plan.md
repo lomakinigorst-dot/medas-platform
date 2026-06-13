@@ -40,46 +40,47 @@
 **Зачем:** без бэкенда все данные — моки. Нельзя показывать клиентам, нельзя принимать реальные записи.
 **Критерий готовности:** `GET /api/v1/health` → 200, PostgreSQL запущен, Alembic миграции применены, `GET /api/v1/clinics` → JSON список из БД.
 
-#### 1.1 — Структура FastAPI проекта
-- [ ] Создать `backend/` папку: `app/`, `alembic/`, `tests/`, `requirements.txt`, `Dockerfile`, `pyproject.toml`
-- [ ] Структура `app/`: `main.py`, `core/` (config, database, security), `models/`, `schemas/`, `services/`, `api/v1/endpoints/`
-- [ ] `core/config.py` — Settings через pydantic-settings (DATABASE_URL, SECRET_KEY, REDIS_URL, SMS_API_KEY)
-- [ ] `core/database.py` — async SQLAlchemy engine + SessionLocal + get_db dependency
-- [ ] `main.py` — FastAPI app + CORS + `/api/v1` router + lifespan (connect/disconnect DB)
-- [ ] `GET /api/v1/health` → `{"status": "ok", "version": "1.0.0"}`
+> ⚠️ Домены: `saas.med-as.ru` = ТЕСТОВЫЙ домен для разработки. Продакшн переедет на `med-as.ru`.
+> API домен: `api.med-as.ru` (DNS A-record → 85.239.44.14 уже настроен). CORS: оба домена в allow_origins.
 
-#### 1.2 — Модели базы данных
-- [ ] `models/user.py` — User (id, phone, email, name, role: patient|clinic_admin|doctor|admin, is_verified, created_at)
-- [ ] `models/clinic.py` — Clinic (id, slug, name, address, metro, phone, email, rating, acceptsDMS, is_verified, owner_id)
-- [ ] `models/doctor.py` — Doctor (id, slug, name, specialty, clinic_id, experience, rating, price, is_verified)
-- [ ] `models/appointment.py` — Appointment (id, patient_id, doctor_id, clinic_id, datetime, status, service, price, bonuses_used, bonuses_earned)
-- [ ] `models/review.py` — Review (id, patient_id, doctor_id, clinic_id, rating, text, is_verified, created_at)
-- [ ] `models/bonus.py` — BonusTransaction (id, user_id, amount, type: earn|spend, appointment_id, created_at)
-- [ ] Alembic: `alembic init alembic`, `env.py`, первая миграция `0001_initial_tables`
+#### 1.1 — Структура FastAPI проекта ✅ (2026-06-13)
+- [x] Создать `backend/` папку: `app/`, `alembic/`, `scripts/`, `requirements.txt`, `Dockerfile`
+- [x] `core/config.py` — Settings (DATABASE_URL, SECRET_KEY, REDIS_URL, CORS_ORIGINS)
+- [x] `core/database.py` — async SQLAlchemy engine + AsyncSessionLocal + get_db dependency
+- [x] `main.py` — FastAPI app + CORS (saas.med-as.ru + med-as.ru + localhost) + router
+- [x] `GET /health` → `{"status": "ok"}`
 
-#### 1.3 — Docker Compose с backend + PostgreSQL + Redis
-- [ ] Обновить `docker-compose.yml`: добавить services `backend`, `postgres`, `redis`
-- [ ] `backend/Dockerfile`: `python:3.12-slim`, копировать requirements, `uvicorn app.main:app`
-- [ ] Переменные окружения: `DATABASE_URL=postgresql+asyncpg://medas:pass@postgres:5432/medas`
-- [ ] Nginx: добавить upstream `backend:8000`, роутинг `/api/` → backend
-- [ ] `docker-compose.prod.yml` — для VPS (volumes для postgres data)
+#### 1.2 — Модели базы данных ✅ (2026-06-13)
+- [x] `models/user.py` — User (phone, name, email, hashed_password, is_verified, bonus_balance)
+- [x] `models/clinic.py` — Clinic (slug, name, address, metro, rating, review_count, accepts_dms)
+- [x] `models/doctor.py` — Doctor (slug, name, specialty, clinic_id, experience, rating, price, is_verified)
+- [x] `models/appointment.py` — Appointment (patient_id, doctor_id, clinic_id, service_type, scheduled_at, status, bonuses)
+- [x] `models/review.py` — Review (patient_id, doctor_id, clinic_id, rating, text, is_verified)
+- [x] `models/bonus.py` — BonusTransaction (user_id, amount, type, appointment_id)
+- [x] `alembic/env.py` + `alembic/script.py.mako` — async migrations ready
+- [ ] Первая миграция `alembic revision --autogenerate -m "initial_tables"` (на VPS после .env)
 
-#### 1.4 — CRUD API для клиник и врачей (из БД, без авторизации)
-- [ ] `schemas/clinic.py` — ClinicOut, ClinicList (Pydantic v2)
-- [ ] `schemas/doctor.py` — DoctorOut, DoctorList
-- [ ] `services/clinic_service.py` — get_clinics(filters), get_clinic_by_slug()
-- [ ] `services/doctor_service.py` — get_doctors(filters), get_doctor_by_slug()
-- [ ] `api/v1/endpoints/clinics.py` — `GET /api/v1/clinics?specialty=&dms=&metro=&page=`
-- [ ] `api/v1/endpoints/doctors.py` — `GET /api/v1/doctors?specialty=&price_max=&page=`
-- [ ] `api/v1/endpoints/clinics.py` — `GET /api/v1/clinics/{slug}`
-- [ ] `api/v1/endpoints/doctors.py` — `GET /api/v1/doctors/{slug}`
+#### 1.3 — Docker Compose с backend + PostgreSQL + Redis ✅ (2026-06-13)
+- [x] `docker-compose.prod.yml` обновлён: `backend` (medas-backend:latest) + `postgres:16` + `redis:7`
+- [x] `backend/Dockerfile`: python:3.12-slim + requirements + uvicorn
+- [x] `nginx/conf.d/api.conf`: HTTP → backend:8000 (SSL добавить после certbot)
+- [x] VPS: `medas-backend:latest` image собран, postgres:16 + redis:7 образы скачаны
+- [ ] Создать `/app/medas-platform/backend.env` и `postgres.env` на VPS (вручную — секреты)
+- [ ] `docker compose up -d postgres redis backend && docker compose restart nginx` на VPS
 
-#### 1.5 — Seed данных + деплой
-- [ ] `scripts/seed.py` — загрузить в БД 12 клиник и 3 врачей из текущих моков
-- [ ] Деплой: docker compose up -d на VPS
-- [ ] Верификация: `curl https://saas.med-as.ru/api/v1/health` → 200
-- [ ] Верификация: `curl https://saas.med-as.ru/api/v1/clinics` → JSON массив
-- [ ] Frontend: заменить импорты из `lib/clinics.ts` на `fetch('/api/v1/clinics')` в нужных местах
+#### 1.4 — CRUD API для клиник и врачей ✅ (2026-06-13)
+- [x] `schemas/clinic.py` — ClinicOut, ClinicListOut (Pydantic v2)
+- [x] `schemas/doctor.py` — DoctorOut, DoctorListOut
+- [x] `api/v1/endpoints/clinics.py` — `GET /api/v1/clinics`, `GET /api/v1/clinics/{slug}`
+- [x] `api/v1/endpoints/doctors.py` — `GET /api/v1/doctors?specialty=`, `GET /api/v1/doctors/{slug}`
+
+#### 1.5 — Seed данных + деплой 🔄
+- [x] `scripts/seed.py` — 5 клиник + 3 врача (из frontend mock данных)
+- [ ] ⏳ ЖДЁМ: пользователь создаёт .env файлы на VPS → запускает `docker compose up -d`
+- [ ] Верификация: `curl http://api.med-as.ru/health` → 200
+- [ ] Верификация: `curl http://api.med-as.ru/api/v1/clinics` → JSON массив
+- [ ] SSL для api.med-as.ru через certbot (после запуска HTTP версии)
+- [ ] Frontend: заменить импорты из `lib/clinics.ts` на `fetch('https://api.med-as.ru/api/v1/clinics')`
 
 ---
 
