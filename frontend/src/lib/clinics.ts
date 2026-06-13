@@ -56,6 +56,23 @@ export type Clinic = {
   parking: string;
 };
 
+// ── Utility: real-time open/closed detection ──────────────────────────────────
+export function isClinicOpenNow(clinic: Clinic): boolean {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon … 6=Sat
+  const hours = dayOfWeek === 0 || dayOfWeek === 6 ? clinic.hours.weekends : clinic.hours.weekdays;
+  if (!hours || hours.toLowerCase().includes("выходной") || hours.toLowerCase().includes("закрыт")) {
+    return false;
+  }
+  const [openStr, closeStr] = hours.split("–").map((s) => s.trim());
+  const toMinutes = (t: string) => {
+    const [h, m] = t.replace(".", ":").split(":").map(Number);
+    return h * 60 + (m || 0);
+  };
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  return currentMinutes >= toMinutes(openStr) && currentMinutes < toMinutes(closeStr);
+}
+
 const CLINICS: Clinic[] = [
   {
     slug: "centr-sovremennoy-meditsiny",
@@ -180,6 +197,180 @@ const CLINICS: Clinic[] = [
       { author: "Марина Л.", text: "Отличный педиатр. Записались за день, всё прошло спокойно.", rating: 5, date: "3 дня назад" },
     ],
     doctorSlugs: ["maria-kozlova"],
+  },
+  {
+    slug: "stomatologiya-ulybka",
+    name: "Стоматология Улыбка",
+    address: "ул. Тверская, 22, Москва",
+    phone: "+7 (495) 234-56-78",
+    email: "smile@ulybka-clinic.ru",
+    rating: 4.8,
+    reviewCount: 892,
+    description:
+      "Современная стоматология с европейскими стандартами лечения. Безболезненная анестезия, имплантация, эстетическая стоматология и ортодонтия для всей семьи.",
+    hours: { weekdays: "09:00 – 21:00", weekends: "10:00 – 19:00" },
+    acceptsDMS: true,
+    stats: { specialties: 8, doctors: 24, patientsPerYear: "6к+" },
+    metro: "3 мин от м. Тверская",
+    bookingsLastMonth: 62,
+    scheduleByDay: [
+      { day: "Пн", hours: "09:00 – 21:00", closed: false },
+      { day: "Вт", hours: "09:00 – 21:00", closed: false },
+      { day: "Ср", hours: "09:00 – 21:00", closed: false },
+      { day: "Чт", hours: "09:00 – 21:00", closed: false },
+      { day: "Пт", hours: "09:00 – 21:00", closed: false },
+      { day: "Сб", hours: "10:00 – 19:00", closed: false },
+      { day: "Вс", hours: "10:00 – 17:00", closed: false },
+    ],
+    ratingCategories: [
+      { name: "Внимательность",   value: 4.9 },
+      { name: "Качество лечения", value: 4.8 },
+      { name: "Чистота",          value: 5.0 },
+      { name: "Цена/качество",    value: 4.5 },
+    ],
+    promotions: [
+      {
+        title: "Отбеливание Zoom 4",
+        description: "Профессиональное отбеливание за 1,5 часа — результат до 12 тонов",
+        discount: "−30%",
+        validUntil: "31 июля 2026",
+      },
+    ],
+    insuranceCompanies: ["СОГАЗ", "ВТБ Страхование", "Ренессанс Здоровье"],
+    certifications: [
+      "Лицензия Минздрава России № ЛО-77-01-022145",
+      "Сертификат качества материалов Nobel Biocare",
+    ],
+    parking: "Парковка во дворе — 10 мест бесплатно",
+    services: [
+      { name: "Консультация стоматолога", description: "Осмотр и план лечения", price: 1500 },
+      { name: "Лечение кариеса", description: "Фотополимерная пломба", price: 4500 },
+      { name: "Имплантация зуба", description: "Под ключ, премиум имплант", price: 45000 },
+    ],
+    specialtyTags: ["Стоматология", "Ортодонтия", "Имплантология", "Детская стоматология", "Отбеливание"],
+    reviews: [
+      { author: "Олег С.", text: "Поставил имплант — боли нет, всё аккуратно. Хожу сюда всей семьёй.", rating: 5, date: "Вчера" },
+      { author: "Наталья В.", text: "Дети не боятся идти в эту клинику. Врачи очень терпеливые.", rating: 5, date: "Неделю назад" },
+    ],
+    doctorSlugs: [],
+  },
+  {
+    slug: "semeynyy-doktor",
+    name: "Семейный доктор",
+    address: "ул. Профсоюзная, 7, Москва",
+    phone: "+7 (495) 345-67-89",
+    email: "family@semdoc.ru",
+    rating: 4.6,
+    reviewCount: 1830,
+    description:
+      "Многопрофильная сеть клиник для всей семьи с опытом 15 лет. Педиатры, терапевты, хирурги, неврологи. Круглосуточный call-центр и приём без записи.",
+    hours: { weekdays: "08:00 – 22:00", weekends: "09:00 – 20:00" },
+    acceptsDMS: true,
+    stats: { specialties: 32, doctors: 210, patientsPerYear: "40к+" },
+    metro: "7 мин от м. Профсоюзная",
+    bookingsLastMonth: 118,
+    scheduleByDay: [
+      { day: "Пн", hours: "08:00 – 22:00", closed: false },
+      { day: "Вт", hours: "08:00 – 22:00", closed: false },
+      { day: "Ср", hours: "08:00 – 22:00", closed: false },
+      { day: "Чт", hours: "08:00 – 22:00", closed: false },
+      { day: "Пт", hours: "08:00 – 22:00", closed: false },
+      { day: "Сб", hours: "09:00 – 20:00", closed: false },
+      { day: "Вс", hours: "09:00 – 20:00", closed: false },
+    ],
+    ratingCategories: [
+      { name: "Внимательность",   value: 4.6 },
+      { name: "Качество лечения", value: 4.7 },
+      { name: "Чистота",          value: 4.6 },
+      { name: "Цена/качество",    value: 4.8 },
+    ],
+    promotions: [
+      {
+        title: "Детский чекап",
+        description: "Комплексный осмотр ребёнка 8 специалистами за один день",
+        discount: "−35%",
+        validUntil: "30 июня 2026",
+      },
+      {
+        title: "ДМС онлайн",
+        description: "Подберём полис ДМС и сразу начнём обслуживать",
+        discount: "Бесплатно",
+        validUntil: "Постоянно",
+      },
+    ],
+    insuranceCompanies: ["СОГАЗ", "Ингосстрах", "АльфаСтрахование", "РЕСО-Гарантия", "Росгосстрах"],
+    certifications: [
+      "ISO 9001:2015",
+      "Лицензия Минздрава России № ЛО-77-01-018764",
+    ],
+    parking: "Подземная парковка — 50 мест",
+    services: [
+      { name: "Консультация терапевта", description: "Первичный приём", price: 2500 },
+      { name: "Педиатрия до 14 лет", description: "Осмотр, назначения", price: 2200 },
+      { name: "Анализ крови расширенный", description: "48 показателей за 1 день", price: 3800 },
+    ],
+    specialtyTags: ["Педиатрия", "Терапия", "Неврология", "Хирургия", "Гинекология", "Эндокринология", "Офтальмология"],
+    reviews: [
+      { author: "Дмитрий П.", text: "Ходим всей семьёй. Быстро записали, время ожидания — 5 минут.", rating: 5, date: "Сегодня" },
+      { author: "Юлия А.", text: "Педиатр потрясающий. Дочка не плакала ни разу!", rating: 5, date: "3 дня назад" },
+    ],
+    doctorSlugs: [],
+  },
+  {
+    slug: "medskан-diagnostika",
+    name: "Медскан Диагностика",
+    address: "Ленинградский пр-т, 58, Москва",
+    phone: "+7 (495) 456-78-90",
+    email: "mri@medskan.ru",
+    rating: 4.9,
+    reviewCount: 437,
+    description:
+      "Специализированный центр лучевой диагностики: МРТ, КТ, ПЭТ-КТ, рентген, маммография. Аппараты Siemens 3 Тл. Результаты через 2 часа. Работаем без выходных.",
+    hours: { weekdays: "07:00 – 23:00", weekends: "08:00 – 22:00" },
+    acceptsDMS: true,
+    stats: { specialties: 5, doctors: 18, patientsPerYear: "15к+" },
+    metro: "4 мин от м. Аэропорт",
+    bookingsLastMonth: 84,
+    scheduleByDay: [
+      { day: "Пн", hours: "07:00 – 23:00", closed: false },
+      { day: "Вт", hours: "07:00 – 23:00", closed: false },
+      { day: "Ср", hours: "07:00 – 23:00", closed: false },
+      { day: "Чт", hours: "07:00 – 23:00", closed: false },
+      { day: "Пт", hours: "07:00 – 23:00", closed: false },
+      { day: "Сб", hours: "08:00 – 22:00", closed: false },
+      { day: "Вс", hours: "08:00 – 22:00", closed: false },
+    ],
+    ratingCategories: [
+      { name: "Внимательность",   value: 4.9 },
+      { name: "Качество снимков", value: 5.0 },
+      { name: "Чистота",          value: 4.9 },
+      { name: "Цена/качество",    value: 4.6 },
+    ],
+    promotions: [
+      {
+        title: "МРТ в ночное время",
+        description: "С 22:00 до 07:00 — специальная ночная цена",
+        discount: "−40%",
+        validUntil: "Постоянно",
+      },
+    ],
+    insuranceCompanies: ["СОГАЗ", "Ингосстрах", "РЕСО-Гарантия"],
+    certifications: [
+      "Сертификация Siemens Healthineers",
+      "Лицензия Минздрава России № ЛО-77-01-021098",
+      "Аккредитация РОРР",
+    ],
+    parking: "Бесплатная парковка — 100 мест",
+    services: [
+      { name: "МРТ головного мозга", description: "3 Тл, с/без контраста", price: 6900 },
+      { name: "КТ грудной клетки", description: "Результат через 2 часа", price: 5500 },
+      { name: "ПЭТ-КТ всего тела", description: "Онкологическая диагностика", price: 38000 },
+    ],
+    specialtyTags: ["МРТ", "КТ", "ПЭТ-КТ", "Рентген", "Маммография", "УЗИ диагностика"],
+    reviews: [
+      { author: "Алина К.", text: "Сделала МРТ без очереди, результат получила через 1,5 часа. Качество на высоте.", rating: 5, date: "Вчера" },
+    ],
+    doctorSlugs: [],
   },
 ];
 
