@@ -1,4 +1,5 @@
 import CabinetLayout from "@/components/layout/CabinetLayout";
+import PatientHeroGreeting from "@/components/cabinet/PatientHeroGreeting";
 import Link from "next/link";
 
 const navItems = [
@@ -29,9 +30,7 @@ export default function PatientCabinetPage() {
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
         <div className="lg:col-span-8 bg-gradient-to-br from-[#003087] to-[#1e40af] p-8 rounded-[2rem] text-white relative overflow-hidden flex flex-col justify-between min-h-[240px]">
           <div className="relative z-10">
-            <h3 className="text-3xl font-[family-name:var(--font-manrope)] font-extrabold mb-2 tracking-tighter">
-              Ваше здоровье под контролем, Алекс.
-            </h3>
+            <PatientHeroGreeting />
             <p className="text-white/80 max-w-md text-sm">
               У вас 2 запланированных приёма на этой неделе. Не забудьте заполнить анкету перед визитом.
             </p>

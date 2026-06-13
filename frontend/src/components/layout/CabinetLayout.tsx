@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { clearToken } from "@/lib/auth";
+import { clearToken, getToken } from "@/lib/auth";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
 
 type NavItem = {
   href: string;
@@ -31,11 +34,23 @@ export default function CabinetLayout({
 }: CabinetLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [apiName, setApiName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => data?.name && setApiName(data.name))
+      .catch(() => null);
+  }, []);
 
   function handleLogout() {
     clearToken();
     router.push("/");
   }
+
+  const displayName = apiName ?? userName;
 
   return (
     <div className="flex min-h-screen overflow-hidden bg-[#f7f9fb]">
@@ -55,10 +70,10 @@ export default function CabinetLayout({
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-tighter mb-3">С возвращением</p>
           <div className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm">
             <div className="w-10 h-10 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#003087] font-bold text-sm overflow-hidden">
-              {userName.charAt(0)}
+              {displayName.charAt(0)}
             </div>
             <div>
-              <p className="font-bold text-[#191c1e] text-sm truncate">{userName}</p>
+              <p className="font-bold text-[#191c1e] text-sm truncate">{displayName}</p>
               <p className="text-[11px] text-slate-500">{userSubtitle}</p>
             </div>
           </div>
