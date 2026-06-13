@@ -5,9 +5,9 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза F ✅ — /doctor/[slug]/booking ЗАДЕПЛОЕНА
-Последнее ✅: коммит ca5dd97 — booking page: BookingForm + DoctorBookingCard + экран успеха
-Следующее: /clinics — страница списка клиник (анализ конкурентов + Stitch «Врачи» как образец)
+Текущий блок: Фаза G ✅ — /clinics ЗАДЕПЛОЕНА (коммит 0386bc3)
+Последнее ✅: страница /clinics — ClinicsClient с фильтрами, ClinicCard, 5 моков клиник
+Следующее: Фаза H — бонусная система (MobileBookingBar, бейдж в карточке врача на /search)
 Важно: docker-compose использует образ medas-frontend:latest (не app-frontend:latest!)
 
 ---

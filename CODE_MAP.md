@@ -75,7 +75,8 @@
 | `/search` | `app/search/page.tsx` | `SearchClient` (client) |
 | `/services` | `app/services/page.tsx` | inline |
 | `/doctor/[slug]` | `app/doctor/[slug]/page.tsx` | `DoctorHero`, `DoctorContentSections`, `AppointmentSidebarV2` (client), `MobileBookingBar` (client), `SimilarDoctors` |
-| `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | заглушка — нет реальной формы |
+| `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | `BookingForm` (client), `DoctorBookingCard` |
+| `/clinics` | `app/clinics/page.tsx` | `ClinicsClient` (client) — фильтры + список ClinicCard |
 | `/clinic/[slug]` | `app/clinic/[slug]/page.tsx` | `ClinicHero`, `ClinicContent`, `ClinicInfoSidebar`, `ClinicServicesSearch` (client) |
 | `/cabinet/patient` | `app/cabinet/patient/page.tsx` | CabinetLayout |
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
@@ -107,6 +108,8 @@
 | `ClinicContent` | `ClinicContent.tsx` | 8 секций: О клинике, Врачи сегодня (слоты), Поиск услуг, Рейтинг+отзывы (ReviewCard), Акции, Направления, Фото, Похожие клиники |
 | `ClinicInfoSidebar` | `ClinicInfoSidebar.tsx` | AddressMapBlock + расписание-сетка 7 дней (сегодня = highlight) + DMS-чипы + сертификаты + парковка |
 | `ClinicServicesSearch` | `ClinicServicesSearch.tsx` | `"use client"`. Поиск по услугам в реальном времени |
+| `ClinicsClient` | `ClinicsClient.tsx` | `"use client"`. Quick chips + sidebar фильтры (DMS/OpenNow/рейтинг/специализации) + сортировка. Используется на /clinics |
+| `ClinicCard` | `ClinicCard.tsx` | Горизонтальная карточка клиники: colored avatar (initials), адрес, метро badge, теги, stats, isOpen, CTA → /clinic/[slug] |
 
 ---
 
