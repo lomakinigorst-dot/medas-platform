@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 1 Backend — ЖДЁМ Игоря создать .env файлы на VPS и запустить docker compose up -d
-Последнее ✅: backend/ структура создана + образ медas-backend:latest собран на VPS (коммит 253c0e6)
-Следующее: После запуска backend — alembic revision + alembic upgrade head + seed + SSL certbot api.med-as.ru
-Важно: saas.med-as.ru = ТЕСТОВЫЙ, прод → med-as.ru. .env создаётся вручную: /app/medas-platform/backend.env + postgres.env
+Текущий блок: Фаза 1 Backend ✅ ЗАПУЩЕНА — API работает на http://api.med-as.ru (HTTP, без SSL пока)
+Последнее ✅: backend + postgres + redis запущены; seed выполнен (5 клиник, 3 врача в БД); ClinicCard ♡ inline; /doctors 6 врачей в 2 колонки
+Следующее: SSL сертификат для api.med-as.ru через certbot (команда в project_dev_status.md) → потом Фаза 2 Auth (JWT + SMS)
+Важно: api.med-as.ru работает HTTP. HTTPS добавить через certbot. POSTGRES_PASSWORD=medas7a3f1d2e9b4c (VPS only)
 
 ---
 
