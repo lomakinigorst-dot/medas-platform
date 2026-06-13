@@ -1,5 +1,7 @@
 import { StarIcon } from "@/components/ui/StarIcon";
 import type { Doctor } from "@/lib/doctors";
+import AddressMapBlock from "@/components/ui/AddressMapBlock";
+import ReviewCard from "@/components/ui/ReviewCard";
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
@@ -106,62 +108,49 @@ function ClinicSection({ doctor }: { doctor: Doctor }) {
   return (
     <section className="space-y-4">
       <SectionHeading>Клиника приёма</SectionHeading>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Info card */}
-        <div className="p-6 bg-surface-container-lowest rounded-2xl shadow-sm space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-            </div>
-            <div>
-              <p className="font-bold text-primary leading-tight">{doctor.clinic.name}</p>
-              <p className="text-sm text-on-surface-variant mt-0.5">{doctor.clinic.address}</p>
-              <p className="text-xs text-secondary font-semibold mt-1">м. {doctor.clinic.metro}</p>
-            </div>
+
+      {/* Clinic name + schedule */}
+      <div className="p-5 bg-surface-container-lowest rounded-2xl shadow-sm space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
           </div>
-          <div className="space-y-2 pt-3 border-t border-outline-variant/10">
-            {doctor.clinic.schedule.map((s, i) => (
-              <div key={i} className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">{s.days}</span>
-                <span className="font-semibold text-on-surface">{s.hours}</span>
-              </div>
-            ))}
+          <div>
+            <p className="font-bold text-primary leading-tight">{doctor.clinic.name}</p>
+            <p className="text-xs text-secondary font-semibold mt-0.5">м. {doctor.clinic.metro}</p>
           </div>
         </div>
-
-        {/* Map placeholder with link */}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="min-h-[200px] rounded-2xl overflow-hidden bg-surface-container relative shadow-sm group block"
-          aria-label="Открыть в Google Maps"
-        >
-          {/* Map grid pattern */}
-          <svg className="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">
-            {[0,50,100,150,200,250,300].map(x => <line key={`v${x}`} x1={x} y1="0" x2={x} y2="200" stroke="#43474f" strokeWidth="0.8"/>)}
-            {[0,50,100,150,200].map(y => <line key={`h${y}`} x1="0" y1={y} x2="300" y2={y} stroke="#43474f" strokeWidth="0.8"/>)}
-            {/* Road-like shapes */}
-            <line x1="0" y1="100" x2="300" y2="100" stroke="#43474f" strokeWidth="3" opacity="0.4"/>
-            <line x1="150" y1="0" x2="150" y2="200" stroke="#43474f" strokeWidth="3" opacity="0.4"/>
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-              </svg>
+        <div className="space-y-1.5 pt-3 border-t border-outline-variant/10">
+          {doctor.clinic.schedule.map((s, i) => (
+            <div key={i} className="flex justify-between text-sm">
+              <span className="text-on-surface-variant text-xs">{s.days}</span>
+              <span className="font-semibold text-on-surface text-xs">{s.hours}</span>
             </div>
-            <div className="text-center">
-              <p className="text-xs font-semibold text-on-surface">{doctor.clinic.metro}</p>
-              <p className="text-[11px] text-on-surface-variant mt-0.5 group-hover:text-primary transition-colors">
-                Открыть в Google Maps →
-              </p>
-            </div>
-          </div>
-        </a>
+          ))}
+        </div>
       </div>
+
+      {/* Unified address/map block */}
+      <AddressMapBlock
+        address={doctor.clinic.address + ", Москва"}
+        phone=""
+        metro={`м. ${doctor.clinic.metro}`}
+        mapsUrl={mapsUrl}
+      />
+
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm font-bold text-secondary hover:underline"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+        </svg>
+        Как добраться
+      </a>
     </section>
   );
 }
@@ -214,30 +203,18 @@ function ReviewsSection({ doctor }: { doctor: Doctor }) {
             </div>
           </div>
 
-          {/* Review cards */}
+          {/* Review cards — unified component */}
           <div className="space-y-4">
             {doctor.reviews.map((review) => (
-              <div key={review.id} className="p-6 bg-surface-container-lowest rounded-2xl shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold text-sm flex-shrink-0">
-                      {review.initials}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-on-surface">{review.name}</p>
-                      <p className="text-xs text-on-surface-variant">{review.date}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-0.5 flex-shrink-0">
-                    {[1,2,3,4,5].map((i) => (
-                      <StarIcon key={i} className={`w-4 h-4 ${i <= review.rating ? "text-amber-400" : "text-outline-variant"}`}/>
-                    ))}
-                  </div>
-                </div>
-                <p className="text-on-surface-variant text-sm leading-relaxed italic">
-                  &ldquo;{review.text}&rdquo;
-                </p>
-              </div>
+              <ReviewCard
+                key={review.id}
+                name={review.name}
+                initials={review.initials}
+                date={review.date}
+                rating={review.rating}
+                text={review.text}
+                verified
+              />
             ))}
           </div>
         </>

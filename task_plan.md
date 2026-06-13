@@ -126,6 +126,57 @@
       - curl https://saas.med-as.ru/clinic/centr-sovremennoy-meditsiny → HTTP 200
       - grep бандл: «Проверена MEDAS»
 
+### Фаза E2 — Редизайн /clinic/[slug] «10x лучше конкурентов» ⏳
+**Статус:** pending
+**Файлы:**
+- `frontend/src/lib/clinics.ts` — ОБНОВИТЬ (7 новых полей)
+- `frontend/src/components/ui/ReviewCard.tsx` — СОЗДАТЬ (единый)
+- `frontend/src/components/ui/AddressMapBlock.tsx` — СОЗДАТЬ (единый)
+- `frontend/src/components/clinic/ClinicHero.tsx` — ПЕРЕСТРОИТЬ
+- `frontend/src/components/clinic/ClinicContent.tsx` — ПЕРЕСТРОИТЬ
+- `frontend/src/components/clinic/ClinicInfoSidebar.tsx` — ПЕРЕСТРОИТЬ
+- `frontend/src/components/doctor/DoctorContentSections.tsx` — ОБНОВИТЬ
+
+- [ ] E2.1 Обновить `clinics.ts` — добавить: metro, heroImageUrl, bookingsLastMonth, scheduleByDay (7 дней), ratingCategories (4 категории), promotions, insuranceCompanies, certifications, parking
+      Мок «Центр Современной Медицины»: metro «5 мин от м. Пушкинская», bookingsLastMonth: 47, scheduleByDay: Пн-Пт 8-21 / Сб-Вс 9-18 / Вс нет, ratingCategories: [Внимательность 4.9, Качество 4.8, Чистота 5.0, Цена 4.3], promotions: 2 акции с бонусами, insuranceCompanies: 4 компании, certifications: 3 сертификата
+
+- [ ] E2.2 Создать единые компоненты в `components/ui/`:
+      ReviewCard.tsx — аватар + имя + дата + звёзды + текст + verified badge. Использовать везде.
+      AddressMapBlock.tsx — карта-заглушка (кликабельная → Google Maps) + метро с иконкой + адрес + телефон + кнопка «Проложить маршрут». Принимает props: address, phone, metro, mapsUrl.
+
+- [ ] E2.3 Перестроить `ClinicHero.tsx`:
+      - Hero-баннер 100% ширины, h-64 lg:h-80, bg-primary gradient если нет heroImageUrl
+      - Поверх баннера: название клиники, бейджи «Проверена MEDAS» + «ДМС»
+      - Под баннером: строка метрик — рейтинг / кол-во отзывов / специализаций / Статус (открыто/закрыто сейчас)
+      - Правее: соцдоказательство «47 записей за последний месяц» + кнопки CTA
+
+- [ ] E2.4 Перестроить `ClinicContent.tsx` — 7 секций:
+      a) «О клинике» — bio + 3 стат-карточки (как было)
+      b) «Врачи доступны сегодня» — карточки с фото + первый доступный слот сегодня + кнопка «Записаться»
+      c) «Услуги и цены» — поиск + список строк (перенести из V2 ServicesSearch как server-friendly)
+      d) «Рейтинг и отзывы» — сводный рейтинг + 4 бара по категориям + ReviewCard для каждого отзыва
+      e) «Акции и бонусы» — карточки акций с бейджем скидки + начисляемые бонусы MEDAS
+      f) «Фото клиники» — 6 плейсхолдеров + кнопка «Смотреть все фото»
+      g) «Похожие клиники» — 2-3 карточки других клиник из getClinics()
+
+- [ ] E2.5 Перестроить `ClinicInfoSidebar.tsx`:
+      - AddressMapBlock (карта + метро + адрес + телефон + маршрут)
+      - Расписание-сетка 7 дней (день | часы, выделить сегодня)
+      - Кнопка «Записаться» (secondary, large)
+      - Бонусный блок (amber)
+      - ДМС: чипы с названиями страховых
+      - Сертификаты: список с галочками
+      - Парковка: иконка + текст
+
+- [ ] E2.6 Обновить `DoctorContentSections.tsx`:
+      - В секции «Клиника» заменить самодельный адрес-блок на AddressMapBlock
+      - Добавить кнопку «Как добраться» (ссылка на Google Maps)
+
+- [ ] E2.7 Деплой + верификация
+      - docker build / save / load / force-recreate
+      - curl https://saas.med-as.ru/clinic/centr-sovremennoy-meditsiny → 200
+      - grep бандл: «записей за последний месяц»
+
 ### Фаза F — Страница /doctor/[slug]/booking ⏳
 - [ ] F.1 Форма записи (шаги): выбор слота → контакты → подтверждение
 - [ ] F.2 Экран подтверждения: «Запись принята + вам начислено X бонусов»
