@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { getDoctorBySlug, type Doctor } from "@/lib/doctors";
+import DoctorHero from "@/components/doctor/DoctorHero";
+import DoctorTabs from "@/components/doctor/DoctorTabs";
+import AppointmentSidebar from "@/components/doctor/AppointmentSidebar";
+import SimilarDoctors from "@/components/doctor/SimilarDoctors";
+import { getDoctorBySlug, getSimilarDoctors, type Doctor } from "@/lib/doctors";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -68,12 +72,14 @@ export default async function DoctorProfilePage({ params }: Props) {
   const doctor = getDoctorBySlug(slug);
   if (!doctor) notFound();
 
+  const similar = getSimilarDoctors(doctor, 3);
+
   return (
     <>
       <PhysicianSchema doctor={doctor} />
       <Header />
       <main className="pt-24 pb-20 bg-surface">
-        <div className="max-w-screen-2xl mx-auto px-6">
+        <div className="max-w-screen-xl mx-auto px-6">
           <Breadcrumb
             items={[
               { label: "Главная", href: "/" },
@@ -81,26 +87,24 @@ export default async function DoctorProfilePage({ params }: Props) {
               { label: doctor.name },
             ]}
           />
-          {/* DoctorHero — добавляется в D.2 */}
-          <div className="bg-surface-container-lowest rounded-3xl p-8 mb-8">
-            <h1 className="font-headline text-4xl font-extrabold text-on-surface">{doctor.name}</h1>
-            <p className="text-secondary font-semibold mt-2">{doctor.specialty} · Опыт {doctor.experience} лет</p>
+
+          {/* Hero */}
+          <div className="mt-6">
+            <DoctorHero doctor={doctor} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-10">
+
+          {/* Main content: tabs + sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
             <div className="lg:col-span-8">
-              {/* DoctorTabs — добавляется в D.3 */}
-              <div className="bg-surface-container-lowest rounded-3xl p-8">
-                <p className="text-on-surface-variant">{doctor.bio}</p>
-              </div>
+              <DoctorTabs doctor={doctor} />
             </div>
             <div className="lg:col-span-4">
-              {/* AppointmentSidebar — добавляется в D.4 */}
-              <div className="bg-surface-container-lowest rounded-3xl p-6 sticky top-28">
-                <p className="font-headline font-bold text-lg mb-4">Записаться</p>
-                <p className="text-on-surface-variant text-sm">от {new Intl.NumberFormat("ru-RU").format(doctor.price)} ₽</p>
-              </div>
+              <AppointmentSidebar doctor={doctor} />
             </div>
           </div>
+
+          {/* Similar doctors */}
+          <SimilarDoctors doctors={similar} />
         </div>
       </main>
       <Footer />
