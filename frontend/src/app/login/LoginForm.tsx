@@ -34,6 +34,8 @@ export default function LoginForm() {
       if (res.status === 404) {
         setStep("register");
       } else if (res.ok) {
+        const data = (await res.json()) as { phone: string };
+        setPhone(data.phone); // используем нормализованный номер из БД
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
@@ -56,6 +58,8 @@ export default function LoginForm() {
         body: JSON.stringify({ phone, name }),
       });
       if (res.ok) {
+        const data = (await res.json()) as { phone: string };
+        setPhone(data.phone); // используем нормализованный номер из БД
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
