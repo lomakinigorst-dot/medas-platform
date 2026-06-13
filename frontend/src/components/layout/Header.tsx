@@ -5,9 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 const navLinks = [
-  { href: "/search", label: "Найти врача" },
+  { href: "/search",  label: "Найти врача" },
+  { href: "/doctors", label: "Врачи" },
   { href: "/clinics", label: "Клиники" },
-  { href: "/specialities", label: "Специальности" },
   { href: "/promotions", label: "Акции" },
 ];
 

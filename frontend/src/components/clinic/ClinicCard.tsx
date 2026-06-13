@@ -1,13 +1,9 @@
-import Link from "next/link";
-import type { Clinic } from "@/lib/clinics";
+"use client";
 
-function StarIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor">
-      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-    </svg>
-  );
-}
+import Link from "next/link";
+import { useState } from "react";
+import type { Clinic } from "@/lib/clinics";
+import { StarIcon } from "@/components/ui/StarIcon";
 
 function HospitalIcon({ className }: { className?: string }) {
   return (
@@ -25,132 +21,200 @@ function MetroIcon() {
   );
 }
 
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      className="w-4 h-4"
+      fill={filled ? "currentColor" : "none"}
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
+    </svg>
+  );
+}
+
+const FAV_KEY = "medas_fav_clinics";
+const RU_FORMAT = new Intl.NumberFormat("ru-RU");
+
+function getFavorites(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(FAV_KEY) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+
+function toggleFav(slug: string): boolean {
+  const favs = getFavorites();
+  const next = favs.includes(slug) ? favs.filter((s) => s !== slug) : [...favs, slug];
+  localStorage.setItem(FAV_KEY, JSON.stringify(next));
+  return next.includes(slug);
+}
+
 type Props = {
   clinic: Clinic;
   isOpen: boolean;
 };
 
 export default function ClinicCard({ clinic, isOpen }: Props) {
-  const topTags = clinic.specialtyTags.slice(0, 4);
-  const ruPrice = new Intl.NumberFormat("ru-RU");
+  const [isFav, setIsFav] = useState(() => getFavorites().includes(clinic.slug));
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFav(toggleFav(clinic.slug));
+  };
+
+  const topTags  = clinic.specialtyTags.slice(0, 4);
+  const firstDisc = clinic.promotions[0]?.discount ?? null;
 
   return (
-    <Link
-      href={`/clinic/${clinic.slug}`}
-      className="group relative flex bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
-    >
-      {/* Left accent bar */}
-      <div className="w-1 shrink-0 bg-primary rounded-l-2xl" />
+    <div className="relative group">
+      {/* Favorite button */}
+      <button
+        onClick={handleFav}
+        aria-label={isFav ? "Убрать из избранного" : "Добавить в избранное"}
+        className={`absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm border ${
+          isFav
+            ? "bg-rose-50 text-rose-500 border-rose-200"
+            : "bg-white/90 text-slate-300 border-slate-100 opacity-0 group-hover:opacity-100 hover:text-rose-400 hover:border-rose-100"
+        }`}
+      >
+        <HeartIcon filled={isFav} />
+      </button>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col sm:flex-row gap-5 p-5 sm:p-6 min-w-0">
+      <Link
+        href={`/clinic/${clinic.slug}`}
+        className="flex bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+      >
+        {/* Left accent bar */}
+        <div className="w-1 shrink-0 bg-primary rounded-l-2xl" />
 
-        {/* Icon block */}
-        <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/8 flex items-center justify-center">
-          <HospitalIcon className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
-        </div>
+        {/* Content */}
+        <div className="flex flex-1 flex-col sm:flex-row gap-5 p-5 sm:p-6 min-w-0">
 
-        {/* Main info */}
-        <div className="flex-1 min-w-0 space-y-2.5">
-
-          {/* Name row */}
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-headline font-bold text-on-surface text-base sm:text-lg leading-snug group-hover:text-primary transition-colors">
-              {clinic.name}
-            </h3>
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
-                isOpen
-                  ? "bg-secondary/10 text-secondary"
-                  : "bg-slate-100 text-slate-400"
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-secondary" : "bg-slate-300"}`} />
-              {isOpen ? "Открыто" : "Закрыто"}
-            </span>
-            {clinic.acceptsDMS && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600">
-                ДМС
-              </span>
-            )}
+          {/* Icon block */}
+          <div className="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/8 flex items-center justify-center">
+            <HospitalIcon className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
           </div>
 
-          {/* Address + metro */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-surface-variant">
-            <span>{clinic.address}</span>
-            {clinic.metro && (
-              <span className="inline-flex items-center gap-1 text-primary font-medium">
-                <MetroIcon />
-                {clinic.metro}
-              </span>
-            )}
-          </div>
+          {/* Main info */}
+          <div className="flex-1 min-w-0 space-y-2.5">
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-1.5">
-            {topTags.map((tag) => (
+            {/* Name row */}
+            <div className="flex flex-wrap items-center gap-2 pr-10">
+              <h3 className="font-headline font-bold text-on-surface text-base sm:text-lg leading-snug group-hover:text-primary transition-colors">
+                {clinic.name}
+              </h3>
               <span
-                key={tag}
-                className="px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-600 text-xs font-medium border border-slate-100"
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
+                  isOpen
+                    ? "bg-secondary/10 text-secondary"
+                    : "bg-slate-100 text-slate-400"
+                }`}
               >
-                {tag}
+                <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-secondary" : "bg-slate-300"}`} />
+                {isOpen ? "Открыто" : "Закрыто"}
               </span>
-            ))}
-            {clinic.specialtyTags.length > 4 && (
-              <span className="px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-400 text-xs font-medium border border-slate-100">
-                +{clinic.specialtyTags.length - 4}
+              {clinic.acceptsDMS && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600">
+                  ДМС
+                </span>
+              )}
+              {firstDisc && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 text-orange-600 border border-orange-100">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l5.25-5.25M9.75 9.75h.008v.008H9.75V9.75zm4.5 4.5h.008v.008h-.008v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Акция {firstDisc}
+                </span>
+              )}
+            </div>
+
+            {/* Address + metro */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-surface-variant">
+              <span>{clinic.address}</span>
+              {clinic.metro && (
+                <span className="inline-flex items-center gap-1 text-primary font-medium">
+                  <MetroIcon />
+                  {clinic.metro}
+                </span>
+              )}
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.5">
+              {topTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-600 text-xs font-medium border border-slate-100"
+                >
+                  {tag}
+                </span>
+              ))}
+              {clinic.specialtyTags.length > 4 && (
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-50 text-slate-400 text-xs font-medium border border-slate-100">
+                  +{clinic.specialtyTags.length - 4}
+                </span>
+              )}
+            </div>
+
+            {/* Stats row */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+              <span className="text-on-surface-variant">
+                <span className="font-bold text-on-surface">{clinic.stats.doctors}</span> врачей
               </span>
+              <span className="text-on-surface-variant">
+                <span className="font-bold text-on-surface">{clinic.stats.specialties}</span> специализаций
+              </span>
+              <span className="text-on-surface-variant">
+                <span className="font-bold text-secondary">{clinic.bookingsLastMonth}</span> записей за месяц
+              </span>
+            </div>
+          </div>
+
+          {/* Right block */}
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:gap-4 shrink-0 sm:min-w-[110px]">
+            {/* Rating */}
+            <div className="flex flex-col items-center sm:items-end gap-0.5">
+              <div className="flex items-center gap-1.5">
+                <StarIcon className="w-4 h-4 text-amber-400" />
+                <span className="font-headline font-extrabold text-on-surface text-lg leading-none">
+                  {clinic.rating}
+                </span>
+              </div>
+              <span className="text-[11px] text-on-surface-variant">
+                {clinic.reviewCount} отзывов
+              </span>
+            </div>
+
+            {/* Price */}
+            {clinic.services[0] && (
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-[11px] text-on-surface-variant">от</span>
+                <span className="font-bold text-on-surface text-sm">
+                  {RU_FORMAT.format(clinic.services[0].price)} ₽
+                </span>
+              </div>
             )}
-          </div>
 
-          {/* Stats row */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-            <span className="text-on-surface-variant">
-              <span className="font-bold text-on-surface">{clinic.stats.doctors}</span> врачей
-            </span>
-            <span className="text-on-surface-variant">
-              <span className="font-bold text-on-surface">{clinic.stats.specialties}</span> специализаций
-            </span>
-            <span className="text-on-surface-variant">
-              <span className="font-bold text-secondary">{clinic.bookingsLastMonth}</span> записей за месяц
+            {/* CTA */}
+            <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-white text-xs font-bold group-hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20 whitespace-nowrap">
+              Выбрать врача
+              <svg className="w-3.5 h-3.5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </span>
           </div>
         </div>
-
-        {/* Right block */}
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:gap-4 shrink-0 sm:min-w-[110px]">
-          {/* Rating */}
-          <div className="flex flex-col items-center sm:items-end gap-0.5">
-            <div className="flex items-center gap-1.5">
-              <StarIcon className="w-4 h-4 text-amber-400" />
-              <span className="font-headline font-extrabold text-on-surface text-lg leading-none">
-                {clinic.rating}
-              </span>
-            </div>
-            <span className="text-[11px] text-on-surface-variant">
-              {clinic.reviewCount} отзывов
-            </span>
-          </div>
-
-          {/* Price */}
-          {clinic.services[0] && (
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-[11px] text-on-surface-variant">от</span>
-              <span className="font-bold text-on-surface text-sm">
-                {ruPrice.format(clinic.services[0].price)} ₽
-              </span>
-            </div>
-          )}
-
-          {/* CTA */}
-          <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-white text-xs font-bold group-hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20 whitespace-nowrap">
-            Выбрать врача
-            <svg className="w-3.5 h-3.5 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </span>
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

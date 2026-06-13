@@ -18,6 +18,7 @@ export default function Footer() {
         <div className="flex flex-col gap-4">
           <h4 className="font-bold text-slate-900 mb-2">Платформа</h4>
           <Link href="/search" className="text-slate-500 hover:text-primary transition-colors normal-case tracking-normal">Найти врача</Link>
+          <Link href="/doctors" className="text-slate-500 hover:text-primary transition-colors normal-case tracking-normal">Врачи</Link>
           <Link href="/clinics" className="text-slate-500 hover:text-primary transition-colors normal-case tracking-normal">Клиники</Link>
           <Link href="/specialities" className="text-slate-500 hover:text-primary transition-colors normal-case tracking-normal">Специальности</Link>
           <Link href="/offers" className="text-slate-500 hover:text-primary transition-colors normal-case tracking-normal">Предложения</Link>
