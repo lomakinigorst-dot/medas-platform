@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { Doctor } from "@/lib/doctors";
 import AppointmentCalendar from "@/components/ui/AppointmentCalendar";
-import { fetchSlots, type SlotOut } from "@/lib/api";
+import { fetchSlots, fetchAvailableDays, type SlotOut } from "@/lib/api";
 
 const ruPrice = new Intl.NumberFormat("ru-RU");
 
@@ -16,6 +16,13 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [slots, setSlots] = useState<SlotOut[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [availableDays, setAvailableDays] = useState<Set<number>>(new Set());
+
+  const loadAvailableDays = useCallback(async (year: number, month: number) => {
+    const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
+    const days = await fetchAvailableDays(doctor.slug, monthStr);
+    setAvailableDays(new Set(days));
+  }, [doctor.slug]);
 
   const loadSlots = useCallback(async (year: number, month: number, day: number) => {
     setLoadingSlots(true);
@@ -27,8 +34,9 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
   }, [doctor.slug]);
 
   useEffect(() => {
+    loadAvailableDays(viewYear, viewMonth);
     if (selectedDay !== null) loadSlots(viewYear, viewMonth, selectedDay);
-  }, []); // load on mount for today
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
 
@@ -40,6 +48,7 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
     setViewYear(newYear);
     setSelectedDay(null);
     setSlots([]);
+    loadAvailableDays(newYear, newMonth);
   };
   const nextMonth = () => {
     const newMonth = viewMonth === 11 ? 0 : viewMonth + 1;
@@ -48,6 +57,7 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
     setViewYear(newYear);
     setSelectedDay(null);
     setSlots([]);
+    loadAvailableDays(newYear, newMonth);
   };
 
   const bookingHref = selectedDay && selectedTime
@@ -73,6 +83,7 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
             viewMonth={viewMonth}
             selectedDay={selectedDay}
             today={today}
+            availableDays={availableDays}
             onSelectDay={(d) => { setSelectedDay(d); loadSlots(viewYear, viewMonth, d); }}
             onPrevMonth={prevMonth}
             onNextMonth={nextMonth}

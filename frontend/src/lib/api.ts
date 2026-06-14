@@ -77,6 +77,112 @@ export async function fetchDoctors(specialty?: string): Promise<ApiDoctor[] | nu
   return fetchList(`/doctors${qs}`);
 }
 
+// ─── Slots ───────────────────────────────────────────────────────────────────
+
+export interface SlotOut {
+  time: string;
+  available: boolean;
+}
+
+export async function fetchAvailableDays(slug: string, month: string): Promise<number[]> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${slug}/available-days?month=${month}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const dates: string[] = await res.json();
+    return dates.map((d) => parseInt(d.split("-")[2], 10));
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchSlots(slug: string, date: string): Promise<SlotOut[]> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${slug}/slots?date=${date}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as SlotOut[];
+  } catch {
+    return [];
+  }
+}
+
+// ─── Appointments ─────────────────────────────────────────────────────────────
+
+export interface AppointmentOut {
+  id: number;
+  doctor_name: string;
+  clinic_name: string | null;
+  scheduled_at: string;
+  service_type: string;
+  status: string;
+  price: number;
+  bonuses_used: number;
+  bonuses_earned: number;
+}
+
+export interface AppointmentCreate {
+  doctor_slug: string;
+  scheduled_at: string;
+  service_type: "primary" | "followup" | "online";
+  use_bonuses: boolean;
+  notes?: string;
+}
+
+export async function createAppointment(
+  payload: AppointmentCreate,
+  token: string
+): Promise<AppointmentOut | null> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error("[api] createAppointment →", err);
+      return null;
+    }
+    return (await res.json()) as AppointmentOut;
+  } catch (err) {
+    console.error("[api] createAppointment → network error", err);
+    return null;
+  }
+}
+
+export async function fetchMyAppointments(token: string): Promise<AppointmentOut[]> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments/my`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as AppointmentOut[];
+  } catch {
+    return [];
+  }
+}
+
+export async function cancelAppointment(id: number, token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments/${id}/cancel`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// ─── Clinics / Doctors mappers ────────────────────────────────────────────────
+
 export function apiClinicToClinic(c: ApiClinic): Clinic {
   return {
     slug: c.slug,

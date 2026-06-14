@@ -122,30 +122,92 @@
 
 ---
 
-### Фаза 3 — Реальное бронирование
+### Фаза 3 — Реальное бронирование 🔄 in_progress
 
 **Зачем:** главная ценность продукта — реальная запись к врачу, а не форма-заглушка.
 **Критерий готовности:** пациент записывается через сайт → запись видна в /cabinet/clinic.
 
-#### 3.1 — Расписание врачей
-- [ ] `models/schedule.py` — DoctorSchedule (doctor_id, weekday, start_time, end_time, slot_duration_min)
-- [ ] `models/appointment.py` — добавить поле `datetime` + UNIQUE constraint (doctor_id, datetime)
-- [ ] `services/schedule_service.py` — get_available_slots(doctor_id, date) → список свободных слотов
-- [ ] `GET /api/v1/doctors/{slug}/slots?date=2026-06-15` → [{time: "10:00", available: true}, ...]
-- [ ] Seed: добавить расписание для 3 врачей (Пн-Пт, 09:00-18:00, 30-мин слоты)
+#### Т1 — DoctorSchedule модель + миграция + seed (backend)
+- [ ] `backend/app/models/schedule.py` (NEW) — DoctorSchedule(id, doctor_id FK, weekday int 0-6, start_time Time, end_time Time, slot_duration_min int=30)
+- [ ] `backend/app/models/__init__.py` — добавить import DoctorSchedule
+- [ ] Alembic: `alembic revision --autogenerate -m "add_doctor_schedule"` → `alembic upgrade head`
+- [ ] `backend/scripts/seed.py` — добавить расписание для 3 врачей: Пн-Пт (0-4), 09:00-18:00, 30 мин
 
-#### 3.2 — API записи
-- [ ] `POST /api/v1/appointments` (requires auth) — создать запись (doctor_id, slot, service, use_bonuses)
-- [ ] Логика бонусов: если use_bonuses → списать до 10% от цены, начислить 5% после визита
-- [ ] `GET /api/v1/appointments/my` (requires auth) — мои записи (пациент)
-- [ ] `GET /api/v1/appointments/clinic` (requires clinic_admin) — записи клиники
-- [ ] `PATCH /api/v1/appointments/{id}/cancel` — отмена записи
+#### Т2 — Slots endpoint + schedule service (backend)
+- [ ] `backend/app/schemas/appointment.py` (NEW) — SlotOut(time: str, available: bool)
+- [ ] `backend/app/services/schedule_service.py` (NEW) — get_available_slots(db, doctor_id, date) → list[SlotOut]: генерирует слоты из расписания, убирает занятые из appointments таблицы
+- [ ] `backend/app/api/v1/endpoints/doctors.py` — добавить `GET /api/v1/doctors/{slug}/slots?date=YYYY-MM-DD`
 
-#### 3.3 — Фронтенд: подключить BookingForm к API
-- [ ] Заменить mock submit в `BookingForm.tsx` на `POST /api/v1/appointments`
-- [ ] Получать реальные слоты из `GET /api/v1/doctors/{slug}/slots`
-- [ ] Показывать реальный баланс бонусов из API (не хардкод 1500)
-- [ ] Страница /cabinet/patient — реальный список записей из `GET /api/v1/appointments/my`
+#### Т3 — get_current_user + Appointments endpoint (backend)
+- [ ] `backend/app/core/deps.py` (NEW) — `get_current_user(credentials, db)` → User (переиспользуемая зависимость)
+- [ ] `backend/app/schemas/appointment.py` (дополнить) — AppointmentCreate(doctor_slug, scheduled_at, service_type, use_bonuses, notes), AppointmentOut(id, doctor_name, clinic_name, scheduled_at, service_type, status, price, bonuses_used, bonuses_earned)
+- [ ] `backend/app/api/v1/endpoints/appointments.py` (NEW):
+  - `POST /api/v1/appointments` — resolve doctor_slug→doctor_id, списать бонусы если use_bonuses (min(balance, floor(price*0.1))), создать Appointment status=pending
+  - `GET /api/v1/appointments/my` — записи текущего пользователя с JOIN doctor+clinic
+  - `PATCH /api/v1/appointments/{id}/cancel` — status→cancelled если patient_id совпадает
+- [ ] `backend/app/api/v1/router.py` — include appointments router
+
+#### Т4 — Frontend: BookingForm реальный submit + реальные слоты
+- [ ] `frontend/src/lib/api.ts` — добавить fetchSlots(slug, date), createAppointment(payload, token), fetchMyAppointments(token)
+- [ ] `frontend/src/components/doctor/booking/BookingForm.tsx` — handleSubmit: POST /appointments с Bearer JWT; показывать реальный bonus_balance из /auth/me (убрать хардкод BONUS_BALANCE=1500)
+- [ ] `frontend/src/components/doctor/v2/AppointmentSidebarV2.tsx` — загружать слоты из GET /doctors/{slug}/slots при смене дня
+
+#### Т5 — Frontend: /cabinet/patient реальные записи
+- [ ] `frontend/src/components/cabinet/PatientAppointments.tsx` (NEW client component) — getToken() → GET /appointments/my → рендер списка записей (заменяет хардкод в patient/page.tsx)
+- [ ] `frontend/src/app/cabinet/patient/page.tsx` — заменить mock appointments на <PatientAppointments />
+
+#### Т6 — Deploy
+- [ ] rsync backend + frontend → VPS
+- [ ] docker build medas-backend:latest (с новыми пакетами если нужны)
+- [ ] Alembic upgrade head на VPS
+- [ ] docker build medas-frontend:latest → docker restart
+- [ ] Smoke test: POST /appointments curl → GET /appointments/my → проверить /cabinet/patient
+
+---
+
+### Фаза 3 доработки — Индекс, бонусы, доступные дни 🔄 in_progress
+
+**Зачем:** производительность (индекс), корректность бонусной программы, UX календаря.
+**Критерий готовности:** GET /appointments/my быстро, PATCH /complete начисляет бонусы, календарь подсвечивает рабочие дни врача.
+
+#### T7 — Alembic миграция: индекс на appointments.patient_id
+- [ ] `backend/alembic/versions/c2d3e4f5a6b7_add_appointments_patient_index.py` (NEW)
+  - down_revision = "a3f8c2d1e5b9"
+  - `op.create_index("ix_appointments_patient_id", "appointments", ["patient_id"])`
+- Verify: `alembic upgrade head` → INFO Running upgrade a3f8c2d1e5b9 → c2d3e4f5a6b7
+
+#### T8 — PATCH /appointments/{id}/complete + начисление бонусов
+- [ ] `backend/app/api/v1/endpoints/appointments.py` — добавить endpoint:
+  - Загрузить Appointment по ID (любой авторизованный — MVP без ролей)
+  - Если уже completed/cancelled → 400
+  - `apt.status = "completed"`
+  - `apt.bonuses_earned = round(apt.price * 0.05)`
+  - Загрузить пациента `select(User).where(User.id == apt.patient_id)` → `patient.bonus_balance += apt.bonuses_earned`
+  - commit + return AppointmentOut
+- Verify: curl PATCH /appointments/1/complete → status=completed, bonuses_earned=..., GET /auth/me → bonus_balance увеличился
+
+#### T9 — GET /doctors/{slug}/available-days?month=YYYY-MM (backend)
+- [ ] `backend/app/api/v1/endpoints/doctors.py` — новый endpoint:
+  - Парсить `month=YYYY-MM` → year, month
+  - Получить doctor по slug
+  - Получить DoctorSchedule для doctor → set weekdays (0-4 обычно)
+  - Для каждого дня в месяце: if weekday in schedules_set and date >= today → добавить в список
+  - Вернуть `list[str]` ("YYYY-MM-DD")
+- Verify: curl /doctors/maria-kozlova/available-days?month=2026-06 → список дат (только Пн-Пт)
+
+#### T10 — Frontend: fetchAvailableDays + AppointmentSidebarV2
+- [ ] `frontend/src/lib/api.ts` — добавить `fetchAvailableDays(slug, month): Promise<number[]>`
+  - GET /doctors/{slug}/available-days?month={month} → парсить в номера дней
+- [ ] `frontend/src/components/doctor/v2/AppointmentSidebarV2.tsx`:
+  - Добавить state `availableDays: Set<number>` 
+  - useEffect при mount + при смене viewYear/viewMonth → вызвать loadAvailableDays
+  - Передать `availableDays={availableDays}` в `<AppointmentCalendar>`
+- AppointmentCalendar уже поддерживает этот prop — изменений в нём нет
+
+#### T11 — Deploy
+- [ ] rsync backend → docker build medas-backend → alembic upgrade head (миграция c2d3e4f5a6b7)
+- [ ] rsync frontend → docker build medas-frontend → docker compose up -d
+- [ ] Smoke test: curl /doctors/maria-kozlova/available-days?month=2026-06, PATCH /appointments/.../complete
 
 ---
 
