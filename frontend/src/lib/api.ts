@@ -211,6 +211,41 @@ export async function cancelAppointment(id: number, token: string): Promise<bool
   }
 }
 
+export interface DoctorLoadItem {
+  doctor_name: string;
+  booked: number;
+  total_slots: number;
+}
+
+export interface RevenueDay {
+  date: string;
+  revenue: number;
+}
+
+export interface ClinicStats {
+  today_count: number;
+  today_revenue: number;
+  pending_count: number;
+  month_count: number;
+  month_revenue: number;
+  prev_month_revenue: number;
+  doctors_today: DoctorLoadItem[];
+  revenue_by_day: RevenueDay[];
+}
+
+export async function fetchClinicStats(token: string): Promise<ClinicStats | null> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments/clinic/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as ClinicStats;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Clinics / Doctors mappers ────────────────────────────────────────────────
 
 export function apiClinicToClinic(c: ApiClinic): Clinic {

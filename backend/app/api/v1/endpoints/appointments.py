@@ -1,5 +1,8 @@
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -7,8 +10,18 @@ from app.core.deps import get_current_user
 from app.models.appointment import Appointment
 from app.models.clinic import Clinic
 from app.models.doctor import Doctor
+from app.models.schedule import DoctorSchedule
 from app.models.user import User
-from app.schemas.appointment import AppointmentCreate, AppointmentOut, ClinicAppointmentOut
+from app.schemas.appointment import (
+    AppointmentCreate,
+    AppointmentOut,
+    ClinicAppointmentOut,
+    ClinicStats,
+    DoctorLoadItem,
+    RevenueDay,
+)
+
+MOSCOW = ZoneInfo("Europe/Moscow")
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
@@ -147,6 +160,163 @@ async def clinic_appointments(
             bonuses_earned=apt.bonuses_earned,
         ))
     return out
+
+
+@router.get("/clinic/stats", response_model=ClinicStats)
+async def clinic_stats(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ClinicStats:
+    if current_user.role != "clinic":
+        raise HTTPException(status_code=403, detail="Доступ запрещён")
+    if current_user.clinic_id is None:
+        raise HTTPException(status_code=403, detail="Клиника не привязана к аккаунту")
+
+    cid = current_user.clinic_id
+    now_moscow = datetime.now(MOSCOW)
+    today = now_moscow.date()
+    month_start = today.replace(day=1)
+    prev_month_end = month_start - timedelta(days=1)
+    prev_month_start = prev_month_end.replace(day=1)
+    thirty_days_ago = today - timedelta(days=29)
+
+    def date_of(col):  # type: ignore[no-untyped-def]
+        return func.date(col)
+
+    base = Appointment.clinic_id == cid
+
+    # today_count
+    today_count_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_of(Appointment.scheduled_at) == today,
+            Appointment.status != "cancelled",
+        )
+    )
+    today_count: int = today_count_res.scalar_one() or 0
+
+    # today_revenue
+    today_rev_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.price), 0)).where(
+            base,
+            date_of(Appointment.scheduled_at) == today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    today_revenue: int = today_rev_res.scalar_one() or 0
+
+    # pending_count
+    pending_res = await db.execute(
+        select(func.count(Appointment.id)).where(base, Appointment.status == "pending")
+    )
+    pending_count: int = pending_res.scalar_one() or 0
+
+    # month_count
+    month_count_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+    )
+    month_count: int = month_count_res.scalar_one() or 0
+
+    # month_revenue
+    month_rev_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.price), 0)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    month_revenue: int = month_rev_res.scalar_one() or 0
+
+    # prev_month_revenue
+    prev_rev_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.price), 0)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= prev_month_start,
+            date_of(Appointment.scheduled_at) <= prev_month_end,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    prev_month_revenue: int = prev_rev_res.scalar_one() or 0
+
+    # doctors_today: booked slots per doctor
+    doctors_today_res = await db.execute(
+        select(Appointment.doctor_id, func.count(Appointment.id))
+        .where(
+            base,
+            date_of(Appointment.scheduled_at) == today,
+            Appointment.status != "cancelled",
+        )
+        .group_by(Appointment.doctor_id)
+    )
+    booked_by_doctor: dict[int, int] = {row[0]: row[1] for row in doctors_today_res.all()}
+
+    # total_slots per doctor from DoctorSchedule for today's weekday
+    today_weekday = today.weekday()  # 0=Mon
+    schedules_res = await db.execute(
+        select(DoctorSchedule).where(
+            DoctorSchedule.doctor_id.in_(list(booked_by_doctor.keys()) or [-1]),
+            DoctorSchedule.weekday == today_weekday,
+        )
+    )
+    schedules = schedules_res.scalars().all()
+    slots_by_doctor: dict[int, int] = {}
+    for sched in schedules:
+        start_dt = datetime.combine(today, sched.start_time)
+        end_dt = datetime.combine(today, sched.end_time)
+        minutes = int((end_dt - start_dt).total_seconds() // 60)
+        slots_by_doctor[sched.doctor_id] = minutes // sched.slot_duration_min
+
+    # Fetch doctor names
+    if booked_by_doctor:
+        names_res = await db.execute(
+            select(Doctor.id, Doctor.name).where(Doctor.id.in_(list(booked_by_doctor.keys())))
+        )
+        name_map: dict[int, str] = {row[0]: row[1] for row in names_res.all()}
+    else:
+        name_map = {}
+
+    doctors_today: list[DoctorLoadItem] = [
+        DoctorLoadItem(
+            doctor_name=name_map.get(did, "Врач"),
+            booked=booked,
+            total_slots=slots_by_doctor.get(did, 0),
+        )
+        for did, booked in sorted(booked_by_doctor.items())
+    ]
+
+    # revenue_by_day: last 30 days
+    rev_by_day_res = await db.execute(
+        select(date_of(Appointment.scheduled_at), func.coalesce(func.sum(Appointment.price), 0))
+        .where(
+            base,
+            date_of(Appointment.scheduled_at) >= thirty_days_ago,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+        .group_by(date_of(Appointment.scheduled_at))
+        .order_by(date_of(Appointment.scheduled_at))
+    )
+    revenue_by_day: list[RevenueDay] = [
+        RevenueDay(date=str(row[0]), revenue=int(row[1]))
+        for row in rev_by_day_res.all()
+    ]
+
+    return ClinicStats(
+        today_count=today_count,
+        today_revenue=today_revenue,
+        pending_count=pending_count,
+        month_count=month_count,
+        month_revenue=month_revenue,
+        prev_month_revenue=prev_month_revenue,
+        doctors_today=doctors_today,
+        revenue_by_day=revenue_by_day,
+    )
 
 
 @router.patch("/{appointment_id}/confirm", response_model=AppointmentOut)

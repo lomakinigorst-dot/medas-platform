@@ -33,3 +33,25 @@ class AppointmentOut(BaseModel):
 
 class ClinicAppointmentOut(AppointmentOut):
     patient_name: str
+
+
+class DoctorLoadItem(BaseModel):
+    doctor_name: str
+    booked: int
+    total_slots: int
+
+
+class RevenueDay(BaseModel):
+    date: str  # "YYYY-MM-DD"
+    revenue: int
+
+
+class ClinicStats(BaseModel):
+    today_count: int
+    today_revenue: int
+    pending_count: int
+    month_count: int
+    month_revenue: int
+    prev_month_revenue: int
+    doctors_today: list[DoctorLoadItem]
+    revenue_by_day: list[RevenueDay]
