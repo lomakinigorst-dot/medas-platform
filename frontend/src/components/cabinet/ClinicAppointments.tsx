@@ -31,6 +31,8 @@ const SERVICE_LABELS: Record<string, string> = {
 
 type Filter = "all" | "today" | "week";
 
+const PAGE_SIZE = 20;
+
 function formatDateTime(iso: string) {
   const d = new Date(iso);
   return {
@@ -61,6 +63,7 @@ export default function ClinicAppointments() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
   const [acting, setActing] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     const token = getToken();
@@ -77,6 +80,12 @@ export default function ClinicAppointments() {
     if (filter === "week") return appointments.filter((a) => isThisWeek(a.scheduled_at));
     return appointments;
   }, [appointments, filter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = useMemo(
+    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filtered, page]
+  );
 
   const handleConfirm = useCallback(async (id: number) => {
     const token = getToken();
@@ -128,7 +137,7 @@ export default function ClinicAppointments() {
           {(["all", "today", "week"] as Filter[]).map((f) => (
             <button
               key={f}
-              onClick={() => setFilter(f)}
+              onClick={() => { setFilter(f); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg transition-colors ${
                 filter === f ? "bg-white text-[#003087] shadow-sm" : "text-[#434655] hover:text-[#191c1e]"
               }`}
@@ -158,7 +167,7 @@ export default function ClinicAppointments() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f2f4f6]">
-              {filtered.map((apt) => {
+              {paginated.map((apt) => {
                 const { date, time } = formatDateTime(apt.scheduled_at);
                 const busy = acting === apt.id;
                 return (
@@ -231,6 +240,48 @@ export default function ClinicAppointments() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between px-6 py-4 border-t border-[#f2f4f6]">
+          <p className="text-xs text-[#434655]">
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} из {filtered.length} записей
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#f2f4f6] text-[#434655] disabled:opacity-40 hover:bg-[#e6e8ea] transition-colors"
+            >
+              ← Назад
+            </button>
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              const p = totalPages <= 7 ? i + 1 : page <= 4 ? i + 1 : page + i - 3;
+              if (p < 1 || p > totalPages) return null;
+              return (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 text-xs font-bold rounded-lg transition-colors ${
+                    p === page
+                      ? "bg-[#003087] text-white"
+                      : "bg-[#f2f4f6] text-[#434655] hover:bg-[#e6e8ea]"
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#f2f4f6] text-[#434655] disabled:opacity-40 hover:bg-[#e6e8ea] transition-colors"
+            >
+              Вперёд →
+            </button>
+          </div>
         </div>
       )}
     </div>

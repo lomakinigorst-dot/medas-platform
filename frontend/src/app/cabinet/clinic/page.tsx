@@ -15,14 +15,12 @@ const navItems = [
   { href: "/cabinet/clinic/settings", icon: "⚙️", label: "Настройки" },
 ];
 
-function pctChange(current: number, prev: number): string {
-  if (prev === 0) return current > 0 ? "+∞%" : "0%";
-  const diff = ((current - prev) / prev) * 100;
-  return (diff >= 0 ? "+" : "") + diff.toFixed(0) + "%";
-}
+const BAR_HEIGHT = 96; // px, высота графика
 
-function pctPositive(current: number, prev: number): boolean {
-  return prev === 0 ? current > 0 : current >= prev;
+function pctChange(cur: number, prev: number): string {
+  if (prev === 0) return cur > 0 ? "+∞%" : "0%";
+  const d = ((cur - prev) / prev) * 100;
+  return (d >= 0 ? "+" : "") + d.toFixed(0) + "%";
 }
 
 function fmt(n: number): string {
@@ -32,32 +30,35 @@ function fmt(n: number): string {
 function RevenueChart({ days }: { days: RevenueDay[] }) {
   if (days.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-sm text-[#434655]">
+      <div className="flex items-center justify-center h-24 text-sm text-white/50">
         Нет данных за период
       </div>
     );
   }
   const max = Math.max(...days.map((d) => d.revenue), 1);
   return (
-    <div className="flex items-end gap-1 h-32">
+    <div className="flex items-end gap-1" style={{ height: `${BAR_HEIGHT}px` }}>
       {days.map((d, i) => {
-        const h = Math.max((d.revenue / max) * 100, 2);
+        const barH = Math.max(Math.round((d.revenue / max) * BAR_HEIGHT), 3);
         const isLast = i === days.length - 1;
         return (
-          <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
-            <div
-              className="w-full rounded-t-md transition-all"
-              style={{
-                height: `${h}%`,
-                backgroundColor: isLast ? "#003087" : "#e3fcef",
-              }}
-              title={`${d.date}: ${fmt(d.revenue)} ₽`}
-            />
-          </div>
+          <div
+            key={d.date}
+            className="flex-1 rounded-t-sm transition-all hover:opacity-80 cursor-default"
+            style={{
+              height: `${barH}px`,
+              backgroundColor: isLast ? "#00a982" : "rgba(255,255,255,0.25)",
+            }}
+            title={`${d.date}: ${fmt(d.revenue)} ₽`}
+          />
         );
       })}
     </div>
   );
+}
+
+function KpiSkeleton() {
+  return <div className="h-8 w-28 bg-white/20 rounded-lg animate-pulse" />;
 }
 
 export default function ClinicCabinetPage() {
@@ -73,129 +74,198 @@ export default function ClinicCabinetPage() {
     });
   }, []);
 
-  const todayRevText = loading ? "—" : stats ? `${fmt(stats.today_revenue)} ₽` : "—";
-  const pendingText = loading ? "—" : stats ? String(stats.pending_count) : "—";
-  const monthRevText = loading ? "—" : stats ? `${fmt(stats.month_revenue)} ₽` : "—";
-  const todayCountText = loading ? "—" : stats ? String(stats.today_count) : "—";
+  const isUp = stats ? stats.month_revenue >= stats.prev_month_revenue : true;
+  const change = stats ? pctChange(stats.month_revenue, stats.prev_month_revenue) : null;
 
-  const monthVsPrev = stats
-    ? pctChange(stats.month_revenue, stats.prev_month_revenue)
-    : null;
-  const monthIsUp = stats
-    ? pctPositive(stats.month_revenue, stats.prev_month_revenue)
-    : true;
+  const headerAction = (
+    <button className="flex items-center gap-2 px-4 py-2 bg-[#003087] text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-md shadow-[#003087]/20 active:scale-95">
+      <span>+</span>
+      <span className="hidden sm:inline">Новая запись</span>
+    </button>
+  );
 
   return (
     <CabinetLayout
       role="clinic"
       userName="СМ-Клиника"
-      userSubtitle="Администратор"
+      userSubtitle="Панель клиники"
       navItems={navItems}
       headerTitle="Дашборд клиники"
+      headerAction={headerAction}
     >
-      {/* KPI */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <div className="w-10 h-10 bg-[#003087] rounded-xl flex items-center justify-center text-white text-lg mb-4">📅</div>
-          <p className="text-2xl font-extrabold text-[#191c1e] mb-1">{todayCountText}</p>
-          <p className="text-xs text-[#434655] mb-2">Записей сегодня</p>
-          <span className="text-xs font-bold text-[#434655]">без учёта отменённых</span>
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Записей сегодня */}
+        <div className="bg-white rounded-2xl p-5 border border-[#eceef0] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Записей сегодня</p>
+          {loading ? <KpiSkeleton /> : (
+            <p className="text-4xl font-extrabold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              {stats?.today_count ?? "—"}
+            </p>
+          )}
+          <p className="text-xs text-slate-400 mt-2">без отменённых</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <div className="w-10 h-10 bg-[#00a982] rounded-xl flex items-center justify-center text-white text-lg mb-4">💰</div>
-          <p className="text-2xl font-extrabold text-[#191c1e] mb-1">{todayRevText}</p>
-          <p className="text-xs text-[#434655] mb-2">Выручка сегодня</p>
-          <span className="text-xs font-bold text-[#434655]">подтверждённые + завершённые</span>
+        {/* Ожидают подтверждения */}
+        <div className="bg-white rounded-2xl p-5 border border-[#eceef0] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Новые заявки</p>
+          {loading ? <KpiSkeleton /> : (
+            <p className="text-4xl font-extrabold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              {stats?.pending_count ?? "—"}
+            </p>
+          )}
+          {!loading && stats && stats.pending_count > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+              ⚡ требуют действия
+            </div>
+          )}
+          {!loading && (!stats || stats.pending_count === 0) && (
+            <p className="text-xs text-slate-400 mt-2">нет ожидающих</p>
+          )}
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white text-lg mb-4">🔔</div>
-          <p className="text-2xl font-extrabold text-[#191c1e] mb-1">{pendingText}</p>
-          <p className="text-xs text-[#434655] mb-2">Ожидают подтверждения</p>
-          <span className="text-xs font-bold text-amber-500">требуют действия</span>
+        {/* Выручка сегодня */}
+        <div className="bg-white rounded-2xl p-5 border border-[#eceef0] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Выручка сегодня</p>
+          {loading ? <KpiSkeleton /> : (
+            <p className="text-3xl font-extrabold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              {stats ? `${fmt(stats.today_revenue)} ₽` : "—"}
+            </p>
+          )}
+          <p className="text-xs text-slate-400 mt-2">подтверждённые + завершённые</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <div className="w-10 h-10 bg-[#1e40af] rounded-xl flex items-center justify-center text-white text-lg mb-4">📈</div>
-          <p className="text-2xl font-extrabold text-[#191c1e] mb-1">{monthRevText}</p>
-          <p className="text-xs text-[#434655] mb-2">Выручка за месяц</p>
-          {monthVsPrev !== null && (
-            <span className={`text-xs font-bold ${monthIsUp ? "text-[#00a982]" : "text-[#ba1a1a]"}`}>
-              {monthIsUp ? "▲" : "▼"} {monthVsPrev} vs прошлый месяц
-            </span>
+        {/* Выручка за месяц */}
+        <div className="bg-white rounded-2xl p-5 border border-[#eceef0] shadow-sm">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Выручка за месяц</p>
+          {loading ? <KpiSkeleton /> : (
+            <p className="text-3xl font-extrabold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              {stats ? `${fmt(stats.month_revenue)} ₽` : "—"}
+            </p>
+          )}
+          {change && (
+            <div className={`mt-2 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg ${
+              isUp ? "text-[#006644] bg-[#e3fcef]" : "text-[#ba1a1a] bg-[#ffdad6]"
+            }`}>
+              {isUp ? "▲" : "▼"} {change} vs прошлый мес.
+            </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        {/* Revenue chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">
-              Выручка по дням <span className="text-xs font-normal text-[#434655]">(последние 30 дней)</span>
-            </h3>
-          </div>
-          {loading ? (
-            <div className="h-32 bg-[#f7f9fb] rounded-xl animate-pulse" />
-          ) : (
-            <RevenueChart days={stats?.revenue_by_day ?? []} />
-          )}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#f2f4f6]">
-            <div>
-              <p className="text-xs text-[#434655]">Сегодня</p>
-              <p className="font-bold text-[#003087]">{todayRevText}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[#434655]">Текущий месяц</p>
-              <p className="font-bold text-[#003087]">{monthRevText}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[#434655]">vs прошлый месяц</p>
-              {monthVsPrev !== null ? (
-                <p className={`font-bold ${monthIsUp ? "text-[#00a982]" : "text-[#ba1a1a]"}`}>
-                  {monthIsUp ? "▲" : "▼"} {monthVsPrev}
+      {/* Chart + Doctor load */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        {/* Revenue chart — dark gradient card */}
+        <div
+          className="lg:col-span-2 rounded-2xl p-6 relative overflow-hidden shadow-lg"
+          style={{ background: "linear-gradient(135deg, #002D62 0%, #003d82 100%)" }}
+        >
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1">
+                  Выручка по дням
                 </p>
-              ) : (
-                <p className="font-bold text-[#434655]">—</p>
+                <p className="text-white text-sm font-medium opacity-80">последние 30 дней</p>
+              </div>
+              {change && (
+                <div className={`px-3 py-1 rounded-lg text-[10px] font-bold border ${
+                  isUp
+                    ? "bg-[#00a982]/20 text-[#00a982] border-[#00a982]/30"
+                    : "bg-red-500/20 text-red-300 border-red-500/30"
+                }`}>
+                  {isUp ? "▲" : "▼"} {change}
+                </div>
               )}
             </div>
+
+            {loading ? (
+              <div className="flex items-end gap-1" style={{ height: `${BAR_HEIGHT}px` }}>
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t-sm bg-white/10 animate-pulse"
+                    style={{ height: `${20 + Math.random() * 60}%` }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <RevenueChart days={stats?.revenue_by_day ?? []} />
+            )}
+
+            <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/10">
+              <div>
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">Сегодня</p>
+                <p className="font-bold text-white text-sm">
+                  {loading ? "—" : stats ? `${fmt(stats.today_revenue)} ₽` : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">Текущий месяц</p>
+                <p className="font-bold text-white text-sm">
+                  {loading ? "—" : stats ? `${fmt(stats.month_revenue)} ₽` : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">Прошлый месяц</p>
+                <p className="font-bold text-white text-sm">
+                  {loading ? "—" : stats ? `${fmt(stats.prev_month_revenue)} ₽` : "—"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Decorative icon */}
+          <div className="absolute -right-4 -bottom-4 opacity-5 text-[120px] select-none pointer-events-none">
+            📈
           </div>
         </div>
 
         {/* Doctor load */}
-        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-          <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-6">
+        <div className="bg-white rounded-2xl p-5 border border-[#eceef0] shadow-sm">
+          <h3 className="text-sm font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">
             Загрузка врачей сегодня
           </h3>
+
           {loading ? (
-            <div className="space-y-5">
+            <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-10 bg-[#f7f9fb] rounded-xl animate-pulse" />
+                <div key={i} className="h-8 bg-[#f7f9fb] rounded-lg animate-pulse" />
               ))}
             </div>
           ) : stats && stats.doctors_today.length > 0 ? (
-            <div className="space-y-5">
+            <div className="space-y-4 max-h-56 overflow-y-auto pr-1">
               {stats.doctors_today.map((doc) => {
                 const pct = doc.total_slots > 0
-                  ? Math.round((doc.booked / doc.total_slots) * 100)
-                  : 100;
-                const color = pct >= 80 ? "#003087" : pct >= 50 ? "#00a982" : "#c3c6d7";
+                  ? Math.min(Math.round((doc.booked / doc.total_slots) * 100), 100)
+                  : null;
+                const color =
+                  pct === null ? "#003087"
+                    : pct >= 80 ? "#003087"
+                    : pct >= 50 ? "#00a982"
+                    : "#c3c6d7";
+                // Имя — берём первые два слова
                 const shortName = doc.doctor_name.split(" ").slice(0, 2).join(" ");
                 return (
                   <div key={doc.doctor_name}>
-                    <div className="flex justify-between text-sm mb-1.5">
-                      <span className="font-medium text-[#191c1e]">{shortName}</span>
-                      <span className="text-[#434655] text-xs">
+                    <div className="flex justify-between items-baseline mb-1.5">
+                      <span className="text-sm font-medium text-[#191c1e] truncate max-w-[140px]">
+                        {shortName}
+                      </span>
+                      <span className="text-[11px] text-slate-400 ml-2 flex-shrink-0">
                         {doc.total_slots > 0
-                          ? `${doc.booked} из ${doc.total_slots} слотов`
-                          : `${doc.booked} записей`}
+                          ? `${doc.booked} из ${doc.total_slots}`
+                          : `${doc.booked} зап.`}
                       </span>
                     </div>
-                    <div className="h-2 bg-[#f2f4f6] rounded-full">
+                    <div className="h-1.5 bg-[#f2f4f6] rounded-full">
                       <div
-                        className="h-2 rounded-full transition-all"
-                        style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: color }}
+                        className="h-1.5 rounded-full transition-all"
+                        style={{
+                          width: pct !== null ? `${pct}%` : "100%",
+                          backgroundColor: color,
+                          maxWidth: "100%",
+                        }}
                       />
                     </div>
                   </div>
@@ -203,13 +273,15 @@ export default function ClinicCabinetPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-[#434655] text-center py-6">
-              Сегодня записей нет
-            </p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <span className="text-3xl mb-2">🗓</span>
+              <p className="text-sm text-slate-400">Сегодня записей нет</p>
+            </div>
           )}
         </div>
       </div>
 
+      {/* Incoming appointments */}
       <ClinicAppointments />
     </CabinetLayout>
   );
