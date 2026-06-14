@@ -297,7 +297,7 @@ async def clinic_stats(
             base,
             date_of(Appointment.scheduled_at) >= thirty_days_ago,
             date_of(Appointment.scheduled_at) <= today,
-            Appointment.status.in_(["confirmed", "completed"]),
+            Appointment.status != "cancelled",
         )
         .group_by(date_of(Appointment.scheduled_at))
         .order_by(date_of(Appointment.scheduled_at))

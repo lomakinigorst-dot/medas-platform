@@ -1,10 +1,10 @@
 # MEDAS — Полный план разработки
-**Версия:** 5.2 | **Дата:** 2026-06-13 | **Статус:** 🔄 В работе
+**Версия:** 5.3 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Фаза 2 — Авторизация (JWT + mock OTP)
+Фаза Д — Дашборд клиники (редизайн + фиксы)
 
 ---
 
@@ -259,6 +259,128 @@
 - [ ] rsync frontend → docker build medas-frontend
 - [ ] docker compose stop/up (без alembic — миграции нет)
 - [ ] Smoke test: curl GET /appointments/clinic?clinic_id=1 + проверить /cabinet/clinic в браузере
+
+---
+
+### Фаза Д — Дашборд клиники (редизайн + фиксы) 🔄 in_progress
+
+**Зачем:** дашборд показывал пустой график, сломанный truncate в сайдбаре, портянку без пагинации, фиктивные KPI. Нужен редизайн по Stitch Вариант 1 + реальные данные.
+**Критерий готовности:** `/cabinet/clinic` — KPI реальные, «Расписание на день» таймлайн отображает сегодняшние записи, график рисует столбцы, имя клиники выровнено, врачи top-5, пагинация 20/стр.
+
+#### Д1 — CabinetLayout: фикс user info + headerAction prop
+Status: complete
+Done: user info перенесён вниз сайдбара (min-w-0 flex-1 + truncate работает), добавлен prop headerAction, активный nav = синий bg. Коммит 19fab7d.
+
+#### Д2 — clinic/page.tsx: редизайн по Stitch v2 + аудит конкурентов
+Status: complete
+Done: KPI text-4xl + бейджи тренда, тёмный градиент-график (абсолютные px высоты, фикс пустого блока), врачи max-h-56 + overflow-y-auto, кнопка «Новая запись» в хедере. Коммит 19fab7d.
+
+#### Д3 — ClinicAppointments: пагинация 20/стр
+Status: complete
+Done: PAGE_SIZE=20, paginated useMemo, пагинатор с номерами страниц, «X–Y из N», сброс page при смене фильтра. Коммит 19fab7d.
+
+#### Д4 — /test (пост-деплой проверка .tsx)
+Status: pending
+
+#### Д5 — /simplify (3 файла, 200+ строк)
+Status: pending
+
+#### Д6 — Фикс CabinetLayout: выравнивание имени клиники (sidebar)
+Status: pending
+- Проблема: padding сайдбарного user info (px-2) не совпадает с nav items (px-4) → визуальный сдвиг влево
+- Фикс: `px-2` → `px-4` в блоке user info + оставить min-w-0 flex-1 truncate
+- Файл: `frontend/src/components/layout/CabinetLayout.tsx` (строки 98-115)
+
+#### Д7 — Фикс backend: revenue_by_day пустой
+Status: pending
+- Причина: запрос фильтрует `status IN ('confirmed', 'completed')`, seed-записи — pending
+- Фикс: изменить фильтр на `status != 'cancelled'` для 30-дневного графика
+- Файл: `backend/app/api/v1/endpoints/appointments.py` (строка ~294-303)
+- Verify: curl /appointments/clinic/stats → revenue_by_day содержит ненулевые значения
+
+#### Д8 — «Расписание на день» таймлайн + редизайн clinic/page.tsx
+Status: pending
+- Новый layout: KPI (3 карточки) → [Таймлайн 60% | Новые заявки 40%] → [График | Врачи] → Таблица
+- Таймлайн: фильтрует сегодняшние записи из `fetchClinicAppointments`, сортирует по времени
+- Карточка слота: время (HH:MM) + имя пациента + врач + специальность + статус-бейдж
+- Статусы: pending="ОЖИДАЕТСЯ" (серый), confirmed="ПОДТВЕРЖДЁН" (синий), completed="ЗАВЕРШЁН" (зелёный)
+- Врачи: показывать max 5 (сортировка по % загрузки убыванию), остальные за «Ещё N врачей»
+- Файл: `frontend/src/app/cabinet/clinic/page.tsx`
+- Verify: /cabinet/clinic рендерится, таймлайн отображает записи на сегодня
+
+#### Д9 — Deploy (backend фикс + frontend редизайн)
+Status: pending
+- rsync backend → docker build medas-backend (без alembic — нет новых миграций)
+- rsync frontend → docker build medas-frontend:latest
+- docker compose stop/up
+- Smoke test: curl /appointments/clinic/stats → revenue_by_day непустой; /cabinet/clinic открывается
+
+---
+
+### Фаза Роли — role + clinic_id в User 🔄 in_progress
+
+**Зачем:** без роли любой авторизованный видит все записи всех клиник. С ролью — только своя клиника.
+**Критерий готовности:** GET /appointments/clinic без role=clinic → 403; пользователь-клиника видит только свои записи; /auth/me возвращает role + clinic_id.
+
+**Решения принятые заранее:**
+- role хранится как String("patient"|"clinic"|"doctor"), default="patient"
+- clinic_id в User — nullable FK на clinics.id
+- Seed создаёт admin-пользователя: phone="+70000000001", role="clinic", clinic_id=3 (СМ-Клиника)
+- Frontend ClinicAppointments: убирает clinicId prop, сам вызывает API без параметра
+
+#### R1 — models/user.py: role + clinic_id
+- [ ] Добавить `from sqlalchemy import ForeignKey` (если нет)
+- [ ] `role: Mapped[str] = mapped_column(String(20), default="patient")`
+- [ ] `clinic_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("clinics.id"), nullable=True)`
+- Verify: python -c "from app.models.user import User" без ошибок
+
+#### R2 — Alembic миграция d3e4f5a6b7c8
+- [ ] `backend/alembic/versions/d3e4f5a6b7c8_add_user_role_clinic_id.py`
+  - down_revision = "c2d3e4f5a6b7"
+  - `op.add_column("users", sa.Column("role", sa.String(20), nullable=False, server_default="patient"))`
+  - `op.add_column("users", sa.Column("clinic_id", sa.Integer(), nullable=True))`
+  - FK отдельно: `op.create_foreign_key(None, "users", "clinics", ["clinic_id"], ["id"])`
+- Verify: alembic upgrade head → INFO Running upgrade c2d3e4f5a6b7 → d3e4f5a6b7c8
+
+#### R3 — seed.py: пользователь-клиника
+- [ ] После создания клиник — upsert User: phone="+70000000001", name="Администратор СМ-Клиника", role="clinic", clinic_id=3
+- [ ] Upsert: SELECT → если не нашли, INSERT; если нашли, обновить role+clinic_id
+- Verify: psql SELECT role, clinic_id FROM users WHERE phone='+70000000001' → clinic | 3
+
+#### R4 — schemas/auth.py: UserResponse + role + clinic_id
+- [ ] Добавить `role: str` и `clinic_id: int | None` в UserResponse
+- [ ] `GET /me` уже использует `UserResponse.model_validate(user)` — дополнительных изменений нет
+- Verify: curl GET /auth/me → JSON содержит role + clinic_id
+
+#### R5 — appointments.py: проверка роли + фильтр clinic_id
+- [ ] `GET /appointments/clinic`: убрать `clinic_id: int | None = Query(None)`
+- [ ] Добавить проверку: if current_user.role != "clinic" → HTTPException(403)
+- [ ] Фильтровать: `WHERE clinic_id = current_user.clinic_id`
+- [ ] Если current_user.clinic_id is None → 403 "Клиника не привязана к аккаунту"
+- Verify: curl пациентом → 403; curl клиникой → список только своей клиники
+
+#### R6 — api.ts: убрать clinicId из fetchClinicAppointments
+- [ ] `fetchClinicAppointments(token)` — без параметра clinicId
+- [ ] URL: `/appointments/clinic` (без query param)
+- Verify: tsc --noEmit ✓
+
+#### R7 — ClinicAppointments.tsx: убрать prop, обработать 403
+- [ ] Убрать `clinicId` из props и сигнатуры
+- [ ] `fetchClinicAppointments(token)` без аргумента
+- [ ] Если 403 (пустой массив и token есть) → показать "Нет доступа к записям клиники"
+- Verify: пациент видит "Нет доступа"; клиника видит записи
+
+#### R8 — clinic/page.tsx: убрать prop
+- [ ] `<ClinicAppointments />` (без clinicId={null})
+- Verify: tsc --noEmit ✓
+
+#### R9 — Deploy
+- [ ] rsync backend + frontend → VPS
+- [ ] docker build medas-backend
+- [ ] alembic upgrade head (d3e4f5a6b7c8)
+- [ ] python scripts/seed.py (или точечный скрипт для admin-пользователя)
+- [ ] docker build medas-frontend → docker compose up -d
+- [ ] Smoke: curl /auth/me с токеном клиники → role=clinic; curl /appointments/clinic → список; curl пациентом → 403
 
 ---
 

@@ -96,7 +96,7 @@ export default function CabinetLayout({
 
         {/* User info — внизу */}
         <div className="border-t border-slate-100 pt-4 mt-2">
-          <div className="flex items-center gap-3 px-2 mb-3">
+          <div className="flex items-center gap-3 px-4 mb-3">
             <div className="w-9 h-9 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#003087] font-bold text-sm flex-shrink-0">
               {displayName.charAt(0)}
             </div>
