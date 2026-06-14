@@ -8,6 +8,7 @@ import {
   type ClinicAppointmentOut,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { isToday, isThisWeek, formatDateTime } from "@/lib/date-utils";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Новая",
@@ -33,30 +34,6 @@ type Filter = "all" | "today" | "week";
 
 const PAGE_SIZE = 20;
 
-function formatDateTime(iso: string) {
-  const d = new Date(iso);
-  return {
-    date: d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }),
-    time: d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
-  };
-}
-
-function isToday(iso: string) {
-  const d = new Date(iso);
-  const now = new Date();
-  return d.toDateString() === now.toDateString();
-}
-
-function isThisWeek(iso: string) {
-  const d = new Date(iso);
-  const now = new Date();
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay() + 1);
-  weekStart.setHours(0, 0, 0, 0);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7);
-  return d >= weekStart && d < weekEnd;
-}
 
 export default function ClinicAppointments() {
   const [appointments, setAppointments] = useState<ClinicAppointmentOut[]>([]);

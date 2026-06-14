@@ -11,6 +11,7 @@ import {
   type ClinicAppointmentOut,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { isToday, formatDateTime } from "@/lib/date-utils";
 
 const navItems = [
   { href: "/cabinet/clinic", icon: "📊", label: "Дашборд" },
@@ -38,16 +39,6 @@ function pctChange(cur: number, prev: number): string {
 
 function fmt(n: number): string {
   return n.toLocaleString("ru-RU");
-}
-
-function isToday(iso: string) {
-  const d = new Date(iso);
-  const now = new Date();
-  return d.toDateString() === now.toDateString();
-}
-
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 }
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
@@ -142,7 +133,7 @@ function DayTimeline({ appointments, loading }: { appointments: ClinicAppointmen
                 {/* Time */}
                 <div className="w-10 flex-shrink-0 text-right">
                   <span className="text-xs font-bold text-[#434655] tabular-nums">
-                    {formatTime(apt.scheduled_at)}
+                    {formatDateTime(apt.scheduled_at).time}
                   </span>
                 </div>
                 {/* Line + dot */}
@@ -204,7 +195,7 @@ function NewRequestsSidebar({ appointments, loading, onRefresh }: {
           )}
         </h3>
         <button onClick={onRefresh} className="text-[10px] text-slate-400 hover:text-[#003087] transition-colors font-medium">
-          Все →
+          Обновить ↻
         </button>
       </div>
 
@@ -220,8 +211,7 @@ function NewRequestsSidebar({ appointments, loading, onRefresh }: {
       ) : (
         <div className="space-y-2 flex-1 overflow-y-auto max-h-72">
           {pending.map((apt) => {
-            const time = formatTime(apt.scheduled_at);
-            const date = new Date(apt.scheduled_at).toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+            const { date, time } = formatDateTime(apt.scheduled_at);
             return (
               <div key={apt.id} className="bg-[#f7f9fb] rounded-xl px-3 py-2.5 hover:bg-[#f0f2f5] transition-colors">
                 <div className="flex items-center gap-2 min-w-0">
@@ -259,8 +249,10 @@ function DoctorLoad({ stats, loading }: { stats: ClinicStats | null; loading: bo
     }),
     [doctors]
   );
-  const visible = showAll ? sorted : sorted.slice(0, 5);
-  const hidden = sorted.length - 5;
+  const visible = useMemo(
+    () => showAll ? sorted : sorted.slice(0, 5),
+    [sorted, showAll]
+  );
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}>
@@ -304,12 +296,12 @@ function DoctorLoad({ stats, loading }: { stats: ClinicStats | null; loading: bo
               );
             })}
           </div>
-          {hidden > 0 && (
+          {sorted.length > 5 && (
             <button
               onClick={() => setShowAll((v) => !v)}
               className="mt-3 text-[11px] font-semibold text-[#003087] hover:opacity-75 transition-opacity w-full text-center"
             >
-              {showAll ? "Скрыть" : `Ещё ${hidden} врачей`}
+              {showAll ? "Скрыть" : `Ещё ${sorted.length - 5} врачей`}
             </button>
           )}
         </>
