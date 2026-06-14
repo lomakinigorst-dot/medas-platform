@@ -169,6 +169,37 @@ export async function fetchMyAppointments(token: string): Promise<AppointmentOut
   }
 }
 
+export interface ClinicAppointmentOut extends AppointmentOut {
+  patient_name: string;
+}
+
+export async function fetchClinicAppointments(clinicId: number | null, token: string): Promise<ClinicAppointmentOut[]> {
+  try {
+    const qs = clinicId !== null ? `?clinic_id=${clinicId}` : "";
+    const res = await fetch(`${API_BASE}/appointments/clinic${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as ClinicAppointmentOut[];
+  } catch {
+    return [];
+  }
+}
+
+export async function confirmAppointment(id: number, token: string): Promise<AppointmentOut | null> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments/${id}/confirm`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as AppointmentOut;
+  } catch {
+    return null;
+  }
+}
+
 export async function cancelAppointment(id: number, token: string): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/appointments/${id}/cancel`, {

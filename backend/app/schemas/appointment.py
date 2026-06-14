@@ -29,3 +29,7 @@ class AppointmentOut(BaseModel):
     price: int
     bonuses_used: int
     bonuses_earned: int
+
+
+class ClinicAppointmentOut(AppointmentOut):
+    patient_name: str

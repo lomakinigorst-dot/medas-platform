@@ -1,5 +1,5 @@
 import CabinetLayout from "@/components/layout/CabinetLayout";
-import Link from "next/link";
+import ClinicAppointments from "@/components/cabinet/ClinicAppointments";
 
 const navItems = [
   { href: "/cabinet/clinic", icon: "📊", label: "Дашборд" },
@@ -8,13 +8,6 @@ const navItems = [
   { href: "/cabinet/clinic/appointments", icon: "📋", label: "Записи" },
   { href: "/cabinet/clinic/reports", icon: "📈", label: "Отчёты" },
   { href: "/cabinet/clinic/settings", icon: "⚙️", label: "Настройки" },
-];
-
-const leads = [
-  { patient: "Анна К.", doctor: "Д-р Волков", service: "Кардиология", date: "7 ноя", time: "10:00", status: "new", price: "4 500" },
-  { patient: "Сергей М.", doctor: "Д-р Соколова", service: "Неврология", date: "7 ноя", time: "11:30", status: "confirmed", price: "3 200" },
-  { patient: "Ольга П.", doctor: "Д-р Волков", service: "ЭКГ", date: "8 ноя", time: "09:00", status: "new", price: "1 800" },
-  { patient: "Иван Д.", doctor: "Д-р Миллер", service: "Терапия", date: "8 ноя", time: "14:00", status: "done", price: "2 800" },
 ];
 
 export default function ClinicCabinetPage() {
@@ -113,63 +106,7 @@ export default function ClinicCabinetPage() {
         </div>
       </div>
 
-      {/* Leads Table */}
-      <div className="bg-white rounded-2xl border border-[#c3c6d7]/10 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-[#f2f4f6]">
-          <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Входящие записи</h3>
-          <Link href="/cabinet/clinic/appointments" className="text-xs text-[#003087] font-bold hover:underline">Все записи →</Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-[#f7f9fb]">
-              <tr className="text-xs text-[#434655] font-bold uppercase tracking-wider">
-                <th className="px-6 py-3 text-left">Пациент</th>
-                <th className="px-6 py-3 text-left">Врач</th>
-                <th className="px-6 py-3 text-left">Услуга</th>
-                <th className="px-6 py-3 text-left">Дата / Время</th>
-                <th className="px-6 py-3 text-left">Стоимость</th>
-                <th className="px-6 py-3 text-left">Статус</th>
-                <th className="px-6 py-3 text-left">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f2f4f6]">
-              {leads.map((lead, i) => (
-                <tr key={i} className="hover:bg-[#f7f9fb] transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#dbe1ff] text-[#003087] flex items-center justify-center text-xs font-bold">
-                        {lead.patient.charAt(0)}
-                      </div>
-                      <span className="font-medium text-sm">{lead.patient}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#434655]">{lead.doctor}</td>
-                  <td className="px-6 py-4 text-sm text-[#434655]">{lead.service}</td>
-                  <td className="px-6 py-4 text-sm font-medium">{lead.date} · {lead.time}</td>
-                  <td className="px-6 py-4 font-bold text-sm text-[#003087]">{lead.price} ₽</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      lead.status === "new" ? "bg-[#dbe1ff] text-[#003087]" :
-                      lead.status === "confirmed" ? "bg-[#e3fcef] text-[#006644]" :
-                      "bg-[#e6e8ea] text-[#434655]"
-                    }`}>
-                      {lead.status === "new" ? "Новая" : lead.status === "confirmed" ? "Подтверждена" : "Выполнена"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {lead.status === "new" && (
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-[#003087] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all">Принять</button>
-                        <button className="px-3 py-1 bg-[#f2f4f6] text-[#434655] text-xs font-bold rounded-lg hover:bg-[#e6e8ea] transition-all">Отклонить</button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ClinicAppointments clinicId={null} />
     </CabinetLayout>
   );
 }

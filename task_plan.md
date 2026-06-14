@@ -211,6 +211,57 @@
 
 ---
 
+### Фаза ЛК клиники 🔄 in_progress
+
+**Зачем:** клиника видит входящие записи и управляет ими — подтверждает, завершает, отменяет.
+**Критерий готовности:** GET /appointments/clinic → реальный список; кнопки Принять/Завершить/Отменить работают.
+
+**Архитектурное решение (принято):**
+- Appointment.clinic_id уже есть в БД → миграция НЕ нужна
+- MVP без ролей: clinic_id=1 hardcode в frontend (первая клиника в seed)
+- Новая схема ClinicAppointmentOut = AppointmentOut + patient_name
+
+#### C1 — Backend: GET /appointments/clinic?clinic_id= + PATCH /confirm
+- [ ] `backend/app/schemas/appointment.py` — добавить `ClinicAppointmentOut(AppointmentOut + patient_name: str)`
+- [ ] `backend/app/api/v1/endpoints/appointments.py`:
+  - `GET /appointments/clinic?clinic_id=N` (auth required): SELECT Appointment WHERE clinic_id=N + JOIN User(patient) + JOIN Doctor → ClinicAppointmentOut[]
+  - `PATCH /appointments/{id}/confirm` (auth required): status pending → confirmed
+- Verify: curl GET /appointments/clinic?clinic_id=1 → список с patient_name
+
+#### C2 — Frontend: fetchClinicAppointments + confirmAppointment
+- [ ] `frontend/src/lib/api.ts`:
+  - `interface ClinicAppointmentOut` (extends AppointmentOut + patient_name)
+  - `fetchClinicAppointments(clinicId, token)` → `ClinicAppointmentOut[]`
+  - `confirmAppointment(id, token)` → `AppointmentOut | null`
+- Verify: tsc --noEmit без ошибок
+
+#### C3 — Frontend: ClinicAppointments client component
+- [ ] `frontend/src/components/cabinet/ClinicAppointments.tsx` (NEW, "use client"):
+  - Props: `clinicId: number`
+  - Загружает GET /appointments/clinic?clinic_id=clinicId
+  - Табличный вид (аналог mock-таблицы в clinic/page.tsx, но с реальными данными)
+  - Статус pending → кнопки "Принять" (confirm) + "Отклонить" (cancel)
+  - Статус confirmed → кнопка "Завершить" (complete)
+  - Статус completed/cancelled → только бейдж
+  - Фильтр: "Сегодня" / "Неделя" / "Все"
+- Verify: компонент рендерится без ошибок, данные из API
+
+#### C4 — Frontend: clinic/page.tsx → реальные данные
+- [ ] `frontend/src/app/cabinet/clinic/page.tsx`:
+  - Убрать `const leads = [...]`
+  - Добавить import `ClinicAppointments`
+  - Заменить секцию "Входящие записи" (mock-таблица) на `<ClinicAppointments clinicId={1} />`
+  - KPI-карточки оставить (mock статистика — данные для дашборда в следующей фазе)
+- Verify: tsc --noEmit, страница /cabinet/clinic отображает реальные записи
+
+#### C5 — Deploy
+- [ ] rsync backend → docker build medas-backend
+- [ ] rsync frontend → docker build medas-frontend
+- [ ] docker compose stop/up (без alembic — миграции нет)
+- [ ] Smoke test: curl GET /appointments/clinic?clinic_id=1 + проверить /cabinet/clinic в браузере
+
+---
+
 ### Фаза 4 — Уведомления (Email + SMS)
 
 **Зачем:** без уведомлений пациенты забывают о записях (no-show rate 30%+).

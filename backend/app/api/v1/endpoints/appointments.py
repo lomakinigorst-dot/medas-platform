@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,7 +8,7 @@ from app.models.appointment import Appointment
 from app.models.clinic import Clinic
 from app.models.doctor import Doctor
 from app.models.user import User
-from app.schemas.appointment import AppointmentCreate, AppointmentOut
+from app.schemas.appointment import AppointmentCreate, AppointmentOut, ClinicAppointmentOut
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
@@ -102,6 +102,85 @@ async def my_appointments(
             bonuses_earned=apt.bonuses_earned,
         ))
     return out
+
+
+@router.get("/clinic", response_model=list[ClinicAppointmentOut])
+async def clinic_appointments(
+    clinic_id: int | None = Query(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[ClinicAppointmentOut]:
+    query = select(Appointment).order_by(Appointment.scheduled_at.desc())
+    if clinic_id is not None:
+        query = query.where(Appointment.clinic_id == clinic_id)
+    result = await db.execute(query)
+    appointments = list(result.scalars().all())
+
+    out = []
+    for apt in appointments:
+        dr_result = await db.execute(select(Doctor).where(Doctor.id == apt.doctor_id))
+        doctor = dr_result.scalar_one_or_none()
+
+        patient_result = await db.execute(select(User).where(User.id == apt.patient_id))
+        patient = patient_result.scalar_one_or_none()
+
+        clinic_name: str | None = None
+        if doctor and doctor.clinic_id:
+            cl_result = await db.execute(select(Clinic.name).where(Clinic.id == doctor.clinic_id))
+            clinic_name = cl_result.scalar_one_or_none()
+
+        out.append(ClinicAppointmentOut(
+            id=apt.id,
+            doctor_name=doctor.name if doctor else "Неизвестно",
+            patient_name=patient.name if patient else "Пациент",
+            clinic_name=clinic_name,
+            scheduled_at=apt.scheduled_at,
+            service_type=apt.service_type,
+            status=apt.status,
+            price=apt.price,
+            bonuses_used=apt.bonuses_used,
+            bonuses_earned=apt.bonuses_earned,
+        ))
+    return out
+
+
+@router.patch("/{appointment_id}/confirm", response_model=AppointmentOut)
+async def confirm_appointment(
+    appointment_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> AppointmentOut:
+    result = await db.execute(
+        select(Appointment).where(Appointment.id == appointment_id)
+    )
+    apt = result.scalar_one_or_none()
+    if apt is None:
+        raise HTTPException(status_code=404, detail="Запись не найдена")
+    if apt.status != "pending":
+        raise HTTPException(status_code=400, detail=f"Нельзя подтвердить запись со статусом {apt.status}")
+
+    apt.status = "confirmed"
+    await db.commit()
+    await db.refresh(apt)
+
+    dr_result = await db.execute(select(Doctor).where(Doctor.id == apt.doctor_id))
+    doctor = dr_result.scalar_one_or_none()
+    clinic_name: str | None = None
+    if doctor and doctor.clinic_id:
+        cl_result = await db.execute(select(Clinic.name).where(Clinic.id == doctor.clinic_id))
+        clinic_name = cl_result.scalar_one_or_none()
+
+    return AppointmentOut(
+        id=apt.id,
+        doctor_name=doctor.name if doctor else "Неизвестно",
+        clinic_name=clinic_name,
+        scheduled_at=apt.scheduled_at,
+        service_type=apt.service_type,
+        status=apt.status,
+        price=apt.price,
+        bonuses_used=apt.bonuses_used,
+        bonuses_earned=apt.bonuses_earned,
+    )
 
 
 @router.patch("/{appointment_id}/complete", response_model=AppointmentOut)
