@@ -36,5 +36,7 @@ class UserResponse(BaseModel):
     phone: str
     name: str
     bonus_balance: int
+    role: str
+    clinic_id: int | None
 
     model_config = {"from_attributes": True}

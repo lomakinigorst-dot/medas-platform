@@ -13,6 +13,7 @@ from app.core.database import Base
 from app.models.clinic import Clinic
 from app.models.doctor import Doctor
 from app.models.schedule import DoctorSchedule
+from app.models.user import User
 
 CLINICS = [
     {
@@ -152,10 +153,27 @@ async def seed() -> None:
                     slot_duration_min=30,
                 ))
 
+        # Clinic admin user (upsert)
+        sm_clinic_id = clinic_map.get("sm-klinika")
+        existing = await session.execute(select(User).where(User.phone == "+70000000001"))
+        clinic_user = existing.scalar_one_or_none()
+        if clinic_user is None:
+            session.add(User(
+                phone="+70000000001",
+                name="Администратор СМ-Клиника",
+                role="clinic",
+                clinic_id=sm_clinic_id,
+                is_active=True,
+                is_verified=True,
+            ))
+        else:
+            clinic_user.role = "clinic"
+            clinic_user.clinic_id = sm_clinic_id
+
         await session.commit()
 
     await engine.dispose()
-    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors + schedules.")
+    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors + schedules + 1 clinic admin.")
 
 
 if __name__ == "__main__":

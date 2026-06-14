@@ -173,10 +173,9 @@ export interface ClinicAppointmentOut extends AppointmentOut {
   patient_name: string;
 }
 
-export async function fetchClinicAppointments(clinicId: number | null, token: string): Promise<ClinicAppointmentOut[]> {
+export async function fetchClinicAppointments(token: string): Promise<ClinicAppointmentOut[]> {
   try {
-    const qs = clinicId !== null ? `?clinic_id=${clinicId}` : "";
-    const res = await fetch(`${API_BASE}/appointments/clinic${qs}`, {
+    const res = await fetch(`${API_BASE}/appointments/clinic`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });

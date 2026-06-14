@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -106,13 +106,18 @@ async def my_appointments(
 
 @router.get("/clinic", response_model=list[ClinicAppointmentOut])
 async def clinic_appointments(
-    clinic_id: int | None = Query(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[ClinicAppointmentOut]:
-    query = select(Appointment).order_by(Appointment.scheduled_at.desc())
-    if clinic_id is not None:
-        query = query.where(Appointment.clinic_id == clinic_id)
+    if current_user.role != "clinic":
+        raise HTTPException(status_code=403, detail="Доступ запрещён")
+    if current_user.clinic_id is None:
+        raise HTTPException(status_code=403, detail="Клиника не привязана к аккаунту")
+    query = (
+        select(Appointment)
+        .where(Appointment.clinic_id == current_user.clinic_id)
+        .order_by(Appointment.scheduled_at.desc())
+    )
     result = await db.execute(query)
     appointments = list(result.scalars().all())
 

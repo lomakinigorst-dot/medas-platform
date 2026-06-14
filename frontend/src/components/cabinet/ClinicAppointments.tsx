@@ -56,7 +56,7 @@ function isThisWeek(iso: string) {
   return d >= weekStart && d < weekEnd;
 }
 
-export default function ClinicAppointments({ clinicId }: { clinicId: number | null }) {
+export default function ClinicAppointments() {
   const [appointments, setAppointments] = useState<ClinicAppointmentOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
@@ -65,10 +65,10 @@ export default function ClinicAppointments({ clinicId }: { clinicId: number | nu
   const load = useCallback(async () => {
     const token = getToken();
     if (!token) { setLoading(false); return; }
-    const data = await fetchClinicAppointments(clinicId, token);
+    const data = await fetchClinicAppointments(token);
     setAppointments(data);
     setLoading(false);
-  }, [clinicId]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 

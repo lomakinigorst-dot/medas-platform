@@ -106,7 +106,7 @@ export default function ClinicCabinetPage() {
         </div>
       </div>
 
-      <ClinicAppointments clinicId={null} />
+      <ClinicAppointments />
     </CabinetLayout>
   );
 }
