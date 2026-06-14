@@ -1,33 +1,53 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { Doctor } from "@/lib/doctors";
 import AppointmentCalendar from "@/components/ui/AppointmentCalendar";
+import { fetchSlots, type SlotOut } from "@/lib/api";
 
 const ruPrice = new Intl.NumberFormat("ru-RU");
-
-const FLAT_SLOTS = ["09:00","10:30","11:45","13:00","14:30","16:00"];
 
 export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
   const today = useMemo(() => new Date(), []);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
-  const [selectedTime, setSelectedTime] = useState<string | null>("10:30");
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [slots, setSlots] = useState<SlotOut[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  const loadSlots = useCallback(async (year: number, month: number, day: number) => {
+    setLoadingSlots(true);
+    setSelectedTime(null);
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const data = await fetchSlots(doctor.slug, dateStr);
+    setSlots(data);
+    setLoadingSlots(false);
+  }, [doctor.slug]);
+
+  useEffect(() => {
+    if (selectedDay !== null) loadSlots(viewYear, viewMonth, selectedDay);
+  }, []); // load on mount for today
 
   const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
 
   const prevMonth = () => {
     if (isCurrentMonth) return;
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
-    else setViewMonth(m => m - 1);
+    const newMonth = viewMonth === 0 ? 11 : viewMonth - 1;
+    const newYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+    setViewMonth(newMonth);
+    setViewYear(newYear);
     setSelectedDay(null);
+    setSlots([]);
   };
   const nextMonth = () => {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
-    else setViewMonth(m => m + 1);
+    const newMonth = viewMonth === 11 ? 0 : viewMonth + 1;
+    const newYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+    setViewMonth(newMonth);
+    setViewYear(newYear);
     setSelectedDay(null);
+    setSlots([]);
   };
 
   const bookingHref = selectedDay && selectedTime
@@ -53,7 +73,7 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
             viewMonth={viewMonth}
             selectedDay={selectedDay}
             today={today}
-            onSelectDay={(d) => { setSelectedDay(d); setSelectedTime(null); }}
+            onSelectDay={(d) => { setSelectedDay(d); loadSlots(viewYear, viewMonth, d); }}
             onPrevMonth={prevMonth}
             onNextMonth={nextMonth}
             canGoPrev={!isCurrentMonth}
@@ -64,21 +84,29 @@ export default function AppointmentSidebarV2({ doctor }: { doctor: Doctor }) {
             <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
               Доступное время
             </p>
-            <div className="grid grid-cols-3 gap-2">
-              {FLAT_SLOTS.map((time) => (
-                <button
-                  key={time}
-                  onClick={() => setSelectedTime(time)}
-                  className={`py-2.5 text-xs font-semibold rounded-xl transition-all ${
-                    selectedTime === time
-                      ? "bg-secondary text-white shadow-sm"
-                      : "bg-surface-container text-on-surface hover:bg-secondary/10 hover:text-secondary"
-                  }`}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
+            {loadingSlots ? (
+              <div className="text-xs text-on-surface-variant text-center py-3">Загрузка...</div>
+            ) : slots.filter((s) => s.available).length === 0 ? (
+              <div className="text-xs text-on-surface-variant text-center py-3">
+                {selectedDay ? "Нет доступных слотов" : "Выберите дату"}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {slots.filter((s) => s.available).map((slot) => (
+                  <button
+                    key={slot.time}
+                    onClick={() => setSelectedTime(slot.time)}
+                    className={`py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                      selectedTime === slot.time
+                        ? "bg-secondary text-white shadow-sm"
+                        : "bg-surface-container text-on-surface hover:bg-secondary/10 hover:text-secondary"
+                    }`}
+                  >
+                    {slot.time}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Price + CTA */}

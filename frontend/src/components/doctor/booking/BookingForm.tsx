@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { StarIcon } from "@/components/ui/StarIcon";
 import AppointmentCalendar from "@/components/ui/AppointmentCalendar";
 import type { Doctor } from "@/lib/doctors";
+import { createAppointment } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BONUS_BALANCE = 1500;
 const BONUS_EARN_RATE = 0.05;
 const BONUS_MAX_SPEND_RATE = 0.1;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
 
 // Indices from doctor.services to show in booking
 const SERVICE_ICONS = ["🏥", "🔄", "💻"];
@@ -204,12 +206,30 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
   const [selectedDayNum, setSelectedDayNum] = useState<number | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [useBonuses, setUseBonuses] = useState(false);
-  const [name, setName] = useState("Иван Иванов");
-  const [phone, setPhone] = useState("+7 (");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [forWhom, setForWhom] = useState<"self" | "family">("self");
   const [comment, setComment] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [bonusBalance, setBonusBalance] = useState(0);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetch(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          if (data.name) setName(data.name);
+          if (data.phone) setPhone(data.phone);
+          if (typeof data.bonus_balance === "number") setBonusBalance(data.bonus_balance);
+        }
+      })
+      .catch(() => null);
+  }, []);
 
   // ── Derived ──
   const selectedService = services[selectedSvcIdx];
@@ -226,7 +246,7 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
   }, [selectedDay]);
 
   const maxBonusDeduct = Math.floor(selectedService.price * BONUS_MAX_SPEND_RATE);
-  const bonusDeduct = useBonuses ? Math.min(BONUS_BALANCE, maxBonusDeduct) : 0;
+  const bonusDeduct = useBonuses ? Math.min(bonusBalance, maxBonusDeduct) : 0;
   const finalPrice = selectedService.price - bonusDeduct;
   const earnedBonuses = Math.floor(finalPrice * BONUS_EARN_RATE);
   const canSubmit =
@@ -247,11 +267,43 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
     setSelectedSlot(null);
   }, [findSlotIdx]);
 
-  const handleSubmit = useCallback(() => {
-    if (!canSubmit) return;
+  const handleSubmit = useCallback(async () => {
+    if (!canSubmit || !selectedSlot || !selectedDayNum) return;
+    const token = getToken();
+    if (!token) { setSubmitError("Войдите в аккаунт для записи"); return; }
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const scheduledDate = new Date(viewYear, viewMonth, selectedDayNum);
+    const [hh, mm] = selectedSlot.split(":").map(Number);
+    scheduledDate.setHours(hh, mm, 0, 0);
+
+    const serviceMap: Record<number, "primary" | "followup" | "online"> = {
+      0: "primary",
+      1: "followup",
+      2: "online",
+    };
+
+    const result = await createAppointment(
+      {
+        doctor_slug: doctor.slug,
+        scheduled_at: scheduledDate.toISOString(),
+        service_type: serviceMap[selectedSvcIdx] ?? "primary",
+        use_bonuses: useBonuses,
+        notes: comment || undefined,
+      },
+      token
+    );
+
+    setSubmitting(false);
+    if (!result) {
+      setSubmitError("Ошибка записи. Попробуйте другое время.");
+      return;
+    }
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [canSubmit]);
+  }, [canSubmit, selectedSlot, selectedDayNum, viewYear, viewMonth, selectedSvcIdx, useBonuses, comment, doctor.slug]);
 
   // ── Success screen ──
   if (submitted) {
@@ -592,7 +644,7 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
                     </button>
                   </div>
                   <p className="text-xs text-amber-700">
-                    Баланс: <strong>{BONUS_BALANCE.toLocaleString("ru-RU")}</strong> баллов ·{" "}
+                    Баланс: <strong>{bonusBalance.toLocaleString("ru-RU")}</strong> баллов ·{" "}
                     {useBonuses
                       ? `Экономия: −${ruPrice.format(bonusDeduct)} ₽`
                       : `Можно списать до ${ruPrice.format(maxBonusDeduct)} ₽`}

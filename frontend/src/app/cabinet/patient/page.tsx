@@ -1,5 +1,6 @@
 import CabinetLayout from "@/components/layout/CabinetLayout";
 import PatientHeroGreeting from "@/components/cabinet/PatientHeroGreeting";
+import PatientAppointments from "@/components/cabinet/PatientAppointments";
 import Link from "next/link";
 
 const navItems = [
@@ -9,12 +10,6 @@ const navItems = [
   { href: "/cabinet/patient/family", icon: "👨‍👩‍👧", label: "Семейный профиль" },
   { href: "/cabinet/patient/bonuses", icon: "🎁", label: "Бонусы" },
   { href: "/cabinet/patient/favorites", icon: "❤️", label: "Избранные врачи" },
-];
-
-const appointments = [
-  { doctor: "Д-р Александр Волков", specialty: "Кардиолог", date: "7 ноября", time: "10:00", clinic: "Институт сердца", status: "upcoming" },
-  { doctor: "Д-р Елена Соколова", specialty: "Невролог", date: "12 ноября", time: "14:30", clinic: "МедЦентр", status: "upcoming" },
-  { doctor: "Д-р Сара Чэнь", specialty: "Невролог", date: "23 октября", time: "11:00", clinic: "МедЦентр", status: "done" },
 ];
 
 export default function PatientCabinetPage() {
@@ -74,33 +69,7 @@ export default function PatientCabinetPage() {
             <h3 className="text-lg font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Предстоящие приёмы</h3>
             <Link href="/cabinet/patient/appointments" className="text-xs font-bold text-[#003087] hover:underline">Все приёмы</Link>
           </div>
-          <div className="space-y-4">
-            {appointments.map((apt, i) => (
-              <div key={i} className={`bg-white rounded-2xl p-6 border ${apt.status === "upcoming" ? "border-[#003087]/20" : "border-[#c3c6d7]/10"} shadow-sm`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#f2f4f6] flex items-center justify-center text-xl">
-                      {apt.status === "upcoming" ? "📅" : "✅"}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[#191c1e]">{apt.doctor}</h4>
-                      <p className="text-sm text-[#434655]">{apt.specialty} • {apt.clinic}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-sm text-[#191c1e]">{apt.date}</p>
-                    <p className="text-xs text-[#434655]">{apt.time}</p>
-                  </div>
-                </div>
-                {apt.status === "upcoming" && (
-                  <div className="flex gap-3 mt-4 pt-4 border-t border-[#c3c6d7]/10">
-                    <button className="flex-1 py-2 bg-[#003087] text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all">Подтвердить</button>
-                    <button className="flex-1 py-2 bg-[#f2f4f6] text-[#434655] text-xs font-bold rounded-lg hover:bg-[#e6e8ea] transition-all">Перенести</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <PatientAppointments />
 
           <Link href="/search" className="block w-full py-4 bg-[#003087] text-white font-bold rounded-2xl text-center shadow-lg hover:opacity-90 transition-all">
             Записаться на новый приём
