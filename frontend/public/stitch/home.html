@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Med-as | Премиальный медицинский агрегатор</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-variant": "#e0e3e5",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#004b74",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed": "#89f5e7",
+                "primary-fixed": "#dbe1ff",
+                "on-error": "#ffffff",
+                "secondary": "#00a982", // Adjusted to match Med-as green logo color
+                "on-background": "#191c1e",
+                "on-primary-container": "#eeefff",
+                "inverse-surface": "#2d3133",
+                "surface-tint": "#003087", // Adjusted to match Med-as blue logo color
+                "on-tertiary-container": "#e6f1ff",
+                "inverse-on-surface": "#eff1f3",
+                "surface-dim": "#d8dadc",
+                "primary-container": "#003087",
+                "on-surface-variant": "#434655",
+                "error-container": "#ffdad6",
+                "on-surface": "#191c1e",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#001a4d",
+                "tertiary-container": "#1b72ab",
+                "on-secondary-fixed-variant": "#005049",
+                "secondary-fixed-dim": "#6bd8cb",
+                "outline": "#737686",
+                "primary-fixed-dim": "#b4c5ff",
+                "on-primary-fixed": "#00174b",
+                "tertiary-fixed-dim": "#94ccff",
+                "background": "#f7f9fb",
+                "on-primary": "#ffffff",
+                "on-secondary-container": "#006f66",
+                "surface": "#f7f9fb",
+                "surface-bright": "#f7f9fb",
+                "on-secondary-fixed": "#00201d",
+                "surface-container": "#eceef0",
+                "surface-container-low": "#f2f4f6",
+                "surface-container-high": "#e6e8ea",
+                "tertiary-fixed": "#cde5ff",
+                "on-secondary": "#ffffff",
+                "outline-variant": "#c3c6d7",
+                "error": "#ba1a1a",
+                "secondary-container": "#e6f9f4",
+                "surface-container-highest": "#e0e3e5",
+                "on-tertiary-fixed": "#001d32",
+                "inverse-primary": "#b4c5ff",
+                "primary": "#003087", // Primary blue from logo
+                "tertiary": "#00598a"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #f7f9fb 0%, #e6f9f4 100%);
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(to bottom right, #003087, #1e40af);
+        }
+        .btn-secondary-gradient {
+            background: linear-gradient(to bottom right, #00a982, #10b981);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm shadow-blue-900/5 font-headline antialiased tracking-tight">
+<div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto w-full">
+<div class="h-10">
+<img alt="Med-as Logo" class="h-full object-contain" src="https://lh3.googleusercontent.com/aida/ADBb0ug2Uy9AMmXxu99ZGYjJJe-tL1Xa8BnJDkAnEH7xgN-wngwOll6U304mY8x1N7HjUR2v57P0S8_K3jVkqvNJo7ZFoMMLFOGdAau0LKOt8wSSPxKmy54Huj4_XUE_l-LHjxAkrObNnPX1j7RHxJePwWwdeLkUUdmgZ4vmMoYZeVl9ABUod0y_aAVkPnuvvh_aCnI-YVBu2Yd6UUJtu69BjyiDenN1fU9Z-unCzypqPfFCkgECaX_dm2V45dxuJ5z2b1v6B6nnQxVqpiE"/>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-primary font-semibold border-b-2 border-primary transition-colors duration-300" href="#">Найти врача</a>
+<a class="text-slate-600 hover:text-primary transition-colors duration-300" href="#">Клиники</a>
+<a class="text-slate-600 hover:text-primary transition-colors duration-300" href="#">Специальности</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-600 hover:text-primary font-medium px-4 py-2 transition-transform active:scale-95">Вход для врачей</button>
+<button class="btn-primary-gradient text-white px-6 py-2.5 rounded-lg font-bold shadow-sm transition-transform active:scale-95">Личный кабинет</button>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="hero-gradient px-6 py-20 lg:py-32">
+<div class="max-w-screen-2xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+<div>
+<h1 class="font-headline text-5xl lg:text-7xl font-extrabold tracking-tighter text-on-surface leading-[1.1] mb-6">
+                    Медицинская забота, <span class="text-secondary">отобранная</span> для вашей жизни.
+                </h1>
+<p class="text-on-surface-variant text-xl mb-10 max-w-xl">
+                    Ощутите клиническое совершенство через наш высококлассный агрегатор. Найдите лучших специалистов и бутик-клиники в вашем районе.
+                </p>
+<!-- Search Bar Interface -->
+<div class="bg-surface-container-lowest p-2 rounded-xl shadow-xl shadow-blue-900/5 flex flex-col md:flex-row gap-2">
+<div class="flex-1 flex items-center px-4 gap-3 bg-surface-container-low rounded-lg group focus-within:ring-2 ring-primary/10 transition-all">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 text-on-surface placeholder:text-outline" placeholder="Симптомы, врачи или клиники..." type="text"/>
+</div>
+<div class="w-full md:w-48 flex items-center px-4 gap-3 bg-surface-container-low rounded-lg group focus-within:ring-2 ring-primary/10 transition-all">
+<span class="material-symbols-outlined text-outline">location_on</span>
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 text-on-surface font-medium" placeholder="Локация" type="text" value="Москва"/>
+</div>
+<button class="btn-primary-gradient text-white px-8 py-4 rounded-lg font-bold flex items-center justify-center gap-2 transition-transform active:scale-95">
+                        Поиск
+                    </button>
+</div>
+</div>
+<div class="relative hidden lg:block">
+<div class="aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white">
+<img class="w-full h-full object-cover" data-alt="Современный врач в минималистичной клинике" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1AZIgGrFEhJgC69aFoT5u_uxpWZ1Nz3-31VxcDuyU9GIAlHjaFYr-rftAGOjaI11K-jDo5QrkCrn1xcK9iMqBAWTnzQzK-D_oMavx2mJRR0WjC5a9RPae7dOTgQLxm6BHVAEQCSLqOviik4GQA3jcEc8nGjI_ZwxLBkV5mXz7MUl6NjYmKQbm3UT2ld6maSvncePIS-HjKLKICeh9-WuWFKobc8PXVCTgbGpN8tEdt6DhMCQ_DWNmO9g_pEHZbzUYYmw4qgy3C2s"/>
+</div>
+<div class="absolute -bottom-10 -left-10 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20 max-w-xs">
+<div class="flex gap-1 mb-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="font-headline font-bold text-on-surface">5,000+ Доверенных клиник</p>
+<p class="text-sm text-on-surface-variant">Экспертный подход к выбору поставщиков медицинских услуг.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Specialties -->
+<section class="py-24 px-6 bg-surface">
+<div class="max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline text-3xl font-extrabold tracking-tight mb-2">Популярные направления</h2>
+<p class="text-on-surface-variant">Высокоточная помощь в различных медицинских дисциплинах.</p>
+</div>
+<a class="text-primary font-bold flex items-center gap-1 hover:underline" href="#">
+                    Смотреть все <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">cardiology</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Кардиология</p>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">neurology</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Неврология</p>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">dermatology</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Дерматология</p>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">dentistry</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Стоматология</p>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">ophthalmology</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Офтальмология</p>
+</div>
+<div class="bg-surface-container-low hover:bg-surface-container-high p-8 rounded-xl text-center transition-all duration-300 group cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-3xl">pediatrics</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Педиатрия</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Top-Rated Clinics (Bento Grid) -->
+<section class="py-24 px-6 bg-surface-container-low">
+<div class="max-w-screen-2xl mx-auto">
+<div class="mb-12 text-center">
+<h2 class="font-headline text-4xl font-extrabold tracking-tight mb-4 text-on-surface">Лучшие клиники</h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">Откройте для себя медицинские учреждения, проверенные на соответствие стандартам качества и удовлетворенности пациентов.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-full lg:h-[700px]">
+<!-- Main Feature Clinic -->
+<div class="md:col-span-2 md:row-span-2 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-col group cursor-pointer">
+<div class="relative flex-1 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Роскошный холл клиники" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9Z7nADul-mopLDA9aHRIP4YtRcEykQhnvniUalQdhqZWchUFd1WHXzvp_hKj6RM1IkacmY2_j7tvcoFX66ya_LzljM618PlE4cEDaQWgci4kiUss09NI7sZYsOgm1tLwAD3NCn8N_4W2OUGPD5HsHQL4ebb-19CbSZcD8cw934ht6pYEKCVdCRPb8_imeI9rxfh3Hfh9teTDayoVxCHz-kBPpNaerqHqw6gnb36F9zwHrBg2a-krLsM8yivirA5Dyujbjy2PDOIr5"/>
+<div class="absolute top-6 left-6 bg-secondary text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Премиум выбор</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-2xl font-bold mb-1">Медицинский центр St. Ethos</h3>
+<p class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> Хамовники, Москва</p>
+</div>
+<div class="bg-secondary-container px-3 py-1 rounded-lg text-secondary font-bold flex items-center gap-1">
+                                4.9 <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="flex gap-2 mb-8">
+<span class="bg-surface-container-high px-3 py-1 rounded text-xs font-semibold">24/7 Скорая</span>
+<span class="bg-surface-container-high px-3 py-1 rounded text-xs font-semibold">Роботизированная хирургия</span>
+</div>
+<button class="w-full btn-primary-gradient text-white py-4 rounded-xl font-bold text-lg transition-transform active:scale-95">Записаться на прием</button>
+</div>
+</div>
+<!-- Secondary Clinic 1 -->
+<div class="md:col-span-2 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm flex flex-row group cursor-pointer">
+<div class="w-1/3 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Высокотехнологичный кабинет стоматолога" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfji4DzvQwAS_vE5WAW1Qu2Uc-h0Bk70_CUz_K7Yn39JxEK_STOGWXKepw505VCwfRs2E1BeZ9yhXxT9kM07iDPePMliXk0HWzD3nPfMVBOpxWBVsPLqCNZVGfXQUu-VCsLh85FiLJy960lRGhAV8XlpjDMR8lkDoU9bhQHoa8GnecMg2XCJtRflsRrc3dJcodhmSoLBTMUIM744Gf582JtC1M_aV_fNp4gJ2auPQTXR7fD9FM5VOkZ5Uybr2umOGl_uTOUwpjvPGA"/>
+</div>
+<div class="w-2/3 p-6 flex flex-col justify-center">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline text-xl font-bold">Lumina Dental Arts</h3>
+<div class="text-secondary font-bold flex items-center gap-1">
+                                4.8 <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm mb-4">Специализация на эстетической стоматологии и восстановительном искусстве.</p>
+<button class="self-start text-primary font-bold flex items-center gap-1 group/btn">
+                            Забронировать слот <span class="material-symbols-outlined transition-transform group-hover/btn:translate-x-1">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Secondary Clinic 2 -->
+<div class="md:col-span-1 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm group cursor-pointer">
+<div class="h-1/2 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Современный кабинет педиатра" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxlrGg968dc2U1Hgky8rtnaBSdYNDDFa24b4sKya2ivDVfCHp3UeVvIkJfxGRVLCVaLjWWE8WhzbbYD18znoAl6a_MFIlQa-UftXOWpAJZw2u99qGlOrHXDxQXZgoY8igyEFm4a5MktvR4EsHDbkoB2UXz1xUHINjYND3eyJ2lID0ZejBWs4nfV26uvtBob1QsISLf1Cy4RYkLGSgOuzggsrjDH9xvDmb4renk3a_IJTtcBfJock8u7pW9uDv7wwnvXmRr_3swZq4t"/>
+</div>
+<div class="p-6">
+<h3 class="font-headline font-bold mb-1">Kindred Pediatrics</h3>
+<div class="flex items-center gap-1 text-sm text-secondary font-bold mb-3">
+                            5.0 <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-on-surface-variant font-normal">(1.2k отзывов)</span>
+</div>
+<button class="w-full py-2 border border-primary/20 rounded-lg text-primary font-bold text-sm hover:bg-primary/5 transition-colors">Запись</button>
+</div>
+</div>
+<!-- Secondary Clinic 3 -->
+<div class="md:col-span-1 md:row-span-1 bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm group cursor-pointer">
+<div class="h-1/2 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="Спокойная зона ожидания" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKtcddeCJo2aaollHWQh_nxi13IbCEBciLCk2L0LwoWwj3hVhhLsCJJiqxL65YlPRx860rs051QsGmZqVKH8czhe5YeYBwzAuRZPKNrjOHTPs2-TD9XrvNsOZMdR20GjPafAKx_PSy0LjqHCAHizEpY6DB3WEYh8ZfaJImxwEkCDtNBlEcAVAn2ywR4kwE9oIW74-l4CdRZ_XdWasCPEdZNLvicNgFivd2dJ2mVPDqr0eXkucz68s7KHxlZpCoXTlUQqdwZneWVjVC"/>
+</div>
+<div class="p-6">
+<h3 class="font-headline font-bold mb-1">Bloom Wellness</h3>
+<div class="flex items-center gap-1 text-sm text-secondary font-bold mb-3">
+                            4.7 <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-on-surface-variant font-normal">(840 отзывов)</span>
+</div>
+<button class="w-full py-2 border border-primary/20 rounded-lg text-primary font-bold text-sm hover:bg-primary/5 transition-colors">Запись</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Special Offers (Asymmetric Cards) -->
+<section class="py-24 px-6 overflow-hidden">
+<div class="max-w-screen-2xl mx-auto">
+<div class="flex flex-col lg:flex-row gap-16 items-center">
+<div class="lg:w-1/3">
+<span class="text-secondary font-bold tracking-widest uppercase text-xs mb-4 block">Сезонные пакеты</span>
+<h2 class="font-headline text-4xl font-extrabold tracking-tight mb-6">Спецпредложения для вашего здоровья</h2>
+<p class="text-on-surface-variant text-lg mb-8">Инвестируйте в свое благополучие с нашими медицинскими пакетами, разработанными для комплексной профилактики.</p>
+<button class="bg-surface-container-high text-on-surface px-8 py-3 rounded-xl font-bold transition-all hover:bg-surface-container-highest">Все предложения</button>
+</div>
+<div class="lg:w-2/3 flex flex-col md:flex-row gap-8">
+<!-- Offer Card 1 -->
+<div class="bg-primary text-white p-10 rounded-[2.5rem] relative overflow-hidden group flex-1">
+<div class="relative z-10">
+<span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold mb-4 inline-block">СКИДКА 25%</span>
+<h3 class="font-headline text-3xl font-bold mb-4">Executive Checkup</h3>
+<p class="text-white/80 mb-8">Полная панель обмена веществ, стресс-тестирование и консультация эксперта.</p>
+<div class="text-4xl font-headline font-extrabold mb-8">25 000 ₽ <span class="text-lg font-normal opacity-60 line-through">35 000 ₽</span></div>
+<button class="bg-white text-primary px-6 py-3 rounded-xl font-bold shadow-lg transition-transform active:scale-95">Получить</button>
+</div>
+<div class="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+</div>
+<!-- Offer Card 2 -->
+<div class="bg-secondary text-white p-10 rounded-[2.5rem] relative overflow-hidden group flex-1 md:mt-12">
+<div class="relative z-10">
+<span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold mb-4 inline-block">Новый пациент</span>
+<h3 class="font-headline text-3xl font-bold mb-4">Dermatology Sculpt</h3>
+<p class="text-white/80 mb-8">Первичная консультация и бесплатный анализ состояния кожи.</p>
+<div class="text-4xl font-headline font-extrabold mb-8">8 000 ₽ <span class="text-lg font-normal opacity-60 line-through">12 000 ₽</span></div>
+<button class="bg-white text-secondary px-6 py-3 rounded-xl font-bold shadow-lg transition-transform active:scale-95">Получить</button>
+</div>
+<div class="absolute -top-10 -left-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-6 py-20">
+<div class="max-w-screen-2xl mx-auto">
+<div class="bg-slate-900 rounded-[3rem] p-12 lg:p-24 text-center relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="font-headline text-4xl lg:text-6xl font-extrabold text-white tracking-tighter mb-6">Готовы найти своего врача?</h2>
+<p class="text-slate-400 text-xl max-w-2xl mx-auto mb-12">Присоединяйтесь к тысячам пациентов, которые доверяют Med-as в вопросах первичной и специализированной медицинской помощи.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center">
+<button class="btn-primary-gradient text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/20 transition-transform active:scale-95">Создать аккаунт</button>
+<button class="bg-white/10 text-white border border-white/10 px-10 py-5 rounded-2xl font-bold text-lg backdrop-blur-sm transition-all hover:bg-white/20">Просмотреть каталог</button>
+</div>
+</div>
+<div class="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px]"></div>
+<div class="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 blur-[120px]"></div>
+</div>
+</div>
+</section>
+</main>
+<footer class="w-full border-t-0 mt-20 bg-slate-50 font-inter text-xs tracking-wide uppercase">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-10 py-16 max-w-screen-2xl mx-auto">
+<div class="flex flex-col gap-6">
+<div class="h-8">
+<img alt="Med-as Logo" class="h-full object-contain grayscale opacity-80" src="https://lh3.googleusercontent.com/aida/ADBb0ug2Uy9AMmXxu99ZGYjJJe-tL1Xa8BnJDkAnEH7xgN-wngwOll6U304mY8x1N7HjUR2v57P0S8_K3jVkqvNJo7ZFoMMLFOGdAau0LKOt8wSSPxKmy54Huj4_XUE_l-LHjxAkrObNnPX1j7RHxJePwWwdeLkUUdmgZ4vmMoYZeVl9ABUod0y_aAVkPnuvvh_aCnI-YVBu2Yd6UUJtu69BjyiDenN1fU9Z-unCzypqPfFCkgECaX_dm2V45dxuJ5z2b1v6B6nnQxVqpiE"/>
+</div>
+<p class="text-slate-500 normal-case tracking-normal">Лидерство в области экспертного медицинского совершенства. Соединяем вас с качественной помощью, которую вы заслуживаете.</p>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-slate-900 mb-2">Платформа</h4>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Найти врача</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Клиники</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Специальности</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Предложения</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-slate-900 mb-2">Поддержка</h4>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Служба поддержки</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Условия использования</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Политика конфиденциальности</a>
+<a class="text-slate-500 hover:text-primary transition-colors" href="#">Отказ от ответственности</a>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="font-bold text-slate-900 mb-2">Рассылка</h4>
+<p class="text-slate-500 normal-case tracking-normal mb-2">Получайте медицинские советы и обновления клиник.</p>
+<div class="flex">
+<input class="bg-white border-none rounded-l-lg px-4 py-3 text-xs w-full focus:ring-1 ring-primary/20" placeholder="Email адрес" type="text"/>
+<button class="bg-primary text-white px-4 py-3 rounded-r-lg font-bold">ОК</button>
+</div>
+</div>
+</div>
+<div class="px-10 py-8 border-t border-slate-200/50 max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400">
+<p>© 2024 Med-as. Экспертное медицинское совершенство.</p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-sm cursor-pointer hover:text-primary">social_leaderboard</span>
+<span class="material-symbols-outlined text-sm cursor-pointer hover:text-primary">crossword</span>
+<span class="material-symbols-outlined text-sm cursor-pointer hover:text-primary">photo_camera</span>
+</div>
+</div>
+</footer>
+</body></html>

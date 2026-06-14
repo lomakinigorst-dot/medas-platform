@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Stitch Preview — MED-AS Design System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Manrope', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-slate-900">Stitch Design Preview</h1>
+      <p class="text-xs text-slate-500 mt-0.5">15 страниц дизайн-системы MED-AS · Выберите что добавить на сайт</p>
+    </div>
+    <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">Draft</span>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-10 space-y-12">
+
+  <!-- ЛК Клиники -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      </div>
+      <h2 class="text-lg font-extrabold text-slate-900">Личный кабинет Клиники</h2>
+      <span class="text-xs text-slate-400">3 варианта</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <a href="admin-v1.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-blue-700"></div>
+        <div class="p-6">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">Вариант 1</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Базовый дашборд</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">Таймлайн приёмов, KPI-карточки, входящие заявки с кнопками принять/отклонить</p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Таймлайн</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">KPI ×4</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Заявки</span>
+          </div>
+          <div class="mt-5 text-blue-600 text-sm font-bold group-hover:text-blue-800 flex items-center gap-1">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="admin-v2.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-slate-900 to-slate-700"></div>
+        <div class="p-6">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">Вариант 2</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Расширенный дашборд</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">Воронка продаж, финансовый центр, управление врачами, последние лиды и отзывы</p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Воронка</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Финансы</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Врачи</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Отзывы</span>
+          </div>
+          <div class="mt-5 text-blue-600 text-sm font-bold group-hover:text-blue-800 flex items-center gap-1">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="leads.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-emerald-600 to-emerald-500"></div>
+        <div class="p-6">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-2">Отчётность</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Лиды и Бонусы</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">Аналитика лидов, стоимость привлечения, программа лояльности, таблица последних лидов</p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">1,284 лида</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">28,400 баллов</span>
+          </div>
+          <div class="mt-5 text-blue-600 text-sm font-bold group-hover:text-blue-800 flex items-center gap-1">Открыть →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ЛК Врача -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 bg-teal-700 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      </div>
+      <h2 class="text-lg font-extrabold text-slate-900">Личный кабинет Врача</h2>
+      <span class="text-xs text-slate-400">1 страница</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <a href="doctor-schedule.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-teal-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-teal-700 to-teal-500"></div>
+        <div class="p-6">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-teal-600 mb-2">Расписание</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Управление расписанием</h3>
+          <p class="text-sm text-slate-500 leading-relaxed">Недельный календарь-сетка, детальная карточка пациента, статусы: Одобрено / Ожидает / Отмена</p>
+          <div class="mt-4 flex flex-wrap gap-1.5">
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Неделя</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">День</span>
+            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">Профиль пациента</span>
+          </div>
+          <div class="mt-5 text-blue-600 text-sm font-bold group-hover:text-blue-800 flex items-center gap-1">Открыть →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ЛК Пациента -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </div>
+      <h2 class="text-lg font-extrabold text-slate-900">Личный кабинет Пациента</h2>
+      <span class="text-xs text-slate-400">4 страницы</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <a href="patient-home.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-indigo-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-indigo-600 to-blue-500"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-500 mb-2">Главная</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Обзор здоровья</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Приёмы, результаты анализов, рецепты, Индекс здоровья 92/100</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="patient-bonuses.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-indigo-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">Лояльность</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Бонусы и награды</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Баланс 1,500 баллов, история транзакций, партнёрские клиники</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="patient-family.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-indigo-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-blue-700"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-2">Семья</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Семейный профиль</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Управление профилями семьи, переключение аккаунтов, ближайшие события</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="patient-medcard.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-indigo-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-emerald-600"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Медкарта</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Электронная карта</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Давление, вес, анализы, история посещений, лекарства, аллергии</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Публичные страницы -->
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+      </div>
+      <h2 class="text-lg font-extrabold text-slate-900">Публичные страницы</h2>
+      <span class="text-xs text-slate-400">7 страниц</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <a href="home.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-slate-800 to-blue-600"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Landing</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Главная страница</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Hero с поиском, популярные специальности, лучшие клиники bento-grid, спецпредложения, CTA</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="doctors.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-slate-700 to-slate-500"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Поиск</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Список врачей</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Фильтры (доступность, стаж, цена, пол), 3 карточки врачей с рейтингом и специализацией</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="doctor-profile.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-800 to-teal-500"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Профиль</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Карточка врача</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Биография, образование, специализации, виджет записи с мини-календарём и слотами</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="clinic-profile.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-emerald-600"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Клиника</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Профиль клиники</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">О клинике, врачи, услуги и цены, карта, фотогалерея, отзывы</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="booking.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-slate-900 to-emerald-700"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Запись</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Запись с бонусами</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Виджет записи: списание баллов (–500 ₽), итоговая цена 3,000 ₽, безопасность данных</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="services.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-blue-600"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Услуги</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Услуги и диагностика</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Поиск процедур, категории (МРТ, УЗИ, Анализы...), карточки услуг с ценами и клиниками</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+
+      <a href="admin-clinic.html" target="_blank" class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-400 hover:shadow-lg transition-all">
+        <div class="h-2 bg-gradient-to-r from-blue-900 to-blue-700"></div>
+        <div class="p-5">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Доп. вариант</p>
+          <h3 class="font-extrabold text-slate-900 mb-2">Дашборд V1b</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">Альтернативный вариант базового дашборда администратора клиники</p>
+          <div class="mt-4 text-blue-600 text-xs font-bold group-hover:text-blue-800">Открыть →</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
+  MED-AS · Stitch Design Preview · Нажмите на карточку чтобы открыть страницу в новой вкладке
+</footer>
+
+</body>
+</html>

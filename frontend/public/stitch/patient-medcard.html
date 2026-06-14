@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#360f00",
+              "background": "#f7f9fb",
+              "inverse-surface": "#2f3034",
+              "primary-fixed": "#d7e2ff",
+              "on-tertiary": "#ffffff",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#005233",
+              "tertiary-container": "#541d02",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#e3fcef",
+              "inverse-primary": "#abc7ff",
+              "on-error": "#ffffff",
+              "on-surface": "#191c1e",
+              "on-secondary": "#ffffff",
+              "outline": "#747781",
+              "on-background": "#191c1e",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#89f5e7",
+              "primary-container": "#002D62",
+              "primary-fixed-dim": "#abc7ff",
+              "inverse-on-surface": "#eff1f3",
+              "secondary-fixed-dim": "#6bd8cb",
+              "surface-dim": "#dad9df",
+              "outline-variant": "#c4c6d1",
+              "on-secondary-fixed": "#002112",
+              "surface-container-high": "#e8e7ed",
+              "surface-container-highest": "#e3e2e7",
+              "surface-container": "#eeedf2",
+              "secondary": "#36b37e",
+              "on-error-container": "#93000a",
+              "tertiary": "#330e00",
+              "primary": "#002D62",
+              "on-primary-fixed-variant": "#24467c",
+              "on-secondary-container": "#00734a",
+              "surface-tint": "#002D62",
+              "surface-variant": "#e3e2e7",
+              "on-tertiary-container": "#d4815d",
+              "on-primary-container": "#7796d1",
+              "error-container": "#ffdad6",
+              "on-primary-fixed": "#001b3f",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed-variant": "#743417",
+              "surface": "#f7f9fb",
+              "tertiary-fixed-dim": "#ffb597",
+              "tertiary-fixed": "#ffdbcd",
+              "surface-container-low": "#f2f4f6",
+              "on-surface-variant": "#43474f"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Inter', sans-serif; }
+      h1, h2, h3, h4, .font-manrope { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation Bar (Consistent with SCREEN_34 style and COMPONENTS_18) -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm shadow-blue-900/5 font-manrope antialiased tracking-tight">
+<div class="flex justify-between items-center h-20 px-8 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<a class="block" href="#">
+<img alt="Med-as Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<div class="hidden md:flex gap-8 items-center font-medium text-sm">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 transition-colors duration-200" href="#">Home</a>
+<a class="text-slate-600 hover:text-primary transition-colors duration-200" href="#">Doctors</a>
+<a class="text-slate-600 hover:text-primary transition-colors duration-200" href="#">Clinics</a>
+<a class="text-slate-600 hover:text-primary transition-colors duration-200" href="#">Services</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 w-64" placeholder="Поиск..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-slate-50 p-2 rounded-full transition-all" data-icon="notifications">notifications</button>
+<div class="flex items-center gap-3 bg-surface-container-low pl-1 pr-4 py-1 rounded-full border border-outline-variant/15">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMfOyAqsPiPf-8hocIc_7a5ApkXoeqHT3woaG5SFme1e4wG_hMHBtFEmhLbT0O--E9MUGoTRJtqsGxCdmJmo8_xyWt_ceF7rQvJ5l61FyhXkkZMnmeqJtkoy4sKQClpmtizEfj2KJB9l_y8oip35RXeadjsCxHxRG4FzZLWY2vDJrqVMiFAZivtPAFerLxXJlWQjcVpjtZ158zf_Qvz8b1O4d8VSHJJZ_0DCaHLf1z4rlaIcfGcOuKf9rb4NW6uwcZCAfpG4wcYqwW"/>
+<span class="text-sm font-semibold text-primary">Александр В.</span>
+</div>
+</div>
+</div>
+</nav>
+<div class="flex min-h-screen pt-20">
+<!-- Sidebar Navigation -->
+<aside class="w-64 hidden md:flex flex-col border-r border-outline-variant/10 bg-surface-container-low px-4 py-8 sticky top-20 h-[calc(100vh-5rem)]">
+<div class="space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-white hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Дашборд</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white shadow-sm transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes" style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
+<span class="font-bold text-sm">Медкарта</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-white hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-medium text-sm">Записи</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-white hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="medication">medication</span>
+<span class="font-medium text-sm">Рецепты</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-white hover:text-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="lab_research">lab_research</span>
+<span class="font-medium text-sm">Анализы</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant/20 pt-6 px-4">
+<div class="bg-primary rounded-xl p-4 text-white">
+<p class="text-[10px] uppercase tracking-widest text-white/70 mb-2">Поддержка 24/7</p>
+<p class="text-xs font-medium leading-relaxed mb-3">Нужна помощь врача прямо сейчас?</p>
+<button class="w-full py-2 bg-secondary text-white rounded-lg text-xs font-bold hover:brightness-110 transition-all">Чат с дежурным</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 p-8 overflow-y-auto">
+<header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-2">Электронная карта</h1>
+<p class="text-on-surface-variant max-w-lg">Обзор ваших медицинских данных, последних результатов обследований и назначений.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-primary text-sm font-bold shadow-sm hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="print">print</span>
+                    Печать выписки
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Добавить данные
+                </button>
+</div>
+</header>
+<!-- Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Health Metrics & Recent Labs -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Health Metrics Bento Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-bold text-primary">Артериальное давление</h3>
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-secondary text-[10px] font-bold uppercase tracking-wider">Норма</span>
+</div>
+<!-- Mockup Chart -->
+<div class="h-40 flex items-end gap-2 px-2">
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[110%] group-hover:brightness-105"></div>
+</div>
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[115%] group-hover:brightness-105"></div>
+</div>
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[105%] group-hover:brightness-105"></div>
+</div>
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[125%] group-hover:brightness-105"></div>
+</div>
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[118%] group-hover:brightness-105"></div>
+</div>
+<div class="w-full bg-surface-container rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-secondary rounded-t-lg transition-all h-[120%] group-hover:brightness-105"></div>
+</div>
+</div>
+<div class="mt-4 flex justify-between text-[11px] text-on-surface-variant font-bold uppercase tracking-tighter">
+<span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span>
+</div>
+</div>
+<div class="bg-primary text-white rounded-xl p-6 shadow-md flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="text-lg font-bold mb-1">Вес</h3>
+<p class="text-white/60 text-xs">Последний замер: 14 мая</p>
+</div>
+<div class="mt-8 relative z-10">
+<span class="text-5xl font-extrabold tracking-tighter">78.4</span>
+<span class="text-lg font-medium ml-1">кг</span>
+<div class="mt-2 flex items-center gap-1 text-secondary-fixed text-xs font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="trending_down">trending_down</span>
+                                -0.6 кг за неделю
+                            </div>
+</div>
+<span class="absolute -right-4 -bottom-4 material-symbols-outlined text-8xl text-white/5 rotate-12" data-icon="scale">scale</span>
+</div>
+</section>
+<!-- Lab Results List -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-extrabold text-primary">Последние анализы</h2>
+<a class="text-secondary text-sm font-bold hover:underline underline-offset-4" href="#">Все результаты</a>
+</div>
+<div class="space-y-3">
+<div class="group bg-white rounded-xl p-4 flex items-center justify-between border border-transparent hover:border-outline-variant/30 hover:shadow-md transition-all duration-300">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-error-container/50 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-primary">Общий анализ крови (ОАК)</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="event">event</span>
+                                            12.05.2024
+                                        </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+                                            Гемотест Сити
+                                        </span>
+</div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+<!-- More Lab Items -->
+<div class="group bg-white rounded-xl p-4 flex items-center justify-between border border-transparent hover:border-outline-variant/30 hover:shadow-md transition-all duration-300">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-error-container/50 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-primary">Липидный профиль</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="event">event</span>
+                                            08.05.2024
+                                        </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+                                            Гемотест Сити
+                                        </span>
+</div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+<div class="group bg-white rounded-xl p-4 flex items-center justify-between border border-transparent hover:border-outline-variant/30 hover:shadow-md transition-all duration-300">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 rounded-xl bg-error-container/50 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-primary">УЗИ органов брюшной полости</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="event">event</span>
+                                            25.04.2024
+                                        </span>
+<span class="text-[11px] text-on-surface-variant flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span>
+                                            Клиника МедСи
+                                        </span>
+</div>
+</div>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Doctor Appointment Summaries -->
+<section>
+<h2 class="text-xl font-extrabold text-primary mb-6">История посещений</h2>
+<div class="space-y-6">
+<div class="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
+<div class="bg-white p-6">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img alt="Doctor" class="w-14 h-14 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAVDiF8f72oFghcOJMMkd4owmCw3w1stNl4gHTC7HLeOxDiPxHe0y4saETY0pItH27qxIdOSJl_O4-q7FDUzQhlBrho1oDUg6Wpck1amhNRcOe45y2qCPsarsK4foKDvDLLU-hXmIym3zWZPF2MIzEOh52Qim6OOFBlI3ZEkro50jhvtecbBshLguF66PCIZ9TwfQnIuZ_1GvOWcjljokMSWBAbtlOnWi3B3ScIjtEJ21zPgXSaFroxm48LwEZRMbCkaxdjA_SmeZw"/>
+<div>
+<h4 class="font-bold text-primary">Др. Иван Петров</h4>
+<p class="text-xs text-secondary font-bold uppercase tracking-wider">Кардиолог • Стаж 12 лет</p>
+</div>
+</div>
+<span class="text-xs font-bold text-on-surface-variant">10 мая, 14:00</span>
+</div>
+<div class="p-4 bg-background rounded-xl">
+<p class="text-xs font-bold text-primary uppercase mb-2 tracking-widest">Заключение:</p>
+<p class="text-sm text-on-surface-variant leading-relaxed">Пациент жалуется на периодические боли в груди. ЭКГ в норме. Рекомендовано холтеровское мониторирование и ограничение физических нагрузок на 2 недели.</p>
+</div>
+</div>
+<div class="px-6 py-4 flex justify-between items-center bg-slate-50/50">
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary-fixed text-primary text-[10px] font-bold rounded-full">Плановый осмотр</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full">Рецепт выписан</span>
+</div>
+<button class="text-sm font-bold text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                                    Подробнее <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Medications & Reminders -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Medications List -->
+<section class="bg-white rounded-2xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-primary">Лекарства</h3>
+<span class="material-symbols-outlined text-secondary" data-icon="pill">pill</span>
+</div>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="w-2 h-12 bg-secondary rounded-full"></div>
+<div>
+<h5 class="text-sm font-bold text-primary">Эналаприл</h5>
+<p class="text-xs text-on-surface-variant">10 мг • 1 таб / 2 раза в день</p>
+<div class="mt-2 flex gap-1">
+<span class="w-4 h-1 bg-secondary rounded-full"></span>
+<span class="w-4 h-1 bg-secondary rounded-full"></span>
+<span class="w-4 h-1 bg-outline-variant rounded-full"></span>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-2 h-12 bg-secondary rounded-full"></div>
+<div>
+<h5 class="text-sm font-bold text-primary">Витамин D3</h5>
+<p class="text-xs text-on-surface-variant">2000 ME • 1 капс утром</p>
+<div class="mt-2 flex gap-1">
+<span class="w-4 h-1 bg-secondary rounded-full"></span>
+<span class="w-4 h-1 bg-outline-variant rounded-full"></span>
+<span class="w-4 h-1 bg-outline-variant rounded-full"></span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 bg-surface-container text-primary text-xs font-bold rounded-xl hover:bg-surface-container-high transition-colors">
+                        Показать все назначения
+                    </button>
+</section>
+<!-- Profile Quick Card -->
+<section class="bg-surface-container-highest rounded-2xl p-6 relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="text-lg font-bold text-primary mb-4">Данные пациента</h3>
+<div class="space-y-4">
+<div class="flex justify-between border-b border-outline-variant/30 pb-2">
+<span class="text-[11px] uppercase tracking-widest text-on-surface-variant font-bold">Группа крови</span>
+<span class="text-xs font-bold text-primary">O (I) Rh+</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/30 pb-2">
+<span class="text-[11px] uppercase tracking-widest text-on-surface-variant font-bold">Аллергии</span>
+<span class="text-xs font-bold text-error">Пенициллин</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/30 pb-2">
+<span class="text-[11px] uppercase tracking-widest text-on-surface-variant font-bold">Полис ОМС</span>
+<span class="text-xs font-bold text-primary">**** 8821</span>
+</div>
+<div class="flex justify-between">
+<span class="text-[11px] uppercase tracking-widest text-on-surface-variant font-bold">Рост</span>
+<span class="text-xs font-bold text-primary">184 см</span>
+</div>
+</div>
+</div>
+<span class="absolute -right-6 -top-6 material-symbols-outlined text-9xl text-primary/5" data-icon="shield_with_heart">shield_with_heart</span>
+</section>
+<!-- Upcoming Action -->
+<section class="bg-secondary text-white rounded-2xl p-6 shadow-lg transform hover:-translate-y-1 transition-transform">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined" data-icon="notification_important">notification_important</span>
+<h3 class="text-sm font-bold uppercase tracking-widest">Напоминание</h3>
+</div>
+<p class="text-lg font-bold leading-snug mb-6">Завтра, 15 мая, в 10:30 — Консультация у гастроэнтеролога</p>
+<button class="flex items-center justify-center gap-2 w-full py-3 bg-white text-secondary rounded-xl font-bold text-xs shadow-md active:scale-95 transition-all">
+                        Подтвердить визит
+                    </button>
+</section>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer (Consistent with SCREEN_34 style and COMPONENTS_18) -->
+<footer class="w-full border-t-0 mt-20 bg-slate-50">
+<div class="bg-slate-200/20 py-16">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-10 max-w-7xl mx-auto">
+<div class="space-y-4">
+<a class="block" href="#">
+<img alt="Med-as Logo" class="h-8 w-auto mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<p class="text-slate-500 text-sm leading-relaxed">
+                    Ваш надежный партнер в поиске медицинской помощи. Связывайтесь с лучшими специалистами через нашу платформу.
+                </p>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Навигация</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary hover:underline underline-offset-4 transition-colors text-sm" href="#">About Us</a></li>
+<li><a class="text-slate-500 hover:text-primary hover:underline underline-offset-4 transition-colors text-sm" href="#">Contact Us</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Правовая информация</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary hover:underline underline-offset-4 transition-colors text-sm" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 hover:text-primary hover:underline underline-offset-4 transition-colors text-sm" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Помощь</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary hover:underline underline-offset-4 transition-colors text-sm" href="#">Legal Notice</a></li>
+<div class="flex gap-4 mt-6">
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-10 pt-16 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/50 mt-8">
+<p class="text-slate-500 font-manrope text-xs tracking-wide uppercase">© 2024 Med-as Clinical Sanctuary. All rights reserved.</p>
+<div class="flex gap-6">
+<span class="text-slate-400 text-xs">RU</span>
+<span class="text-slate-400 text-xs">RUB</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

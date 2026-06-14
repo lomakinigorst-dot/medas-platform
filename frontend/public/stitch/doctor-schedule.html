@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Управление расписанием | Med-as</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-variant": "#e0e3e5",
+              "on-error-container": "#93000a",
+              "on-tertiary-fixed-variant": "#004b74",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#89f5e7",
+              "primary-fixed": "#dbe1ff",
+              "on-error": "#ffffff",
+              "secondary": "#36b37e", 
+              "on-background": "#191c1e",
+              "on-primary-container": "#eeefff",
+              "inverse-surface": "#2d3133",
+              "surface-tint": "#002D62",
+              "on-tertiary-container": "#e6f1ff",
+              "inverse-on-surface": "#eff1f3",
+              "surface-dim": "#d8dadc",
+              "primary-container": "#002D62",
+              "on-surface-variant": "#434655",
+              "error-container": "#ffdad6",
+              "on-surface": "#191c1e",
+              "surface-container-lowest": "#ffffff",
+              "on-primary-fixed-variant": "#003ea8",
+              "tertiary-container": "#1b72ab",
+              "on-secondary-fixed-variant": "#005049",
+              "secondary-fixed-dim": "#6bd8cb",
+              "outline": "#737686",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-primary-fixed": "#00174b",
+              "tertiary-fixed-dim": "#94ccff",
+              "background": "#f7f9fb",
+              "on-primary": "#ffffff",
+              "on-secondary-container": "#006f66",
+              "surface": "#f7f9fb",
+              "surface-bright": "#f7f9fb",
+              "on-secondary-fixed": "#00201d",
+              "surface-container": "#eceef0",
+              "surface-container-low": "#f2f4f6",
+              "surface-container-high": "#e6e8ea",
+              "tertiary-fixed": "#cde5ff",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#c3c6d7",
+              "error": "#ba1a1a",
+              "secondary-container": "#e3fcef",
+              "surface-container-highest": "#e0e3e5",
+              "on-tertiary-fixed": "#001d32",
+              "inverse-primary": "#b4c5ff",
+              "primary": "#002D62",
+              "tertiary": "#00598a"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-effect {
+        backdrop-filter: blur(16px);
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      h1, h2, h3, .font-manrope {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-container">
+<!-- TopNavBar Implementation -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm shadow-blue-900/5 antialiased font-manrope">
+<div class="flex justify-between items-center h-20 px-8 max-w-[1600px] mx-auto">
+<div class="flex items-center gap-8">
+<a class="block" href="#">
+<img alt="Med-as" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-sm font-medium tracking-wide text-slate-600 hover:text-primary transition-colors duration-200" href="#">Home</a>
+<a class="text-sm font-medium tracking-wide text-primary border-b-2 border-primary pb-1" href="#">Doctors</a>
+<a class="text-sm font-medium tracking-wide text-slate-600 hover:text-primary transition-colors duration-200" href="#">Clinics</a>
+<a class="text-sm font-medium tracking-wide text-slate-600 hover:text-primary transition-colors duration-200" href="#">Services</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-50 rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<div class="text-right">
+<p class="text-sm font-bold text-primary leading-none">Д-р Александр В.</p>
+<p class="text-[10px] uppercase tracking-widest text-secondary font-bold">Кардиолог</p>
+</div>
+<div class="h-10 w-10 rounded-full bg-primary-fixed overflow-hidden border-2 border-surface-container-highest">
+<img alt="Doctor Profile" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPstMnp-3fM6w4jFEk9pyHTV35oknmKhX18wVxL_c_8WixRaDVENLPJsxphGg6MN_dOSJLMUrNhuyXq6l0uFVcfKSZJSIN3hD0tHa-XUD58O-JLDiNazFIee7_FnTiCyPs28Hgm7q8X1VPhVWyyLiNG63TQ0fJYe1mSQ1Gt_rYsBWEt6uGeZmlMztz7Pnw92a9DbGEsRGPStZ-kRq3A_9IsQFyknOGP_h6LjvRxVvGJpwTSg6sIRKVmjaFZJfDauOZyngdmwFtrTfi"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-12 px-8 max-w-[1600px] mx-auto min-h-screen">
+<!-- Calendar Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-1">Расписание приемов</h1>
+<p class="text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                Октябрь 2024 • Неделя 42
+            </p>
+</div>
+<div class="flex items-center gap-3">
+<div class="bg-surface-container p-1 rounded-lg flex gap-1">
+<button class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md bg-white shadow-sm text-primary">Неделя</button>
+<button class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider rounded-md text-on-surface-variant hover:bg-surface-container-high transition-colors">День</button>
+</div>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-primary text-on-primary rounded-lg font-semibold active:scale-95 transition-transform shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                Добавить запись
+            </button>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Calendar Grid -->
+<div class="flex-1 overflow-x-auto">
+<div class="min-w-[800px] bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10">
+<!-- Days Header -->
+<div class="grid grid-cols-[100px_repeat(7,1fr)] border-b border-surface-container">
+<div class="p-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline">schedule</span>
+</div>
+<div class="p-4 text-center">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Пн</p>
+<p class="text-xl font-bold text-primary">21</p>
+</div>
+<div class="p-4 text-center bg-secondary-container/20">
+<p class="text-[10px] uppercase tracking-widest text-secondary font-bold">Вт</p>
+<p class="text-xl font-bold text-secondary">22</p>
+<div class="h-1 w-1 bg-secondary rounded-full mx-auto mt-1"></div>
+</div>
+<div class="p-4 text-center">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Ср</p>
+<p class="text-xl font-bold text-primary">23</p>
+</div>
+<div class="p-4 text-center">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Чт</p>
+<p class="text-xl font-bold text-primary">24</p>
+</div>
+<div class="p-4 text-center">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Пт</p>
+<p class="text-xl font-bold text-primary">25</p>
+</div>
+<div class="p-4 text-center opacity-40">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Сб</p>
+<p class="text-xl font-bold text-primary">26</p>
+</div>
+<div class="p-4 text-center opacity-40">
+<p class="text-[10px] uppercase tracking-widest text-outline-variant font-bold">Вс</p>
+<p class="text-xl font-bold text-primary">27</p>
+</div>
+</div>
+<!-- Time Slots -->
+<div class="relative h-[600px] overflow-y-auto">
+<!-- Hour Rows -->
+<div class="grid grid-cols-[100px_repeat(7,1fr)] h-20 border-b border-surface-container-low">
+<div class="flex items-start justify-end pr-4 pt-2 text-xs font-bold text-outline uppercase tracking-tighter">08:00</div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container-low/20">
+<!-- Appointment Card: Pending -->
+<div class="absolute inset-x-1 top-2 p-2 rounded-lg bg-primary-fixed border-l-4 border-primary shadow-sm z-10 cursor-pointer hover:scale-[1.02] transition-transform">
+<p class="text-[9px] font-bold uppercase text-primary leading-tight">08:15 — 08:45</p>
+<p class="text-xs font-extrabold text-on-primary-fixed truncate">Иванов Иван</p>
+<p class="text-[10px] text-on-primary-fixed-variant truncate">Консультация</p>
+</div>
+</div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+</div>
+<div class="grid grid-cols-[100px_repeat(7,1fr)] h-20 border-b border-surface-container-low">
+<div class="flex items-start justify-end pr-4 pt-2 text-xs font-bold text-outline uppercase tracking-tighter">09:00</div>
+<div class="border-l border-surface-container-low relative">
+<!-- Appointment Card: Confirmed -->
+<div class="absolute inset-x-1 top-4 p-2 rounded-lg bg-secondary-container border-l-4 border-secondary shadow-sm z-10 cursor-pointer hover:scale-[1.02] transition-transform">
+<div class="flex justify-between items-start">
+<p class="text-[9px] font-bold uppercase text-secondary leading-tight">09:15</p>
+<span class="material-symbols-outlined text-xs text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<p class="text-xs font-extrabold text-on-secondary-container truncate">Анна Петрова</p>
+</div>
+</div>
+<div class="border-l border-surface-container-low relative bg-surface-container-low/20"></div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative">
+<!-- Appointment Card: Confirmed (Long) -->
+<div class="absolute inset-x-1 top-0 p-2 rounded-lg bg-secondary-container border-l-4 border-secondary shadow-sm z-10 cursor-pointer hover:scale-[1.02] transition-transform h-[140px]">
+<p class="text-[9px] font-bold uppercase text-secondary leading-tight">09:00 — 10:15</p>
+<p class="text-xs font-extrabold text-on-secondary-container truncate">Сергей Сидоров</p>
+<p class="text-[10px] text-on-secondary-container opacity-80 mb-2">Обследование ЭКГ</p>
+</div>
+</div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+</div>
+<!-- Row 10:00 -->
+<div class="grid grid-cols-[100px_repeat(7,1fr)] h-20 border-b border-surface-container-low">
+<div class="flex items-start justify-end pr-4 pt-2 text-xs font-bold text-outline uppercase tracking-tighter">10:00</div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container-low/20"></div>
+<div class="border-l border-surface-container-low relative">
+<div class="absolute inset-x-1 top-8 p-2 rounded-lg bg-error-container/40 border-l-4 border-error shadow-sm z-10 cursor-pointer opacity-80">
+<p class="text-[9px] font-bold uppercase text-error leading-tight">10:40</p>
+<p class="text-xs font-extrabold text-on-error-container line-through">Мария Волкова</p>
+</div>
+</div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+<div class="border-l border-surface-container-low relative bg-surface-container/10"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Panel -->
+<div class="w-full lg:w-96 space-y-6">
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-secondary-container/30 p-3 rounded-xl border border-secondary/10">
+<p class="text-[10px] uppercase font-bold text-secondary tracking-widest mb-1">Одобрено</p>
+<p class="text-xl font-extrabold text-secondary">12</p>
+</div>
+<div class="bg-primary-fixed/30 p-3 rounded-xl border border-primary/10">
+<p class="text-[10px] uppercase font-bold text-primary tracking-widest mb-1">Ожидает</p>
+<p class="text-xl font-extrabold text-primary">5</p>
+</div>
+<div class="bg-error-container/20 p-3 rounded-xl border border-error/10">
+<p class="text-[10px] uppercase font-bold text-error tracking-widest mb-1">Отмена</p>
+<p class="text-xl font-extrabold text-error">2</p>
+</div>
+</div>
+<!-- Active Detail Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/10">
+<div class="flex items-center gap-4 mb-6">
+<div class="h-16 w-16 rounded-xl overflow-hidden shadow-md">
+<img alt="Patient" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAddXvddHfA8M7C6PgnV7wDQbJ8NXKnLY5q-nU17_qZge_Jz7DE32rpPSdQWWlwWKP1ns-QZTQFN4tdqPd7bQlyosKg-uuEODpeWynWTH9xVwlb6U6KfElFtLiA49_VxXF0kep5Y1dOnwc3J7xUIXXW86IxJDhFeZQD__pqDf5EnPICtADOf9cswzL12sLGI099enw_YkGNGoqbNDhI7PBuxGqi2s1RwqcP2l07awQYe_QmedZoR2aL6kQYL67ZOM2EkAnJUTKP6iNO"/>
+</div>
+<div>
+<h3 class="text-lg font-extrabold text-primary leading-tight">Анна Петрова</h3>
+<p class="text-xs text-on-surface-variant font-medium">Пациент ID: #99214</p>
+<span class="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container text-on-secondary-container">Подтверждено</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">schedule</span>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline">Время и Дата</p>
+<p class="text-sm font-bold text-on-surface">Сегодня, 09:15 — 09:45</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">stethoscope</span>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-outline">Цель визита</p>
+<p class="text-sm font-bold text-on-surface">Плановый осмотр, жалобы на аритмию</p>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10 flex flex-col gap-3">
+<button class="w-full py-3 bg-white border border-outline-variant/30 text-primary font-bold rounded-lg hover:bg-surface-container transition-colors text-sm">Медкарта пациента</button>
+<button class="w-full py-3 bg-primary text-white font-bold rounded-lg active:scale-95 transition-transform text-sm shadow-lg shadow-primary/20">Начать прием</button>
+</div>
+</div>
+<!-- Upcoming List -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/10">
+<h4 class="text-xs uppercase font-extrabold tracking-widest text-primary mb-4">Следующие пациенты</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-surface-container overflow-hidden">
+<img alt="Patient" class="h-full w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2WNUttfWwkDx7mSyvMnhZ83_gX7vl0gmi3K1bIidxOROQ8sA-w4D909tpukRkqcZBt8nuIW11taGnCblkzXzvKMDHt6Q3vSQj-aZQFRm3k0PzumPcKL6MPiKKBT-vkdXtiYdU-xnReKmqqGztjK6hIvjjtLUUJDVeIj2kBVlM2KL5AlxnAY4wbcYRFUEphZQlpdvnCR94jlCXM4pwWM1RmEXD39ACO2E-iPMIDg64J2rH4lQm9ipFxas77Z7rQLbx589eOIID2nIL"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Сергей Сидоров</p>
+<p class="text-[10px] text-outline">10:15 • ЭКГ</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary">arrow_forward_ios</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Implementation -->
+<footer class="w-full bg-slate-50 border-t border-slate-200 mt-20 font-inter">
+<div class="bg-slate-200/10 py-16">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-10 max-w-[1600px] mx-auto">
+<div class="space-y-4">
+<a class="block" href="#">
+<img alt="MEDAS" class="h-8 w-auto mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<p class="text-slate-500 text-sm leading-relaxed">
+                    Ваш надежный партнер в поиске медицинской помощи. Связывайтесь с лучшими специалистами через нашу платформу.
+                </p>
+</div>
+<div>
+<h4 class="text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Для пациентов</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Политика конфиденциальности</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Условия использования</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Отказ от ответственности</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Профессионалам</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Партнерство для клиник</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Поддержка</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors text-sm" href="#">Вакансии</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Контакты</h4>
+<div class="flex gap-4 mb-6">
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="max-w-[1600px] mx-auto px-10 pt-12 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/50 mt-8">
+<p class="text-slate-500 text-xs tracking-wide uppercase">© 2024 MEDAS. Все права защищены.</p>
+<div class="flex gap-6">
+<span class="text-slate-400 text-xs">RU</span>
+<span class="text-slate-400 text-xs">RUB</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed": "#360f00",
+              "background": "#f7f9fb",
+              "inverse-surface": "#2d3133",
+              "primary-fixed": "#dbe1ff",
+              "on-tertiary": "#ffffff",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#005049",
+              "tertiary-container": "#1b72ab",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#e3fcef",
+              "inverse-primary": "#b4c5ff",
+              "on-error": "#ffffff",
+              "on-surface": "#191c1e",
+              "on-secondary": "#ffffff",
+              "outline": "#737686",
+              "on-background": "#191c1e",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#89f5e7",
+              "primary-container": "#002D62",
+              "primary-fixed-dim": "#b4c5ff",
+              "inverse-on-surface": "#eff1f3",
+              "secondary-fixed-dim": "#6bd8cb",
+              "surface-dim": "#d8dadc",
+              "outline-variant": "#c3c6d7",
+              "on-secondary-fixed": "#00201d",
+              "surface-container-high": "#e6e8ea",
+              "surface-container-highest": "#e0e3e5",
+              "surface-container": "#eceef0",
+              "secondary": "#36b37e",
+              "on-error-container": "#93000a",
+              "tertiary": "#00598a",
+              "primary": "#002D62",
+              "on-primary-fixed-variant": "#003ea8",
+              "on-secondary-container": "#006f66",
+              "surface-tint": "#002D62",
+              "surface-variant": "#e0e3e5",
+              "on-tertiary-container": "#e6f1ff",
+              "on-primary-container": "#eeefff",
+              "error-container": "#ffdad6",
+              "on-primary-fixed": "#00174b",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed-variant": "#004b74",
+              "surface": "#f7f9fb",
+              "tertiary-fixed-dim": "#94ccff",
+              "tertiary-fixed": "#cde5ff",
+              "surface-container-low": "#f2f4f6",
+              "on-surface-variant": "#434655"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm shadow-blue-900/5 font-manrope antialiased tracking-tight">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full h-20">
+<div class="flex items-center gap-8">
+<a class="block" href="#">
+<img alt="Med-as Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-manrope text-sm font-semibold text-primary border-b-2 border-primary pb-1 transition-all" href="#">Home</a>
+<a class="font-manrope text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-300" href="#">Doctors</a>
+<a class="font-manrope text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-300" href="#">Clinics</a>
+<a class="font-manrope text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-300" href="#">Services</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block mr-2">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 w-48" placeholder="Поиск..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-slate-600 hover:bg-slate-50 p-2 rounded-full transition-colors" data-icon="notifications">notifications</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<span class="text-sm font-semibold text-primary">Профиль</span>
+<span class="material-symbols-outlined text-primary" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20 px-8 max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="mb-12">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary font-headline mb-2">Семейный доступ</h1>
+<p class="text-on-surface-variant text-lg">Управляйте профилями членов семьи, просматривайте их медицинские записи и записывайте их на прием.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Main Content: Profiles -->
+<div class="md:col-span-8 space-y-6">
+<!-- Active User Card (The Anchor) -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border-l-4 border-secondary flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-6">
+<div class="relative">
+<img alt="Elena Volkova" class="w-20 h-20 rounded-full object-cover ring-4 ring-secondary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx48aJPDf8l8Bolqs2N8olIl0NW7oK1X_BEiOertSCHmDV21cjEALVENFQkkLJ51uyjV5yrdxmGjvpM0LHV2_nYB1w1Q2AAoZb9r5lEKeixm9WEBRr8U9UZuHxQPHEpuWUFPidg2wQyDsl0tAN3UtD-Rf8ln5sklPsrkJ-YhOLrpmag8LP5ImHUF9uVCy7GCaSOBZ6Zq7TLe430eBt6ENDJdGSuJguGD5yn4JsdO0-G_w1aby24QAqBaJMIZhcmTRSbPrkBzJCk7y5"/>
+<span class="absolute bottom-0 right-0 bg-secondary text-white p-1 rounded-full text-[10px] font-bold">ВЫ</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-secondary mb-1 font-label">Основной профиль</p>
+<h2 class="text-2xl font-bold text-primary font-headline">Елена Волкова</h2>
+<p class="text-on-surface-variant text-sm">Дата рождения: 14.05.1988</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                            Записаться
+                        </button>
+<button class="bg-surface-container-highest text-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors">
+                            Медкарта
+                        </button>
+</div>
+</div>
+<!-- Family List -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<!-- Family Member 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-shadow group border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<img alt="Artem Volkov" class="w-16 h-16 rounded-xl object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw9yDkTchgZQMuFrlFWFBlioTSWIT1ZJQUNrtgtCZcNqr9aRnxawjIt0H3voNh_7W3baTs3qrnqY3z6A04NUseQ0Egb83GBsfGA97UrtnuOr-_3hNHIWEV2eWIfAx5VEsiNK-xGZ9dZbwKgPUBBXV7Xo-7Sqe0Eim7o9wooIE0E6_eDAK02WBTd4RSbJpcxoQYfMtJDWCrNpape-0zxyQBXPGsh8ulG94MERzTfAoUAAeogWvQOhwHrZm7EV-mt0P-d6jrWysXhwl_"/>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-bold text-primary mb-1 font-headline">Артем Волков</h3>
+<p class="text-on-surface-variant text-sm mb-6 uppercase tracking-wider font-medium font-label">Сын • 02.11.2015</p>
+<div class="flex flex-col gap-2">
+<button class="w-full bg-secondary-container text-on-secondary-container py-3 rounded-lg text-sm font-bold flex justify-center items-center gap-2 group-hover:bg-secondary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">switch_account</span>
+                                Перейти в профиль
+                            </button>
+<button class="w-full text-primary py-2 text-xs font-bold uppercase tracking-widest hover:underline font-label">
+                                История записей
+                            </button>
+</div>
+</div>
+<!-- Family Member 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl hover:shadow-md transition-shadow group border border-outline-variant/10">
+<div class="flex justify-between items-start mb-4">
+<img alt="Igor Volkov" class="w-16 h-16 rounded-xl object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCApKEmr51o7emFXWKgnulS_833JqUR2XAQNjQDNkFcUyyu8zWV8HIsuBgZb8bR4ygsDPXcVpB8DXkSMsLlc6U-jGjJpiXmcWSjR_Pj-KTRccmIwK1fDnZ0cWnlWUY-Fdo2EsdGkFHeDz8aupy_LweQ_E3tt22SyxWsFRBjjaV-eBFx3O3J7iCd7LDQeXErEXIzQhAOiiK8aVnPxRvDN2VRH0_ZwCqneQuEVyhvA2kfJh2lYA0TKQFe1oXGLJo3Fx8uZfIlBnlYkjq9"/>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<h3 class="text-xl font-bold text-primary mb-1 font-headline">Игорь Волков</h3>
+<p class="text-on-surface-variant text-sm mb-6 uppercase tracking-wider font-medium font-label">Муж • 25.08.1985</p>
+<div class="flex flex-col gap-2">
+<button class="w-full bg-secondary-container text-on-secondary-container py-3 rounded-lg text-sm font-bold flex justify-center items-center gap-2 group-hover:bg-secondary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">switch_account</span>
+                                Перейти в профиль
+                            </button>
+<button class="w-full text-primary py-2 text-xs font-bold uppercase tracking-widest hover:underline font-label">
+                                История записей
+                            </button>
+</div>
+</div>
+<!-- Add New Button -->
+<button class="border-2 border-dashed border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center gap-4 hover:border-secondary hover:bg-secondary/5 transition-all group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<span class="text-primary font-bold font-manrope">Добавить члена семьи</span>
+</button>
+</div>
+</div>
+<!-- Sidebar Information -->
+<div class="md:col-span-4 space-y-6">
+<!-- Quick Stats -->
+<div class="bg-primary text-on-primary p-8 rounded-xl relative overflow-hidden shadow-xl shadow-primary/10">
+<div class="relative z-10">
+<h4 class="text-xs font-extrabold uppercase tracking-[0.2em] opacity-70 mb-6 font-label">Ближайшие события</h4>
+<div class="space-y-6">
+<div class="flex gap-4 items-start">
+<div class="bg-white/10 p-2 rounded-lg text-white">
+<span class="material-symbols-outlined text-xl">vaccines</span>
+</div>
+<div>
+<p class="font-bold font-headline">Вакцинация: Артем</p>
+<p class="text-xs opacity-70 italic font-label">15 Октября, 10:00</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="bg-white/10 p-2 rounded-lg text-white">
+<span class="material-symbols-outlined text-xl">dentistry</span>
+</div>
+<div>
+<p class="font-bold font-headline">Осмотр: Игорь</p>
+<p class="text-xs opacity-70 italic font-label">22 Октября, 14:30</p>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full border border-white/30 py-3 rounded-lg text-sm font-bold hover:bg-white/10 transition-colors uppercase tracking-widest font-label active:scale-95">
+                            Общий календарь
+                        </button>
+</div>
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-secondary/20 rounded-full blur-3xl"></div>
+</div>
+<!-- Guidance/Information -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-outline-variant/10">
+<h4 class="text-primary font-bold mb-4 flex items-center gap-2 font-headline">
+<span class="material-symbols-outlined text-secondary">info</span>
+                        Как это работает?
+                    </h4>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">
+                        Вы можете управлять записями всех членов семьи из одного аккаунта. При переключении профиля вы увидите персональную медкарту и рекомендации для выбранного человека.
+                    </p>
+<a class="text-secondary text-xs font-bold uppercase tracking-widest hover:underline font-label" href="#">Подробнее о правах доступа</a>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-20 bg-slate-50 border-t border-slate-200/50">
+<div class="bg-slate-200/20 py-16">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-10 max-w-7xl mx-auto">
+<div class="space-y-4">
+<a class="block" href="#">
+<img alt="MEDAS Logo" class="h-8 w-auto mb-2" src="https://lh3.googleusercontent.com/aida/ADBb0uiS3wbjKK4PZdqwrZrL84G_YmqoXfXTPWNFTURKRlcciLpGQ0GQwGDHe0QTDxOlyWxX98Vkz6NXsb5XwOiH_zVM5-zuI7y5fr8pAWV-srOUPjIXaLo0LOTRbmpztORzOT_59wD1W30E1MRWHWFHu7Q4fWHf2ggDkhvw8Yo92jzYlEpLJ65dqm-C3I02S6HRybaQxjRLx7sWb7Y2ttsypTUmcSFJw9k1AG4t0bOuoMenjaxQZmFeLc6UzXrdpq3k8D0Qr0BDQBZUNQ"/>
+</a>
+<p class="text-slate-500 font-body text-sm leading-relaxed">
+                        Ваш надежный партнер в поиске медицинской помощи. Связывайтесь с лучшими специалистами через нашу платформу.
+                    </p>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Для пациентов</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Политика конфиденциальности</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Условия использования</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Отказ от ответственности</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Профессионалам</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Партнерство для клиник</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Поддержка</a></li>
+<li><a class="text-slate-500 hover:text-primary transition-colors font-body text-sm" href="#">Вакансии</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-manrope text-xs tracking-wide uppercase text-primary font-extrabold mb-6">Контакты</h4>
+<div class="flex gap-4 mb-6">
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all shadow-sm" href="#">
+<span class="material-symbols-outlined text-xl">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center text-slate-600 hover:bg-primary hover:text-white transition-all shadow-sm" href="#">
+<span class="material-symbols-outlined text-xl">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-10 pt-16 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/50 mt-8">
+<p class="text-slate-500 font-manrope text-xs tracking-wide uppercase">© 2024 MEDAS. Все права защищены.</p>
+<div class="flex gap-6">
+<span class="text-slate-400 text-xs font-manrope">RU</span>
+<span class="text-slate-400 text-xs font-manrope">RUB</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Med-as Admin - Clinical Sanctuary Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#330e00",
+              "secondary-container": "#70fcb7",
+              "on-surface-variant": "#43474f",
+              "inverse-surface": "#2f3034",
+              "error": "#ba1a1a",
+              "on-background": "#1a1b1f",
+              "primary-container": "#002d62",
+              "on-primary-container": "#7796d1",
+              "surface-container-high": "#e8e7ed",
+              "surface-dim": "#dad9df",
+              "error-container": "#ffdad6",
+              "outline": "#747781",
+              "background": "#faf9fe",
+              "on-tertiary-fixed-variant": "#743417",
+              "inverse-primary": "#abc7ff",
+              "on-primary-fixed-variant": "#24467c",
+              "surface-bright": "#faf9fe",
+              "surface-variant": "#e3e2e7",
+              "secondary-fixed-dim": "#50df9c",
+              "inverse-on-surface": "#f1f0f5",
+              "secondary-fixed": "#70fcb7",
+              "primary-fixed-dim": "#abc7ff",
+              "on-primary-fixed": "#001b3f",
+              "secondary": "#006c45",
+              "on-secondary-fixed-variant": "#005233",
+              "surface-container": "#eeedf2",
+              "on-secondary-container": "#00734a",
+              "surface": "#faf9fe",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed": "#002112",
+              "tertiary-container": "#541d02",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#00193c",
+              "on-secondary": "#ffffff",
+              "surface-container-low": "#f4f3f8",
+              "primary-fixed": "#d7e2ff",
+              "on-error-container": "#93000a",
+              "on-surface": "#1a1b1f",
+              "tertiary-fixed": "#ffdbcd",
+              "outline-variant": "#c4c6d1",
+              "on-tertiary-container": "#d4815d",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#360f00",
+              "tertiary-fixed-dim": "#ffb597",
+              "surface-tint": "#3e5e95",
+              "on-tertiary": "#ffffff",
+              "surface-container-highest": "#e3e2e7"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Manrope"],
+              "label": ["Manrope"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 z-50 bg-slate-50 flex flex-col h-full p-4 gap-2 font-manrope text-sm font-medium border-r border-slate-200/30">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+<img class="w-8 h-8 object-contain" data-alt="Med-as Corporate Logo White" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRH8DEDEc_rKK7dhqn3hLBAAjZN1UlzEyPlP0AydDdr0OIe_hYSbKMMifKxIji5pU3LfAEVIULufh7HGc6IWHGCnNKUuaFQFFGScBI0LeTHfXhbIl9J0tsplhXvbjM9TYVrVYZn4Qrcy4pvfLcbSH5qpX3UWgMSMUgTn-SMUNRhPesGvLEKxSK2Iy8RskkaUyHK9vyzevfDl3ffAIZTIcvz7L5M1MiXGyRJaxT-tFpbqSpDgPhrP7lB5rqTf0ixYSdJcJBOciczaRj"/>
+</div>
+<div>
+<h2 class="text-primary font-bold tracking-tight text-base leading-none">City Central Clinic</h2>
+<span class="text-xs text-on-surface-variant font-normal">Premium Provider</span>
+</div>
+</div>
+<nav class="flex flex-col gap-1 flex-grow">
+<!-- Active: Dashboard -->
+<a class="bg-emerald-50 text-emerald-700 rounded-lg px-4 py-3 flex items-center gap-3 transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+                Doctors
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                Invoices
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+                Leads
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="rate_review">rate_review</span>
+                Reviews
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all transform transition-transform active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+                Analytics
+            </a>
+</nav>
+<button class="mb-4 bg-primary text-on-primary py-3 rounded-xl font-semibold text-sm shadow-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+            Add New Lead
+        </button>
+<div class="mt-auto flex flex-col gap-1 pt-4 border-t border-slate-200/50">
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                Support
+            </a>
+<a class="text-slate-600 px-4 py-3 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 left-64 z-40 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/50 flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-extrabold text-slate-900 tracking-tighter uppercase">MED-AS ADMIN</h1>
+<div class="flex items-center gap-2 bg-secondary-container/20 px-3 py-1 rounded-full">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+<span class="text-xs font-semibold text-on-secondary-container">System Live: Sync Active</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</div>
+<div class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</div>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 leading-none">Admin User</p>
+<p class="text-xs text-slate-500">Clinic Manager</p>
+</div>
+<img class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Administrator Profile Picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOOpUxauoW2g1quISSdkzsu7Z20ECOXJ7V2R8q9MqFqaFkJwtoZvvpkgiznacclO2_xQC4Ldm6q0O5CsjSzV53mgLm30fNJvVLhC-afp7AN6vAHh3uwHAiLGo22pSQnN_3ndHb79opur_9Tn7y0KDvBJX3IqfqF_2INRdUONNixaZWIvfv-h-lGgtjtxzPh5tkNZL4lCJBy5CRRNwS3Nfv-ca-zF-RqqW8QvpHJmgT1fFegnfyMyc8qCCszr_k5nonatTDdkuH_DuB"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content Grid -->
+<div class="pt-24 px-8 pb-12 max-w-7xl mx-auto space-y-8">
+<!-- 1. Analytics Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+<p class="text-label text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Views</p>
+<div class="flex items-baseline justify-between">
+<h3 class="text-3xl font-extrabold text-primary">24.8k</h3>
+<span class="text-secondary text-sm font-bold">+12%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+<p class="text-label text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">CTR</p>
+<div class="flex items-baseline justify-between">
+<h3 class="text-3xl font-extrabold text-primary">4.2%</h3>
+<span class="text-secondary text-sm font-bold">+0.8%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+<p class="text-label text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Bookings</p>
+<div class="flex items-baseline justify-between">
+<h3 class="text-3xl font-extrabold text-primary">852</h3>
+<span class="text-secondary text-sm font-bold">+5%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow">
+<p class="text-label text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-2">Revenue</p>
+<div class="flex items-baseline justify-between">
+<h3 class="text-3xl font-extrabold text-primary">₽2.4M</h3>
+<span class="text-slate-400 text-sm font-bold">Stable</span>
+</div>
+</div>
+<div class="bg-primary-container p-6 rounded-xl shadow-lg">
+<p class="text-on-primary-container text-xs font-bold uppercase tracking-widest mb-2">Bonus Points</p>
+<div class="flex items-baseline justify-between">
+<h3 class="text-3xl font-extrabold text-white">420k</h3>
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="loyalty">loyalty</span>
+</div>
+</div>
+</section>
+<!-- 2. Sales Funnel & Financial Hub Row -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Sales Funnel (Asymmetric Large Column) -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
+<h2 class="text-xl font-bold text-primary mb-8 tracking-tight">Путь пациента (Воронка продаж)</h2>
+<div class="space-y-6">
+<div class="relative">
+<div class="flex justify-between mb-2 items-center">
+<span class="text-sm font-semibold text-slate-700">Просмотры объявлений</span>
+<span class="text-sm font-bold text-primary">124,500</span>
+</div>
+<div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<div class="relative">
+<div class="flex justify-between mb-2 items-center">
+<span class="text-sm font-semibold text-slate-700">Переходы в профиль</span>
+<span class="text-sm font-bold text-primary">12,400 (10%)</span>
+</div>
+<div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+<div class="bg-primary/80 h-full rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<div class="relative">
+<div class="flex justify-between mb-2 items-center">
+<span class="text-sm font-semibold text-slate-700">Записи на прием</span>
+<span class="text-sm font-bold text-primary">1,240 (1%)</span>
+</div>
+<div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 25%"></div>
+</div>
+</div>
+<div class="relative">
+<div class="flex justify-between mb-2 items-center">
+<span class="text-sm font-semibold text-slate-700">Оплаченные визиты</span>
+<span class="text-sm font-bold text-primary">980 (79% от записей)</span>
+</div>
+<div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+<div class="bg-secondary-fixed h-full rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Financial Hub (Narrower Side Column) -->
+<div class="bg-surface-container p-8 rounded-xl flex flex-col">
+<h2 class="text-xl font-bold text-primary mb-6 tracking-tight">Финансовый центр</h2>
+<div class="space-y-4 flex-grow">
+<div class="p-4 bg-white rounded-lg flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Инвойс #4412</p>
+<p class="text-sm font-bold text-slate-800">₽124,000.00</p>
+</div>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full">ВЫПЛАЧЕНО</span>
+</div>
+<div class="p-4 bg-white rounded-lg flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Акт #3908</p>
+<p class="text-sm font-bold text-slate-800">₽89,200.00</p>
+</div>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full">ОЖИДАЕТ</span>
+</div>
+<div class="p-4 bg-white rounded-lg flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Инвойс #4411</p>
+<p class="text-sm font-bold text-slate-800">₽15,500.00</p>
+</div>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full">ВЫПЛАЧЕНО</span>
+</div>
+</div>
+<button class="mt-6 w-full py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-all text-sm">
+                        Скачать все отчеты
+                    </button>
+</div>
+</section>
+<!-- 3. Doctor Management Module -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-xl font-bold text-primary tracking-tight">Управление врачами</h2>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-slate-100 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-200 transition-colors">Фильтры</button>
+<button class="px-4 py-2 bg-secondary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity">Добавить специалиста</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="text-label text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+<th class="pb-4">Специалист</th>
+<th class="pb-4">Рейтинг</th>
+<th class="pb-4">Приемов</th>
+<th class="pb-4">Статус</th>
+<th class="pb-4 text-right">Действия</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Male doctor profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg4EwqUDi4LkRKurNqoqE-8bzDrcneRUOQTLjFUPQGC0yZxvf1f2LABq-wV5U3Gp_zw7CTAcHo6QWc2bwA0zhlJvZ0K0o4L4Tf0YYYu3K0v3MTd9P7g67Psh2XwhIsT9gx3n6BOrLq7_qI0Qlfdgf6ACqabe9_VbwlASFWutlB_kRtXLNZ7BYIZYLGKd7W7BSRBBrktfuSCEMtJ9WByQNqh4GfQR0Uh0yfOGkTVhs7Z29G0suABWee3TTXCZfQb3tSl4V_ceuX0Ix2"/>
+<div>
+<p class="text-sm font-bold text-slate-900">Д-р Александр Воронов</p>
+<p class="text-xs text-slate-500">Кардиолог</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.9</span>
+</div>
+</td>
+<td class="py-4 text-sm text-slate-600 font-medium">142</td>
+<td class="py-4">
+<span class="px-3 py-1 bg-secondary-container/30 text-secondary text-[10px] font-bold rounded-full">АКТИВЕН</span>
+</td>
+<td class="py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
+</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Female doctor profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmG2GiOZukb7B9T9OVinlij9R6hWDChTQo7XoKPFhCkb7DOFZmCWZxC8foGr9O6c_IDzrAa7hJXVsKohMY4UkcZxL2Qo5ryO5GiNUunw_uEapAaYXhEXk3uZ5oQ6ploRLBdlE32nc2pGsqRkqJVqmojdct-g2tPL6K5b4y7XX1q6dM7eqTCT0thuQ8lCjQIAmZKp5XMj6ybOYeXF3ACOhT4abw1FNyV7s29AV8jfAeSq_q0IjF6r3lt8T5AqA6YYFntwCHKVyf0DnB"/>
+<div>
+<p class="text-sm font-bold text-slate-900">Д-р Елена Петрова</p>
+<p class="text-xs text-slate-500">Невролог</p>
+</div>
+</div>
+</td>
+<td class="py-4">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold">4.7</span>
+</div>
+</td>
+<td class="py-4 text-sm text-slate-600 font-medium">98</td>
+<td class="py-4">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full">ОТПУСК</span>
+</td>
+<td class="py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-primary transition-all flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 4. & 6. Recent Patient Leads & Reviews Row -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Recent Patient Leads -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
+<h2 class="text-xl font-bold text-primary mb-6 tracking-tight">Последние лиды</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-slate-50/50 rounded-xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xs">МС</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Марина Соколова</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase">12 Окт, 14:30</p>
+</div>
+</div>
+<div class="text-right">
+<span class="px-2 py-0.5 bg-secondary-container/50 text-on-secondary-container text-[10px] font-extrabold rounded">КОНВЕРСИЯ</span>
+<p class="text-xs font-bold text-slate-700 mt-1">₽1,200 комиссия</p>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-slate-50/50 rounded-xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xs">АИ</div>
+<div>
+<p class="text-sm font-bold text-slate-900">Артём Иванов</p>
+<p class="text-[10px] text-slate-400 font-bold uppercase">12 Окт, 11:15</p>
+</div>
+</div>
+<div class="text-right">
+<span class="px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-extrabold rounded">ОЖИДАНИЕ</span>
+<p class="text-xs font-bold text-slate-700 mt-1">₽1,200 комиссия</p>
+</div>
+</div>
+</div>
+<a class="block text-center mt-6 text-sm font-bold text-primary hover:underline" href="#">Все пациенты</a>
+</div>
+<!-- Recent Reviews Center -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
+<h2 class="text-xl font-bold text-primary mb-6 tracking-tight">Центр отзывов</h2>
+<div class="space-y-6">
+<div class="border-b border-slate-50 pb-6">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="flex text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-xs font-bold text-slate-400">Ирина К. для д-ра Воронова</span>
+</div>
+<span class="px-2 py-0.5 bg-secondary-container/30 text-secondary text-[10px] font-bold rounded">ПОЗИТИВНЫЙ</span>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed mb-4 italic">"Прекрасный врач, очень внимательно выслушал и назначил эффективное лечение. Рекомендую!"</p>
+<button class="flex items-center gap-2 text-primary text-xs font-bold hover:gap-3 transition-all">
+                                Ответить <span class="material-symbols-outlined text-sm" data-icon="reply">reply</span>
+</button>
+</div>
+<div>
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="flex text-secondary-fixed-dim">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+</div>
+<span class="text-xs font-bold text-slate-400">Сергей В. для Клиники</span>
+</div>
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded">НЕЙТРАЛЬНЫЙ</span>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed mb-4 italic">"В клинике чисто, но пришлось подождать 15 минут своей очереди. В остальном все хорошо."</p>
+<button class="flex items-center gap-2 text-primary text-xs font-bold hover:gap-3 transition-all">
+                                Ответить <span class="material-symbols-outlined text-sm" data-icon="reply">reply</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- System Status Footer Component -->
+<footer class="mt-12 border-t border-slate-200/50 bg-white/50 py-8 px-8">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-6">
+<img class="h-6 opacity-40 grayscale" data-alt="Med-as Monochromatic Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS3RLuuKSWzSUjGAJSz8Bvz9mnDkg82p6RVn9X-mEuc6_2ZTl8gZfM4sYmOLjfAT9Zlug2rqWmIVLwd01mBamnzNU6dVXSPU1ldynbDnoNQ7w78JR62HEi3zZaHJQzAG041M3QN2EVDtHktUlb4iUQ5SoeEjy5Ha_Y9uYkdlojO_TgjhU6zFyD7hyLpX1o0qucz-bH5mo7JIlldlp8-cHzTXP6TROx8tpJyOWdCNv5MdKmgoiLd5HH96cNYNHWwMBD0XYuEXK4WA-K"/>
+<p class="text-xs text-slate-400 font-medium tracking-tight">© 2024 Med-as Admin Portal. Клиническая безопасность гарантирована.</p>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-tighter">
+<span class="material-symbols-outlined text-sm text-secondary" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+                        База данных синхронизирована
+                    </div>
+<div class="flex gap-4">
+<a class="text-xs font-bold text-slate-400 hover:text-primary transition-colors" href="#">Политика</a>
+<a class="text-xs font-bold text-slate-400 hover:text-primary transition-colors" href="#">Условия</a>
+<a class="text-xs font-bold text-slate-400 hover:text-primary transition-colors" href="#">Помощь</a>
+</div>
+</div>
+</div>
+</footer>
+</main>
+</body></html>
