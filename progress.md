@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 3 доработки — DONE ✅, Следующее: ЛК клиники
-Последнее ✅: Alembic c2d3e4f5a6b7 (ix_appointments_patient_id), PATCH /complete + 5% бонусы, GET /available-days, AppointmentSidebarV2 подсветка рабочих дней. Задеплоено (eefa606).
-Следующее: ЛК клиники — /cabinet/clinic, просмотр записей пациентов, подтверждение/отмена
-Важно: Alembic HEAD = c2d3e4f5a6b7. Роли (пациент/клиника/врач) ещё не реализованы. PATCH /complete доступен любому авторизованному (MVP). PYTHONPATH=/app для alembic в контейнере.
+Текущий блок: Роли пользователей — DONE ✅
+Последнее ✅: role + clinic_id в User, Alembic d3e4f5a6b7c8, /appointments/clinic защищён (role=clinic обязателен), admin +70000000001 (clinic_id=3). Коммит 9a896ea.
+Следующее: Дашборд клиники — редизайн по 2 вариантам из Stitch (папка с дизайнами в проекте), приоритет блоков: KPI → Записи → Загрузка врачей → График. Загрузка врачей в слотах (занято/всего), не просто процент.
+Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. PYTHONPATH=/app для alembic.
 
 ---
 
