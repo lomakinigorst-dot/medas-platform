@@ -3,6 +3,91 @@
 
 ---
 
+## Сессия 2026-06-13 — Фаза 3: Реальное бронирование
+
+### Исследование кода — что уже есть
+
+**Appointment модель** — полностью готова: patient_id, doctor_id, clinic_id, service_type (enum: primary/followup/online), scheduled_at, price, bonuses_used, bonuses_earned, status (enum: pending/confirmed/completed/cancelled), notes.
+
+**DoctorSchedule** — модели нет, таблицы нет. Нужно создать.
+
+**BookingForm.tsx** — handleSubmit просто вызывает `setSubmitted(true)`, никакого API вызова. Использует `Doctor` из `lib/doctors.ts` (мок), не из API. Слоты берёт из `doctor.slots` (мок-данные).
+
+**AppointmentSidebarV2.tsx** — использует `FLAT_SLOTS = ["09:00","10:30","11:45","13:00","14:30","16:00"]` (хардкод).
+
+**Нет** `get_current_user` dependency (auth.py использует `_bearer` напрямую) — нужно вынести в `core/deps.py`.
+
+**Нет** `/api/v1/appointments` endpoint.
+
+**Нет** `schemas/appointment.py`.
+
+### Архитектурные решения
+
+**Doctor ID в BookingForm**: `BookingForm` получает `doctor: Doctor` из lib/doctors.ts, где нет поля `id`. POST /appointments принимает `doctor_slug` (строка) → backend сам резолвит в doctor_id. Не нужно менять тип Doctor или делать лишний API-запрос.
+
+**Slots endpoint**: `GET /api/v1/doctors/{slug}/slots?date=YYYY-MM-DD` — добавить в существующий `endpoints/doctors.py` (не создавать отдельный файл).
+
+**Timezone**: scheduled_at хранится в UTC, слоты генерируются в московском времени (UTC+3) — форматировать на клиенте.
+
+**Алгоритм слотов**: schedule_service.get_available_slots(doctor_id, date) → генерирует все слоты (start_time, slot_duration_min, end_time из DoctorSchedule) → убирает уже занятые (WHERE doctor_id=X AND DATE(scheduled_at)=date AND status != 'cancelled').
+
+**/cabinet/patient реальные записи**: patient/page.tsx — server component. Создать `PatientAppointments` client component рядом (аналогично PatientHeroGreeting). Получает список из GET /appointments/my с Bearer токеном на клиенте.
+
+### Файлы к изменению (10 файлов)
+
+Backend (7):
+1. `backend/app/models/schedule.py` — NEW
+2. `backend/app/models/__init__.py` — добавить DoctorSchedule
+3. `backend/app/core/deps.py` — NEW (get_current_user)
+4. `backend/app/schemas/appointment.py` — NEW (SlotOut, AppointmentCreate, AppointmentOut)
+5. `backend/app/services/schedule_service.py` — NEW
+6. `backend/app/api/v1/endpoints/appointments.py` — NEW
+7. `backend/app/api/v1/endpoints/doctors.py` — добавить GET /slots
+8. `backend/app/api/v1/router.py` — include appointments router
+9. `backend/scripts/seed.py` — добавить расписание
+10. Alembic миграция (autogenerate)
+
+Frontend (3+1):
+11. `frontend/src/lib/api.ts` — добавить fetchSlots, createAppointment, fetchMyAppointments
+12. `frontend/src/components/doctor/booking/BookingForm.tsx` — реальный submit
+13. `frontend/src/components/doctor/v2/AppointmentSidebarV2.tsx` — реальные слоты
+14. `frontend/src/components/cabinet/PatientAppointments.tsx` — NEW client component
+
+## Сессия 2026-06-13 — Фаза 2: Header auth + Logout + CORS
+
+### Исследование кода
+
+**`frontend/src/lib/auth.ts`** — полностью готов:
+- `getToken()` читает `document.cookie` (только client-side, возвращает null на сервере)
+- `clearToken()` стирает cookie
+- `isAuthenticated()` = `!!getToken()`
+
+**`frontend/src/components/layout/Header.tsx`** — `"use client"`, есть `useEffect` для scroll, НЕТ auth-логики. Текущие кнопки: «Вход для врачей» + «Записаться к врачу». Кнопки «Войти» нет совсем.
+
+**`frontend/src/app/cabinet/patient/page.tsx`** — Server Component (нет `"use client"`), хардкод имени «Алекс Стерлинг». Кнопки «Выйти» нет.
+
+**`frontend/src/lib/api.ts`** — `API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1"`. Вызовы идут напрямую с браузера на `api.med-as.ru`.
+
+**`frontend/src/proxy.ts`** — содержит middleware-логику (`matcher: ['/cabinet/:path*']`), НО расположен неверно. Next.js middleware должен быть `src/middleware.ts`. Защита маршрутов может не работать как middleware.
+
+**CORS** (`backend/app/core/config.py`) — `CORS_ORIGINS` уже содержит `"https://saas.med-as.ru"` и `"https://med-as.ru"`. Конфиг корректный, нужна live-проверка.
+
+### Архитектурное решение — Header auth
+
+`/auth/me` вызывается с браузера → `https://api.med-as.ru/api/v1/auth/me` с заголовком `Authorization: Bearer <token>`. CORS разрешает `saas.med-as.ru` как origin — preflight пройдёт.
+
+Когда залогинен, в хедере показываем:
+- Имя пользователя + bonus_balance (chip)
+- Кнопка «Мой кабинет» (замещает «Вход для врачей»)
+- Кнопка «Выйти» (clearToken + router.push("/"))
+- «Записаться к врачу» остаётся (основной CTA)
+
+Logout в cabinet/patient — отдельный `LogoutButton` client component (не делать весь page.tsx клиентским).
+
+
+
+---
+
 ## Сессия 2026-06-10 — Анализ и планирование MEDAS
 
 ### Анализ конкурентов

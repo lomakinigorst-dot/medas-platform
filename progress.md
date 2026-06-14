@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Фаза 3 — Реальное бронирование
-Последнее ✅: Фаза 2 complete. CabinetLayout + PatientHeroGreeting показывают реальное имя из /auth/me. Подтверждено скриншотом (9b34197).
-Следующее: Фаза 3.1 — модель DoctorSchedule + GET /doctors/{slug}/slots + seed расписания
-Важно: OTP = "123456" (mock). Phone в БД = "+7...". Cookie = "medas_token". Деплой: rsync → docker build → docker restart на VPS 85.239.44.14.
+Текущий блок: Фаза 3 доработки — DONE ✅, Следующее: ЛК клиники
+Последнее ✅: Alembic c2d3e4f5a6b7 (ix_appointments_patient_id), PATCH /complete + 5% бонусы, GET /available-days, AppointmentSidebarV2 подсветка рабочих дней. Задеплоено (eefa606).
+Следующее: ЛК клиники — /cabinet/clinic, просмотр записей пациентов, подтверждение/отмена
+Важно: Alembic HEAD = c2d3e4f5a6b7. Роли (пациент/клиника/врач) ещё не реализованы. PATCH /complete доступен любому авторизованному (MVP). PYTHONPATH=/app для alembic в контейнере.
 
 ---
 

@@ -28,3 +28,4 @@ class Doctor(Base):
     clinic: Mapped["Clinic | None"] = relationship("Clinic", back_populates="doctors")  # noqa: F821
     appointments: Mapped[list["Appointment"]] = relationship("Appointment", back_populates="doctor")  # noqa: F821
     reviews: Mapped[list["Review"]] = relationship("Review", back_populates="doctor")  # noqa: F821
+    schedules: Mapped[list["DoctorSchedule"]] = relationship("DoctorSchedule", back_populates="doctor")  # noqa: F821

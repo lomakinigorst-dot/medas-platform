@@ -5,7 +5,7 @@
 
 ## БЫСТРЫЙ ПОИСК (TOC)
 
-| Раздел | Строка |
+| Раздел | Строка (прибл.) |
 |---|---|
 | СТРУКТУРА ПРОЕКТА | 22 |
 | СТРАНИЦЫ → КОМПОНЕНТЫ | 48 |
@@ -15,10 +15,10 @@
 | КОМПОНЕНТЫ ГЛАВНОЙ | 105 |
 | LAYOUT-КОМПОНЕНТЫ | 119 |
 | BACKEND — API ENDPOINTS | 130 |
-| ДИЗАЙН-СИСТЕМА | 135 |
-| ДЕПЛОЙ — команды | 166 |
-| ФАЙЛЫ — НЕ ТРОГАТЬ | 196 |
-| ВАЖНЫЕ ПАТТЕРНЫ | 205 |
+| ДИЗАЙН-СИСТЕМА | 230 |
+| ДЕПЛОЙ — команды | 265 |
+| ФАЙЛЫ — НЕ ТРОГАТЬ | 310 |
+| ВАЖНЫЕ ПАТТЕРНЫ | 320 |
 
 ---
 
@@ -78,7 +78,7 @@
 | `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | `BookingForm` (client), `DoctorBookingCard` |
 | `/clinics` | `app/clinics/page.tsx` | `ClinicsClient` (client) — фильтры + список ClinicCard |
 | `/clinic/[slug]` | `app/clinic/[slug]/page.tsx` | `ClinicHero`, `ClinicContent`, `ClinicInfoSidebar`, `ClinicServicesSearch` (client) |
-| `/cabinet/patient` | `app/cabinet/patient/page.tsx` | CabinetLayout |
+| `/cabinet/patient` | `app/cabinet/patient/page.tsx` | CabinetLayout, PatientHeroGreeting (client), PatientAppointments (client) |
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
 | `/cabinet/patient/family` | `app/cabinet/patient/family/page.tsx` | CabinetLayout |
 | `/cabinet/patient/bonuses` | `app/cabinet/patient/bonuses/page.tsx` | CabinetLayout |
@@ -141,9 +141,11 @@
 
 | Компонент | Файл | Ключевые детали |
 |---|---|---|
-| `Header` | `Header.tsx` | `"use client"`. Двухуровневый: topbar (телефон 8 800 123-45-67 + часы) + nav (лого, меню, CTA). Мобильный drawer. Лого: `/logo-dark.png` 156×44 |
+| `Header` | `Header.tsx` | `"use client"`. Показывает имя/бонусы из GET /auth/me. Кнопки Войти/Кабинет/Выйти в зависимости от auth. Мобильный drawer |
 | `Footer` | `Footer.tsx` | Лого: `/logo-dark.png` 120×34 |
-| `CabinetLayout` | `CabinetLayout.tsx` | `"use client"`. Sidebar + header. Лого: `/logo-dark.png` 110×32. Роли: patient/clinic/doctor |
+| `CabinetLayout` | `CabinetLayout.tsx` | `"use client"`. Sidebar + header. Загружает имя из /auth/me. Logout через clearToken() + router.push("/") |
+| `PatientHeroGreeting` | `cabinet/PatientHeroGreeting.tsx` | `"use client"`. Приветствие с именем пациента из /auth/me |
+| `PatientAppointments` | `cabinet/PatientAppointments.tsx` | `"use client"`. GET /appointments/my → список записей + отмена через PATCH /cancel |
 
 **Высота Header:**
 - Mobile (только nav): ~68px → `<main>` получает `pt-[68px]`
@@ -153,7 +155,60 @@
 
 ## BACKEND — API ENDPOINTS
 
-> Backend (FastAPI) ещё не реализован. Эндпоинты в разработке по PLAN.md Фаза 2+
+**Стек:** FastAPI Python 3.12, SQLAlchemy 2.0 async, PostgreSQL 16, Alembic
+**Путь:** `backend/app/` | Image: `medas-backend:latest`
+**Alembic HEAD:** `c2d3e4f5a6b7` (ix_appointments_patient_id)
+
+### Auth (`backend/app/api/v1/endpoints/auth.py`)
+| Method | Path | Описание |
+|---|---|---|
+| POST | `/auth/register` | Upsert User по phone → `{"phone": "+7...", "code": "123456"}` |
+| POST | `/auth/login` | Найти User по phone → `{"phone": "+7...", "code": "123456"}` |
+| POST | `/auth/verify-otp` | code=="123456" → JWT access_token (7 дней) |
+| GET | `/auth/me` | Bearer JWT → UserResponse(id, phone, name, bonus_balance) |
+
+### Clinics (`backend/app/api/v1/endpoints/clinics.py`)
+| Method | Path | Описание |
+|---|---|---|
+| GET | `/clinics?limit=50` | Список клиник (ClinicListOut) |
+| GET | `/clinics/{slug}` | Клиника по slug |
+
+### Doctors (`backend/app/api/v1/endpoints/doctors.py`)
+| Method | Path | Описание |
+|---|---|---|
+| GET | `/doctors?specialty=&limit=` | Список врачей с фильтром |
+| GET | `/doctors/{slug}` | Врач по slug |
+| GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | Доступные слоты (30 мин, из DoctorSchedule) |
+| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (Пн-Пт) как `["YYYY-MM-DD"]` |
+
+### Appointments (`backend/app/api/v1/endpoints/appointments.py`)
+| Method | Path | Auth | Описание |
+|---|---|---|---|
+| POST | `/appointments` | Bearer | Создать запись (doctor_slug, scheduled_at, service_type, use_bonuses) |
+| GET | `/appointments/my` | Bearer | Записи текущего пациента (desc по дате) |
+| PATCH | `/appointments/{id}/complete` | Bearer | status→completed + 5% бонусов → patient.bonus_balance |
+| PATCH | `/appointments/{id}/cancel` | Bearer | status→cancelled + возврат bonuses_used |
+
+### Модели (`backend/app/models/`)
+| Модель | Файл | Ключевые поля |
+|---|---|---|
+| User | `user.py` | phone(unique), name, bonus_balance, is_verified |
+| Clinic | `clinic.py` | slug(unique), name, address, metro, rating, accepts_dms |
+| Doctor | `doctor.py` | slug(unique), clinic_id FK, specialty, price, is_verified, schedules[] |
+| Appointment | `appointment.py` | patient_id(indexed), doctor_id, clinic_id, status, scheduled_at, bonuses_used/earned |
+| DoctorSchedule | `schedule.py` | doctor_id FK, weekday(0-6), start_time, end_time, slot_duration_min=30 |
+| Review | `review.py` | patient_id, doctor_id, clinic_id, rating, text |
+| BonusTransaction | `bonus.py` | user_id, amount, type, appointment_id |
+
+### Алгоритм слотов (`backend/app/services/schedule_service.py`)
+- `get_available_slots(db, doctor_id, date)` — берёт DoctorSchedule по weekday, генерирует слоты с шагом slot_duration_min, исключает занятые из Appointment (status != cancelled)
+
+### Миграции (Alembic)
+| Rev | Описание |
+|---|---|
+| 77dbb05f7c23 | initial_tables (baseline) |
+| a3f8c2d1e5b9 | add_doctor_schedule |
+| c2d3e4f5a6b7 | add_appointments_patient_index |
 
 ---
 
@@ -224,14 +279,35 @@ xl:  1280px
 
 ### Деплой frontend
 ```bash
-# Из корня проекта (Сайт медас/):
-bash deploy.sh
+# Rsync source на VPS
+rsync -az --exclude='.next' --exclude='node_modules' --exclude='.git' \
+  -e "ssh -i ~/.ssh/server_key" \
+  ./frontend/ root@85.239.44.14:/app/medas-platform/frontend-src/
 
-# Что происходит внутри:
-# 1. docker build --platform linux/amd64 -t medas-frontend:latest ./frontend
-# 2. docker save → gzip → scp на VPS
-# 3. docker load + docker compose up -d --force-recreate frontend
-# 4. curl https://saas.med-as.ru/ → HTTP 200
+# Собрать образ на VPS (не локально — архитектура)
+ssh -i ~/.ssh/server_key root@85.239.44.14 \
+  "docker build -t medas-frontend:latest /app/medas-platform/frontend-src/"
+
+# Перезапустить
+ssh -i ~/.ssh/server_key root@85.239.44.14 \
+  "cd /app/medas-platform && docker compose stop frontend && docker compose up -d frontend"
+```
+
+### Деплой backend
+```bash
+# Rsync source
+rsync -az --exclude='__pycache__' --exclude='*.pyc' --exclude='.git' \
+  -e "ssh -i ~/.ssh/server_key" \
+  ./backend/ root@85.239.44.14:/app/medas-platform/backend-src/
+
+# Собрать + перезапустить
+ssh -i ~/.ssh/server_key root@85.239.44.14 \
+  "docker build -t medas-backend:latest /app/medas-platform/backend-src/ && \
+   cd /app/medas-platform && docker compose stop backend && docker compose up -d backend"
+
+# Alembic миграции (PYTHONPATH=/app — обязательно)
+ssh -i ~/.ssh/server_key root@85.239.44.14 \
+  "docker exec medas-platform-backend-1 sh -c 'cd /app && PYTHONPATH=/app alembic upgrade head'"
 ```
 
 ### Верификация деплоя (обязательно после каждого деплоя)

@@ -4,5 +4,6 @@ from app.models.doctor import Doctor
 from app.models.appointment import Appointment
 from app.models.review import Review
 from app.models.bonus import BonusTransaction
+from app.models.schedule import DoctorSchedule
 
-__all__ = ["User", "Clinic", "Doctor", "Appointment", "Review", "BonusTransaction"]
+__all__ = ["User", "Clinic", "Doctor", "Appointment", "Review", "BonusTransaction", "DoctorSchedule"]

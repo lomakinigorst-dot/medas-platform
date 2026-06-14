@@ -3,13 +3,16 @@ Seed initial data: clinics + doctors from frontend mock data.
 Run: python -m scripts.seed
 """
 import asyncio
+from datetime import time
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.database import Base
 from app.models.clinic import Clinic
 from app.models.doctor import Doctor
+from app.models.schedule import DoctorSchedule
 
 CLINICS = [
     {
@@ -130,15 +133,29 @@ async def seed() -> None:
             clinic_map[data["slug"]] = clinic.id
 
         # Doctors
+        doctor_ids: list[int] = []
         for data in DOCTORS:
             clinic_slug = data.pop("clinic_slug")
             doctor = Doctor(**data, clinic_id=clinic_map.get(clinic_slug))
             session.add(doctor)
+            await session.flush()
+            doctor_ids.append(doctor.id)
+
+        # Schedules: Mon-Fri (0-4), 09:00-18:00, 30-min slots
+        for doctor_id in doctor_ids:
+            for weekday in range(5):  # 0=Mon .. 4=Fri
+                session.add(DoctorSchedule(
+                    doctor_id=doctor_id,
+                    weekday=weekday,
+                    start_time=time(9, 0),
+                    end_time=time(18, 0),
+                    slot_duration_min=30,
+                ))
 
         await session.commit()
 
     await engine.dispose()
-    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors.")
+    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors + schedules.")
 
 
 if __name__ == "__main__":
