@@ -52,6 +52,8 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - certbot_www:/var/www/certbot:ro
       - certbot_conf:/etc/letsencrypt:ro
+      - ./stitch:/usr/share/nginx/html/stitch:ro
+      - ./logos:/usr/share/nginx/html/logos:ro
     depends_on:
       - frontend
       - backend
