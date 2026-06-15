@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CabinetLayout from "@/components/layout/CabinetLayout";
 import { getToken } from "@/lib/auth";
 import { fetchDoctorAppointments, fetchCurrentUser, DoctorAppointmentOut, UserMe } from "@/lib/api";
+import { isToday, isThisWeek, isThisMonth, formatDateTime } from "@/lib/date-utils";
 
 const navItems = [
   { href: "/cabinet/doctor", icon: "🏠", label: "Главная" },
@@ -32,30 +33,6 @@ const SERVICE_LABEL: Record<string, string> = {
   online: "Онлайн",
 };
 
-function toMoscow(iso: string): Date {
-  return new Date(iso);
-}
-
-function isToday(iso: string): boolean {
-  const d = toMoscow(iso);
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-}
-
-function isThisWeek(iso: string): boolean {
-  const d = toMoscow(iso);
-  const now = new Date();
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  return d >= weekAgo && d <= now;
-}
-
-function isThisMonth(iso: string): boolean {
-  const d = toMoscow(iso);
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-}
 
 export default function DoctorCabinetPage() {
   const router = useRouter();
@@ -134,7 +111,7 @@ export default function DoctorCabinetPage() {
               {todayApts
                 .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
                 .map((apt) => {
-                  const time = toMoscow(apt.scheduled_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                  const time = formatDateTime(apt.scheduled_at).time;
                   return (
                     <div key={apt.id} className="flex items-center gap-4 px-6 py-4 hover:bg-[#f7f9fb] transition-colors">
                       <div className="w-14 text-center flex-shrink-0">
@@ -198,9 +175,7 @@ export default function DoctorCabinetPage() {
               </thead>
               <tbody className="divide-y divide-[#f2f4f6]">
                 {appointments.map((apt) => {
-                  const dt = toMoscow(apt.scheduled_at);
-                  const dateStr = dt.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
-                  const timeStr = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                  const { date: dateStr, time: timeStr } = formatDateTime(apt.scheduled_at);
                   return (
                     <tr key={apt.id} className="hover:bg-[#f7f9fb] transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">

@@ -182,33 +182,39 @@ async def doctor_appointments(
         .order_by(Appointment.scheduled_at.desc())
     )
     appointments = list(result.scalars().all())
+    if not appointments:
+        return []
 
-    out = []
-    for apt in appointments:
-        patient_result = await db.execute(select(User).where(User.id == apt.patient_id))
-        patient = patient_result.scalar_one_or_none()
+    # Fetch doctor once — all appointments share the same doctor_id
+    dr_result = await db.execute(select(Doctor).where(Doctor.id == current_user.doctor_id))
+    doctor = dr_result.scalar_one_or_none()
 
-        clinic_name: str | None = None
-        if apt.clinic_id:
-            cl_result = await db.execute(select(Clinic.name).where(Clinic.id == apt.clinic_id))
-            clinic_name = cl_result.scalar_one_or_none()
+    # Batch-fetch patients and clinics
+    patient_ids = {apt.patient_id for apt in appointments}
+    patients_result = await db.execute(select(User).where(User.id.in_(patient_ids)))
+    patients: dict[int, User] = {u.id: u for u in patients_result.scalars().all()}
 
-        dr_result = await db.execute(select(Doctor).where(Doctor.id == apt.doctor_id))
-        doctor = dr_result.scalar_one_or_none()
+    clinic_ids = {apt.clinic_id for apt in appointments if apt.clinic_id}
+    clinic_names: dict[int, str] = {}
+    if clinic_ids:
+        clinics_result = await db.execute(select(Clinic.id, Clinic.name).where(Clinic.id.in_(clinic_ids)))
+        clinic_names = {row[0]: row[1] for row in clinics_result.all()}
 
-        out.append(DoctorAppointmentOut(
+    return [
+        DoctorAppointmentOut(
             id=apt.id,
             doctor_name=doctor.name if doctor else "Неизвестно",
-            patient_name=patient.name if patient else "Пациент",
-            clinic_name=clinic_name,
+            patient_name=patients[apt.patient_id].name if apt.patient_id in patients else "Пациент",
+            clinic_name=clinic_names.get(apt.clinic_id) if apt.clinic_id else None,
             scheduled_at=apt.scheduled_at,
             service_type=apt.service_type,
             status=apt.status,
             price=apt.price,
             bonuses_used=apt.bonuses_used,
             bonuses_earned=apt.bonuses_earned,
-        ))
-    return out
+        )
+        for apt in appointments
+    ]
 
 
 @router.get("/clinic/stats", response_model=ClinicStats)

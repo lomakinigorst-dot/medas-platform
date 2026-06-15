@@ -13,6 +13,12 @@ export function isThisWeek(iso: string): boolean {
   return d >= weekStart && d < weekEnd;
 }
 
+export function isThisMonth(iso: string): boolean {
+  const d = new Date(iso);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
+
 export function formatDateTime(iso: string): { date: string; time: string } {
   const d = new Date(iso);
   return {

@@ -35,8 +35,7 @@ class ClinicAppointmentOut(AppointmentOut):
     patient_name: str
 
 
-class DoctorAppointmentOut(AppointmentOut):
-    patient_name: str
+DoctorAppointmentOut = ClinicAppointmentOut
 
 
 class DoctorLoadItem(BaseModel):

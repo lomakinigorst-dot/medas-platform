@@ -267,9 +267,7 @@ export interface ClinicDoctorOut {
   clinic_id: number | null;
 }
 
-export interface DoctorAppointmentOut extends AppointmentOut {
-  patient_name: string;
-}
+export type DoctorAppointmentOut = ClinicAppointmentOut;
 
 export async function fetchDoctorAppointments(token: string): Promise<DoctorAppointmentOut[]> {
   try {
