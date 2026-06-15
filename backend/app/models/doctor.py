@@ -29,3 +29,4 @@ class Doctor(Base):
     appointments: Mapped[list["Appointment"]] = relationship("Appointment", back_populates="doctor")  # noqa: F821
     reviews: Mapped[list["Review"]] = relationship("Review", back_populates="doctor")  # noqa: F821
     schedules: Mapped[list["DoctorSchedule"]] = relationship("DoctorSchedule", back_populates="doctor")  # noqa: F821
+    day_offs: Mapped[list["DoctorDayOff"]] = relationship("DoctorDayOff", back_populates="doctor")  # noqa: F821

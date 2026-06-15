@@ -321,6 +321,74 @@ export async function patchDoctor(
   }
 }
 
+// ─── Schedule management ──────────────────────────────────────────────────────
+
+export interface ScheduleItem {
+  weekday: number;
+  start_time: string;
+  end_time: string;
+  slot_duration_min: number;
+}
+
+export interface DayOffItem {
+  date: string;
+  reason: string | null;
+}
+
+export async function fetchDoctorSchedule(doctorId: number, token: string): Promise<ScheduleItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}/schedule`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as ScheduleItem[];
+  } catch { return []; }
+}
+
+export async function putDoctorSchedule(doctorId: number, items: ScheduleItem[], token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}/schedule`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(items),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+export async function fetchDoctorDayOffs(doctorId: number, token: string): Promise<DayOffItem[]> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}/day-offs`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as DayOffItem[];
+  } catch { return []; }
+}
+
+export async function addDoctorDayOff(doctorId: number, date: string, reason: string | null, token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}/day-offs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ date, reason }),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+export async function removeDoctorDayOff(doctorId: number, date: string, token: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}/day-offs/${date}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
 // ─── Clinics / Doctors mappers ────────────────────────────────────────────────
 
 export function apiClinicToClinic(c: ApiClinic): Clinic {
