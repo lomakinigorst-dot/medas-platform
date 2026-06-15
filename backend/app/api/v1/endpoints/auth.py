@@ -31,11 +31,24 @@ def _redis() -> aioredis.Redis:
     return aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
 
+CALL_COOLDOWN = 55  # seconds — prevents rapid repeated calls
+
+
 async def _send_code(phone: str, method: str = "flash") -> None:
+    cooldown_key = f"otp_cooldown:{phone}"
+    async with _redis() as r:
+        if await r.exists(cooldown_key):
+            ttl = await r.ttl(cooldown_key)
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Подождите {ttl} сек перед повторным запросом кода",
+            )
+
     if method == "sms":
         code = generate_otp(6)
         async with _redis() as r:
             await r.setex(f"otp:{phone}", OTP_TTL, code)
+            await r.setex(cooldown_key, CALL_COOLDOWN, "1")
             await r.delete(f"otp_attempts:{phone}")
         await send_sms(phone, code)
     else:
@@ -49,6 +62,7 @@ async def _send_code(phone: str, method: str = "flash") -> None:
             )
         async with _redis() as r:
             await r.setex(f"otp:{phone}", OTP_TTL, code)
+            await r.setex(cooldown_key, CALL_COOLDOWN, "1")
             await r.delete(f"otp_attempts:{phone}")
 
 

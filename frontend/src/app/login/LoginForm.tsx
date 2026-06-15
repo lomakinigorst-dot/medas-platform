@@ -50,6 +50,7 @@ export default function LoginForm() {
   const [otpTrigger, setOtpTrigger] = useState(0); // increment → reset countdown
   const [countdown, setCountdown] = useState(0);
   const countdownInitRef = useRef(60); // seconds to use on next countdown start
+  const submittingRef = useRef(false); // guard against double-submit
 
   // ── Misc ──
   const [loading, setLoading] = useState(false);
@@ -113,7 +114,9 @@ export default function LoginForm() {
   }
 
   async function handlePhone() {
+    if (submittingRef.current) return;
     if (!phoneValid(digits)) { setError("Введите корректный номер в формате +7 (9XX) XXX-XX-XX"); return; }
+    submittingRef.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -141,6 +144,7 @@ export default function LoginForm() {
       setError("Нет соединения с сервером");
     } finally {
       setLoading(false);
+      submittingRef.current = false;
     }
   }
 
