@@ -4,11 +4,11 @@
 ---
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
-Проект: MEDAS | Дата: 2026-06-13
-Текущий блок: Роли пользователей — DONE ✅
-Последнее ✅: role + clinic_id в User, Alembic d3e4f5a6b7c8, /appointments/clinic защищён (role=clinic обязателен), admin +70000000001 (clinic_id=3). Коммит 9a896ea.
-Следующее: Дашборд клиники — редизайн по 2 вариантам из Stitch (папка с дизайнами в проекте), приоритет блоков: KPI → Записи → Загрузка врачей → График. Загрузка врачей в слотах (занято/всего), не просто процент.
-Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. PYTHONPATH=/app для alembic.
+Проект: MEDAS | Дата: 2026-06-15
+Текущий блок: Stitch preview deploy — ⚠️ NGINX DOWN
+Последнее ✅: Stitch HTML (17 файлов) скопированы на VPS /app/medas-platform/stitch/, nginx.conf обновлён, docker-compose.yml обновлён (stitch volume).
+Следующее: ЛК врача (расписание + его записи), или SMS OTP реальный провайдер.
+Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. 4 врача СМ-Клиники: Козлова, Иванов, Морозова, Сидоров. Stitch preview: saas.med-as.ru/stitch/ ✅
 
 ---
 
