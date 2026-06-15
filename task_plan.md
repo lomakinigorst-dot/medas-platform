@@ -1,10 +1,10 @@
 # MEDAS — Полный план разработки
-**Версия:** 5.5 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
+**Версия:** 6.0 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Фаза Д — Дашборд клиники (улучшения)
+Этап 0 — Блокер перед prod (SMS OTP + Certbot) → Этап 1 — ЛК Клиники страницы → Этап 2 — ЛК Врача
 
 ---
 
@@ -23,14 +23,12 @@ Status: complete
 Done: Backend +4 поля в ClinicStats (bonus_used, confirmed_month, completed_month, bonuses_applied_month), PatientFunnel компонент (4 шага: 102→96→90→0), 5-я KPI карточка Бонусы, KPI grid grid-cols-2 lg:grid-cols-4. Коммит f2842c6.
 
 #### Д2 — Таблица врачей (апгрейд DoctorLoad)
-Status: pending
-- [ ] Заменить bar chart DoctorLoad на таблицу: имя, записей сегодня, всего за месяц, загруженность %
-- [ ] Backend: добавить month_count per doctor в stats или отдельный endpoint
+Status: complete
+Done: DoctorLoadItem +month_count (backend schema + SQL), DoctorLoad bar chart → таблица Врач/Сегодня/Месяц/Загрузка%. Коммит 904eaff.
 
 #### Д3 — Страница /cabinet/clinic/reports
-Status: pending
-- [ ] Новый endpoint: GET /appointments/clinic/analytics (по неделям/месяцам)
-- [ ] Страница reports: графики по времени + воронка по месяцам
+Status: complete
+Done: GET /clinic/analytics endpoint (ClinicAnalytics schema — ServiceTypeStat + DoctorRevenueStat), reports/page.tsx → "use client" с реальными KPI / по типу приёма / бонусы / таблица врачей. Коммит e15e120.
 
 ---
 
@@ -519,6 +517,157 @@ Status: pending
 - rsync frontend → VPS → docker build medas-frontend:latest
 - docker compose stop frontend && docker compose up -d frontend
 - Smoke: curl -I saas.med-as.ru/stitch/ → 200
+
+---
+
+### ⚠️ БЛОКЕР ПЕРЕД PROD — SMS OTP + Certbot
+Status: pending
+
+#### SMS-0 — Реальный OTP через SMSC.ru
+**Риск:** mock "123456" — любой, знающий номер телефона клиента, может войти в его кабинет. Обязательно до перехода на med-as.ru.
+- [ ] `backend/app/core/otp.py` (NEW): `send_otp(phone, code)` → HTTP GET к SMSC.ru API
+- [ ] `backend/app/core/config.py`: добавить SMSC_LOGIN, SMSC_PASSWORD в Settings
+- [ ] `backend/app/api/v1/endpoints/auth.py`:
+  - POST /auth/login → генерировать 6-значный код → сохранить в Redis `otp:{phone}` TTL=600s → отправить через send_otp
+  - POST /auth/verify-otp → получить из Redis → сравнить → удалить → 3 неверных попытки → 429
+- [ ] Frontend `app/login/LoginForm.tsx`: countdown "повторить через 60 сек" после отправки кода
+- Verify: реальный телефон получает SMS с кодом, 4-я попытка → ошибка
+
+#### SMS-1 — Certbot auto-renewal (5 минут)
+**Риск:** сертификат истекает 2026-09-11. Без crontab — в сентябре сайт упадёт с SSL-ошибкой.
+- [ ] VPS: `crontab -e` → `0 3 1,15 * * certbot renew --quiet && nginx -s reload`
+- Verify: `crontab -l` показывает задачу
+
+---
+
+### Этап 1 — Слоты и календарь (T9 + T10) 🔴 следующая сессия
+Status: pending
+
+**Зачем:** пациент видит все дни в календаре записи, включая выходные и нерабочие дни врача — риск ошибочной записи.
+**Критерий готовности:** нерабочие дни врача серые (не кликабельны) в AppointmentCalendar.
+
+#### T9 — GET /doctors/{slug}/available-days?month=YYYY-MM (backend)
+Status: pending
+- [ ] `backend/app/api/v1/endpoints/doctors.py` — новый endpoint:
+  - Парсить `month=YYYY-MM` → year, month
+  - Получить doctor по slug
+  - Получить DoctorSchedule для doctor → set weekdays
+  - Для каждого дня месяца: if weekday in schedules_set and date >= today → добавить в список
+  - Вернуть `list[str]` ("YYYY-MM-DD")
+- Verify: `curl /doctors/maria-kozlova/available-days?month=2026-06` → список только Пн–Пт
+
+#### T10 — Frontend: fetchAvailableDays + AppointmentSidebarV2
+Status: pending
+- [ ] `frontend/src/lib/api.ts` — `fetchAvailableDays(slug, month): Promise<number[]>` уже есть (строка 87–98), нужно только убедиться что работает с реальным endpoint
+- [ ] `frontend/src/components/doctor/v2/AppointmentSidebarV2.tsx`:
+  - state `availableDays: Set<number>`
+  - useEffect при mount + при смене viewYear/viewMonth → loadAvailableDays
+  - Передать `availableDays={availableDays}` в `<AppointmentCalendar>`
+  - AppointmentCalendar уже поддерживает этот prop — изменений в нём нет
+- Verify: нерабочие дни серые, суббота/воскресенье не кликабельны
+
+---
+
+### Этап 2 — ЛК Клиники: недостающие страницы
+Status: pending
+
+**Зачем:** в навигации ЛК клиники есть 6 пунктов, из которых работают только 2 (Дашборд + Отчёты). Остальные — 404, что плохо при демонстрации клиентам.
+**Критерий готовности:** все пункты навигации открываются (хотя бы с UI-заглушкой).
+
+#### Э2-1 — /cabinet/clinic/appointments (перенос таблицы записей)
+Status: pending
+**Зачем:** полная таблица записей принадлежит отдельной странице "Записи", а не дашборду.
+- [ ] Создать `frontend/src/app/cabinet/clinic/appointments/page.tsx`
+  - "use client", ClinicAppointments компонент (уже есть) + расширенные фильтры: дата-диапазон, врач
+  - Кнопка "Экспорт CSV" (frontend-only: download blob)
+- [ ] На дашборде `/cabinet/clinic/page.tsx` — ClinicAppointments заменить на "топ-5 сегодня" и ссылку → /appointments
+- Verify: /cabinet/clinic/appointments → список всех записей; дашборд → только сегодняшние
+
+#### Э2-2 — /cabinet/clinic/doctors (список врачей клиники)
+Status: pending
+- [ ] `frontend/src/app/cabinet/clinic/doctors/page.tsx` — "use client"
+  - GET /doctors?clinic_id= (нужно добавить параметр в backend) → список врачей
+  - Карточки: фото/аватар-инициалы, специальность, цена, статус active/inactive
+  - Кнопка "Изменить цену" (inline edit) + кнопка деактивации
+- [ ] Backend: `GET /doctors?clinic_id=N` — добавить фильтр по clinic_id (1 строка WHERE)
+- Verify: /cabinet/clinic/doctors → список врачей клиники
+
+#### Э2-3 — /cabinet/clinic/schedule (управление расписанием)
+Status: pending
+- [ ] `frontend/src/app/cabinet/clinic/schedule/page.tsx` — "use client"
+  - Таблица: строки = врачи, столбцы = Пн–Вс
+  - Каждая ячейка: время начала–конца или "Выходной"
+  - PATCH /doctors/{id}/schedule (новый endpoint) или простое отображение без редактирования в MVP
+- Примечание: в MVP допустимо показать расписание read-only
+
+#### Э2-4 — /cabinet/clinic/settings (настройки клиники)
+Status: pending
+- [ ] `frontend/src/app/cabinet/clinic/settings/page.tsx`
+  - Статичная страница: название клиники, адрес, телефон (read-only пока нет PATCH /clinics/{id})
+  - Секция смены пароля/телефона (MVP: показать текущий телефон)
+
+---
+
+### Этап 3 — ЛК Врача (реальные данные)
+Status: pending
+
+**Зачем:** без ЛК врача нельзя онбордить врачей на платформу — они не видят своих записей.
+**Критерий готовности:** врач входит под своей ролью, видит свои записи на сегодня + неделю, может завершить приём.
+
+#### Э3-1 — Seed пользователя с role=doctor
+Status: pending
+- [ ] `backend/scripts/seed.py` — добавить user: phone="+70000000002", name="Козлова М.А.", role="doctor", doctor_id FK (нужно поле doctor_id в User)
+- [ ] Alembic миграция: добавить `doctor_id: int | None` в User (nullable FK → doctors.id)
+- Verify: curl GET /auth/me с токеном +70000000002 → role=doctor, doctor_id=N
+
+#### Э3-2 — Backend: GET /appointments/doctor (записи врача)
+Status: pending
+- [ ] `backend/app/api/v1/endpoints/appointments.py`:
+  - `GET /appointments/doctor` — role=doctor required, фильтр по current_user.doctor_id
+  - Вернуть DoctorAppointmentOut (AppointmentOut + patient_name)
+- Verify: curl → только записи к данному врачу
+
+#### Э3-3 — Frontend /cabinet/doctor страница
+Status: pending
+- [ ] `frontend/src/app/cabinet/doctor/page.tsx` — "use client"
+  - KPI: записей сегодня, записей на неделю, завершено за месяц
+  - Таймлайн сегодня (аналог DayTimeline из дашборда клиники)
+  - Кнопка "Завершить приём" → PATCH /appointments/{id}/complete
+  - Кнопка "Отменить" → PATCH /appointments/{id}/cancel
+- Verify: /cabinet/doctor → записи врача из БД
+
+---
+
+### Этап 4 — Публичные страницы: /about + /register + /services
+Status: pending
+**Зачем:** без /about нет страницы для инвесторов и партнёров. /register отдельно нужна для SEO.
+
+#### Э4-1 — /register (отдельная страница)
+- [ ] Разделить /login на два флоу: "Войти" и "Зарегистрироваться" (сейчас всё в одном)
+- [ ] /register: форма с именем + телефоном → POST /auth/register → OTP-верификация
+
+#### Э4-2 — /about
+- [ ] Статичная: миссия, команда, цифры (клиник/врачей/пациентов)
+
+#### Э4-3 — /services (динамический каталог)
+- [ ] Категории услуг → ссылки на /search?specialty=
+
+---
+
+### Этап 5 — Бонусы пациента + история BonusTransaction
+Status: pending
+- [ ] `GET /bonuses/my` — история BonusTransaction из БД для текущего пользователя
+- [ ] /cabinet/patient/bonuses → реальная история с суммами и описаниями
+- [ ] ⚠️ /cabinet/patient/medcard и /family — отложить до Этапа монетизации (нет модели в БД)
+
+---
+
+### Этап 6 — Контент: блог, симптомы
+Status: pending
+- [ ] Модель Article (slug, title, excerpt, content_html, specialty, publishedAt)
+- [ ] GET /articles, GET /articles/{slug}
+- [ ] /articles + /articles/[slug] страницы — SEO, schema.org/Article
+- [ ] /symptoms — поиск симптом → специальность
 
 ---
 

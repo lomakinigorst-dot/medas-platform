@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-14
-Последнее ✅: Д1 — воронка пациентов + 5-я KPI карточка бонусов — коммит f2842c6
-Что сделано: Backend stats +4 поля (bonus_used, confirmed_month, completed_month, bonuses_applied_month), PatientFunnel компонент (4 шага с % конверсии), 5-я KPI карточка Бонусы, KPI grid 2→4 колонки. Воронка: 102→96→90→0.
-Следующее: Д2 — таблица врачей (апгрейд DoctorLoad bar chart → таблица с загруженностью/рейтингом)
-Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. nginx — только MEDAS. /logos/ bind mount. Shared Logo компонент: frontend/src/components/ui/Logo.tsx
+Последнее ✅: Д3 — /cabinet/clinic/reports реальные данные (GET /clinic/analytics) — коммит e15e120
+Что сделано: ClinicAnalytics schema + ServiceTypeStat + DoctorRevenueStat, /clinic/analytics endpoint, reports/page.tsx → "use client" с KPI/по типу приёма/бонусы/таблица врачей. Данные реальные: 102 зап, конверсия 94%.
+Следующее: ЛК врача (WeekCalendar расписание + записи) / SMS OTP реальный / /doctors/[slug]/available-days
+Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. nginx — только MEDAS. /logos/ bind mount. Shared Logo: frontend/src/components/ui/Logo.tsx
 
 ---
 
@@ -39,6 +39,17 @@
 
 ### Дашборд клиники — реальные данные ✅ (коммит 83811e0)
 - stats endpoint + 433 seed записи
+
+### Фаза Д — Дашборд клиники (улучшения) ✅ (2026-06-14)
+- ✅ Д1: Воронка пациентов (PatientFunnel) + 5-я KPI карточка бонусов (коммит f2842c6)
+- ✅ Д2: DoctorLoad bar chart → таблица Врач/Сегодня/Месяц/Загрузка% (коммит 904eaff)
+- ✅ Д3: /cabinet/clinic/reports — реальные данные (GET /clinic/analytics endpoint) (коммит e15e120)
+
+### Сессия 2026-06-14 — план скорректирован ✅
+- Финальный план-сверка: 3 этапа публичные, 6 пунктов ЛК клиники (2 работает), ЛК врача заглушка
+- task_plan.md v6.0: добавлены Блокер перед prod (SMS OTP + Certbot), Этапы 1–6
+- CODE_MAP.md: полный список endpoints со статусами, отмечены 404-страницы ЛК клиники
+- Рекомендации учтены: /medcard + /family отложены, /appointments отделена от дашборда
 
 ### Фаза 0 — Настройка 🔄 (2026-06-10)
 - ✅ Скопирован шаблон в папку "Сайт медас"

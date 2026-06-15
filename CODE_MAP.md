@@ -82,9 +82,13 @@
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
 | `/cabinet/patient/family` | `app/cabinet/patient/family/page.tsx` | CabinetLayout |
 | `/cabinet/patient/bonuses` | `app/cabinet/patient/bonuses/page.tsx` | CabinetLayout |
-| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout, PatientFunnel (inline), ClinicAppointments (client), DayTimeline (inline), NewRequestsSidebar (inline), DoctorLoad (inline) |
-| `/cabinet/clinic/reports` | `app/cabinet/clinic/reports/page.tsx` | CabinetLayout |
-| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout |
+| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout, PatientFunnel (inline), ClinicAppointments (client), DayTimeline (inline), NewRequestsSidebar (inline), DoctorLoad-table (inline) |
+| `/cabinet/clinic/reports` | `app/cabinet/clinic/reports/page.tsx` | CabinetLayout + "use client", реальные данные из /clinic/analytics |
+| `/cabinet/clinic/appointments` | ❌ нет файла — 404 | Запланировано: Э2-1 |
+| `/cabinet/clinic/doctors` | ❌ нет файла — 404 | Запланировано: Э2-2 |
+| `/cabinet/clinic/schedule` | ❌ нет файла — 404 | Запланировано: Э2-3 |
+| `/cabinet/clinic/settings` | ❌ нет файла — 404 | Запланировано: Э2-4 |
+| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout — ⚠️ UI-заглушка, нет реальных данных |
 
 ---
 
@@ -162,34 +166,38 @@
 **Alembic HEAD:** `c2d3e4f5a6b7` (ix_appointments_patient_id)
 
 ### Auth (`backend/app/api/v1/endpoints/auth.py`)
-| Method | Path | Описание |
-|---|---|---|
-| POST | `/auth/register` | Upsert User по phone → `{"phone": "+7...", "code": "123456"}` |
-| POST | `/auth/login` | Найти User по phone → `{"phone": "+7...", "code": "123456"}` |
-| POST | `/auth/verify-otp` | code=="123456" → JWT access_token (7 дней) |
-| GET | `/auth/me` | Bearer JWT → UserResponse(id, phone, name, bonus_balance) |
+| Method | Path | Описание | Статус |
+|---|---|---|---|
+| POST | `/auth/register` | Upsert User по phone → `{"phone": "+7...", "code": "123456"}` | ✅ |
+| POST | `/auth/login` | Найти User по phone → `{"phone": "+7...", "code": "123456"}` | ⚠️ OTP mock |
+| POST | `/auth/verify-otp` | code=="123456" → JWT access_token (7 дней) | ⚠️ OTP mock |
+| GET | `/auth/me` | Bearer JWT → UserResponse(id, phone, name, bonus_balance, role, clinic_id) | ✅ |
 
 ### Clinics (`backend/app/api/v1/endpoints/clinics.py`)
-| Method | Path | Описание |
-|---|---|---|
-| GET | `/clinics?limit=50` | Список клиник (ClinicListOut) |
-| GET | `/clinics/{slug}` | Клиника по slug |
+| Method | Path | Описание | Статус |
+|---|---|---|---|
+| GET | `/clinics?limit=50` | Список клиник (ClinicListOut) | ✅ |
+| GET | `/clinics/{slug}` | Клиника по slug | ✅ |
 
 ### Doctors (`backend/app/api/v1/endpoints/doctors.py`)
-| Method | Path | Описание |
-|---|---|---|
-| GET | `/doctors?specialty=&limit=` | Список врачей с фильтром |
-| GET | `/doctors/{slug}` | Врач по slug |
-| GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | Доступные слоты (30 мин, из DoctorSchedule) |
-| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (Пн-Пт) как `["YYYY-MM-DD"]` |
+| Method | Path | Описание | Статус |
+|---|---|---|---|
+| GET | `/doctors?specialty=&limit=` | Список врачей с фильтром | ✅ |
+| GET | `/doctors/{slug}` | Врач по slug | ✅ |
+| GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | Доступные слоты (30 мин, из DoctorSchedule) | ✅ |
+| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (Пн-Пт) | ❌ T9 — не реализован |
 
 ### Appointments (`backend/app/api/v1/endpoints/appointments.py`)
-| Method | Path | Auth | Описание |
-|---|---|---|---|
-| POST | `/appointments` | Bearer | Создать запись (doctor_slug, scheduled_at, service_type, use_bonuses) |
-| GET | `/appointments/my` | Bearer | Записи текущего пациента (desc по дате) |
-| PATCH | `/appointments/{id}/complete` | Bearer | status→completed + 5% бонусов → patient.bonus_balance |
-| PATCH | `/appointments/{id}/cancel` | Bearer | status→cancelled + возврат bonuses_used |
+| Method | Path | Auth | Описание | Статус |
+|---|---|---|---|---|
+| POST | `/appointments` | Bearer | Создать запись (doctor_slug, scheduled_at, service_type, use_bonuses) | ✅ |
+| GET | `/appointments/my` | Bearer | Записи текущего пациента | ✅ |
+| PATCH | `/appointments/{id}/complete` | Bearer | status→completed + 5% бонусов → patient.bonus_balance | ✅ |
+| PATCH | `/appointments/{id}/cancel` | Bearer | status→cancelled + возврат bonuses_used | ✅ |
+| PATCH | `/appointments/{id}/confirm` | Bearer (role=clinic) | status pending→confirmed | ✅ |
+| GET | `/appointments/clinic` | Bearer (role=clinic) | Записи клиники (clinic_id из user) | ✅ |
+| GET | `/appointments/clinic/stats` | Bearer (role=clinic) | KPI + воронка + врачи + график | ✅ |
+| GET | `/appointments/clinic/analytics` | Bearer (role=clinic) | Аналитика: тип приёма / врачи / бонусы | ✅ |
 
 ### Модели (`backend/app/models/`)
 | Модель | Файл | Ключевые поля |
@@ -211,6 +219,7 @@
 | 77dbb05f7c23 | initial_tables (baseline) |
 | a3f8c2d1e5b9 | add_doctor_schedule |
 | c2d3e4f5a6b7 | add_appointments_patient_index |
+| d3e4f5a6b7c8 | add_user_role_clinic_id |
 
 ---
 
