@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
+    # SMS provider (SMSC.ru)
+    SMSC_LOGIN: str = ""
+    SMSC_PASSWORD: str = ""
+
     # saas.med-as.ru = test domain; prod → med-as.ru (migration planned)
     CORS_ORIGINS: list[str] = [
         "https://saas.med-as.ru",

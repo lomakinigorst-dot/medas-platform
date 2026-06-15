@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
@@ -19,8 +19,22 @@ export default function LoginForm() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [countdown, setCountdown] = useState(0);
 
   const next = searchParams.get("next") ?? "/cabinet/patient";
+
+  useEffect(() => {
+    if (step !== "otp") return;
+    setCountdown(60);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) { clearInterval(timer); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [step]);
 
   async function handlePhone() {
     setLoading(true);
@@ -32,10 +46,12 @@ export default function LoginForm() {
         body: JSON.stringify({ phone }),
       });
       if (res.status === 404) {
+        setIsNewUser(true);
         setStep("register");
       } else if (res.ok) {
         const data = (await res.json()) as { phone: string };
-        setPhone(data.phone); // используем нормализованный номер из БД
+        setPhone(data.phone);
+        setIsNewUser(false);
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
@@ -59,7 +75,7 @@ export default function LoginForm() {
       });
       if (res.ok) {
         const data = (await res.json()) as { phone: string };
-        setPhone(data.phone); // используем нормализованный номер из БД
+        setPhone(data.phone);
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
@@ -69,6 +85,16 @@ export default function LoginForm() {
       setError("Нет соединения с сервером");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setOtp("");
+    setError(null);
+    if (isNewUser) {
+      await handleRegister();
+    } else {
+      await handlePhone();
     }
   }
 
@@ -197,12 +223,25 @@ export default function LoginForm() {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   onKeyDown={(e) => e.key === "Enter" && otp.length === 6 && handleVerify()}
-                  placeholder="123456"
+                  placeholder="------"
                   maxLength={6}
                   className={`${inputCls} text-center tracking-widest text-xl`}
                   autoFocus
                 />
-                <p className="text-xs text-[#737686] mt-2 text-center">Для тестирования: 123456</p>
+                <div className="mt-2 text-center">
+                  {countdown > 0 ? (
+                    <p className="text-xs text-[#737686]">Повторить через {countdown} сек</p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={loading}
+                      className="text-xs text-[#003087] hover:underline disabled:opacity-50"
+                    >
+                      Отправить повторно
+                    </button>
+                  )}
+                </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <button
