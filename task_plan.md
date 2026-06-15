@@ -4,7 +4,7 @@
 ---
 
 ## Current Phase
-**Этап 3 — ЛК Врача: реальные данные** (активен с 2026-06-15)
+**Этап 4 — Публичные страницы (/about, /register, /services)** (активен с 2026-06-15)
 
 Порядок: Э3-1 (миграция doctor_id в User + seed врача) → Э3-2 (GET /appointments/doctor endpoint) → деплой backend → Э3-3 (frontend /cabinet/doctor) → деплой frontend
 
@@ -594,13 +594,14 @@ Done: read-only MVP (имя, телефон, роль из /auth/me).
 ---
 
 ### Этап 3 — ЛК Врача (реальные данные)
-Status: in_progress
+Status: complete
+Done: коммит f847730, 2026-06-15
 
 **Зачем:** без ЛК врача нельзя онбордить врачей на платформу — они не видят своих записей.
-**Критерий готовности:** врач (+70000000002) входит и видит свои записи в /cabinet/doctor с реальными данными.
+**Критерий готовности:** врач (+70000000002) входит и видит свои записи в /cabinet/doctor с реальными данными. ✅
 
 #### Э3-1 — Alembic миграция doctor_id в User + seed врача
-Status: pending
+Status: complete
 - [ ] `backend/app/models/user.py`: добавить `doctor_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("doctors.id"), nullable=True)`
 - [ ] Alembic миграция `f5a6b7c8d9e0_add_user_doctor_id.py` (down_revision = "e4f5a6b7c8d9"):
   - `op.add_column("users", sa.Column("doctor_id", sa.Integer(), nullable=True))`
@@ -610,7 +611,7 @@ Status: pending
 - Verify: POST /auth/login +70000000002 → verify-otp → GET /auth/me → {role:"doctor", doctor_id:N}
 
 #### Э3-2 — Backend: GET /appointments/doctor endpoint
-Status: pending
+Status: complete
 - [ ] `backend/app/schemas/appointment.py`: добавить `DoctorAppointmentOut` (id, patient_name, clinic_name, status, scheduled_at, service_type, price, bonuses_used)
 - [ ] `backend/app/api/v1/endpoints/appointments.py`:
   - `GET /appointments/doctor` — role=doctor required (403 иначе), фильтр `Appointment.doctor_id == current_user.doctor_id`
@@ -620,7 +621,7 @@ Status: pending
 - Verify: `curl -H "Authorization: Bearer $TOKEN" https://api.med-as.ru/api/v1/appointments/doctor` → список записей врача
 
 #### Э3-3 — Frontend /cabinet/doctor страница (реальные данные)
-Status: pending
+Status: complete
 - [ ] `frontend/src/app/cabinet/doctor/page.tsx` — "use client", полная замена заглушки:
   - KPI cards: записей сегодня / за 7 дней / завершено за месяц (считать из appointments[])
   - DayTimeline: записи с scheduled_at = сегодня, сортировка по времени, имя пациента + время

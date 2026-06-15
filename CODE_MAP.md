@@ -88,7 +88,7 @@
 | `/cabinet/clinic/doctors` | `app/cabinet/clinic/doctors/page.tsx` | CabinetLayout + DoctorCard (inline) — inline edit цены, деактивация ✅ |
 | `/cabinet/clinic/schedule` | `app/cabinet/clinic/schedule/page.tsx` | CabinetLayout + DoctorScheduleRow (inline) — расписание по дням + DoctorDayOff ✅ |
 | `/cabinet/clinic/settings` | `app/cabinet/clinic/settings/page.tsx` | CabinetLayout + Field (inline) — read-only MVP ✅ |
-| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout — ⚠️ UI-заглушка (Этап 3) |
+| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout — ✅ реальные данные: KPI (сегодня/неделя/месяц/pending) + DayTimeline + таблица записей |
 
 ---
 
@@ -163,7 +163,7 @@
 
 **Стек:** FastAPI Python 3.12, SQLAlchemy 2.0 async, PostgreSQL 16, Alembic
 **Путь:** `backend/app/` | Image: `medas-backend:latest`
-**Alembic HEAD:** `e4f5a6b7c8d9` (add_doctor_day_off)
+**Alembic HEAD:** `f5a6b7c8d9e0` (add_user_doctor_id)
 
 ### Auth (`backend/app/api/v1/endpoints/auth.py`)
 | Method | Path | Описание | Статус |
@@ -206,11 +206,12 @@
 | GET | `/appointments/clinic` | Bearer (role=clinic) | Записи клиники (clinic_id из user) | ✅ |
 | GET | `/appointments/clinic/stats` | Bearer (role=clinic) | KPI + воронка + врачи + график | ✅ |
 | GET | `/appointments/clinic/analytics` | Bearer (role=clinic) | Аналитика: тип приёма / врачи / бонусы | ✅ |
+| GET | `/appointments/doctor` | Bearer (role=doctor) | Записи врача (doctor_id из user), JOIN patient_name+clinic_name | ✅ |
 
 ### Модели (`backend/app/models/`)
 | Модель | Файл | Ключевые поля |
 |---|---|---|
-| User | `user.py` | phone(unique), name, bonus_balance, is_verified |
+| User | `user.py` | phone(unique), name, bonus_balance, is_verified, role, clinic_id FK(nullable), doctor_id FK(nullable) |
 | Clinic | `clinic.py` | slug(unique), name, address, metro, rating, accepts_dms |
 | Doctor | `doctor.py` | slug(unique), clinic_id FK, specialty, price, is_verified, is_active, schedules[], day_offs[] |
 | Appointment | `appointment.py` | patient_id(indexed), doctor_id, clinic_id, status, scheduled_at, bonuses_used/earned |
@@ -230,6 +231,7 @@
 | c2d3e4f5a6b7 | add_appointments_patient_index |
 | d3e4f5a6b7c8 | add_user_role_clinic_id |
 | e4f5a6b7c8d9 | add_doctor_day_off (doctor_day_offs table) |
+| f5a6b7c8d9e0 | add_user_doctor_id (users.doctor_id FK → doctors.id) |
 
 ---
 
