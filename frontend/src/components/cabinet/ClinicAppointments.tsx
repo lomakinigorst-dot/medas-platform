@@ -34,8 +34,31 @@ type Filter = "all" | "today" | "week";
 
 const PAGE_SIZE = 20;
 
+function exportToCSV(appointments: ClinicAppointmentOut[]) {
+  const header = ["Пациент", "Врач", "Услуга", "Дата", "Время", "Стоимость ₽", "Статус"].join(",");
+  const rows = appointments.map((a) => {
+    const { date, time } = formatDateTime(a.scheduled_at);
+    return [
+      `"${a.patient_name}"`,
+      `"${a.doctor_name}"`,
+      SERVICE_LABELS[a.service_type] ?? a.service_type,
+      date,
+      time,
+      a.price,
+      STATUS_LABELS[a.status] ?? a.status,
+    ].join(",");
+  });
+  const csv = "﻿" + [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `appointments-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
-export default function ClinicAppointments() {
+export default function ClinicAppointments({ showExport }: { showExport?: boolean } = {}) {
   const [appointments, setAppointments] = useState<ClinicAppointmentOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
@@ -110,18 +133,28 @@ export default function ClinicAppointments() {
             </span>
           )}
         </h3>
-        <div className="flex gap-1 bg-[#f2f4f6] p-1 rounded-xl text-xs font-semibold">
-          {(["all", "today", "week"] as Filter[]).map((f) => (
+        <div className="flex items-center gap-2">
+          {showExport && filtered.length > 0 && (
             <button
-              key={f}
-              onClick={() => { setFilter(f); setPage(1); }}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${
-                filter === f ? "bg-white text-[#003087] shadow-sm" : "text-[#434655] hover:text-[#191c1e]"
-              }`}
+              onClick={() => exportToCSV(filtered)}
+              className="px-3 py-1.5 text-xs font-bold text-[#003087] border border-[#003087]/20 rounded-lg hover:bg-[#003087]/5 transition-colors"
             >
-              {f === "all" ? "Все" : f === "today" ? "Сегодня" : "Неделя"}
+              Экспорт CSV
             </button>
-          ))}
+          )}
+          <div className="flex gap-1 bg-[#f2f4f6] p-1 rounded-xl text-xs font-semibold">
+            {(["all", "today", "week"] as Filter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => { setFilter(f); setPage(1); }}
+                className={`px-3 py-1.5 rounded-lg transition-colors ${
+                  filter === f ? "bg-white text-[#003087] shadow-sm" : "text-[#434655] hover:text-[#191c1e]"
+                }`}
+              >
+                {f === "all" ? "Все" : f === "today" ? "Сегодня" : "Неделя"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

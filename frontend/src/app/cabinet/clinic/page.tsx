@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import CabinetLayout from "@/components/layout/CabinetLayout";
-import ClinicAppointments from "@/components/cabinet/ClinicAppointments";
 import {
   fetchClinicStats,
   fetchClinicAppointments,
@@ -551,8 +551,18 @@ export default function ClinicCabinetPage() {
         <PatientFunnel stats={stats} loading={statsLoading} />
       </div>
 
-      {/* ── Входящие записи (полная таблица) ── */}
-      <ClinicAppointments />
+      {/* ── Ссылка на все записи ── */}
+      <Link
+        href="/cabinet/clinic/appointments"
+        className="flex items-center justify-between bg-white rounded-2xl px-6 py-4 hover:shadow-md transition-shadow"
+        style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}
+      >
+        <div>
+          <p className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Все записи</p>
+          <p className="text-xs text-slate-400 mt-0.5">Полная таблица с фильтрами и экспортом CSV</p>
+        </div>
+        <span className="text-[#003087] font-bold text-lg">→</span>
+      </Link>
     </CabinetLayout>
   );
 }
