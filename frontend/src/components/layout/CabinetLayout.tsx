@@ -64,7 +64,7 @@ export default function CabinetLayout({
         {/* Logo */}
         <div className="mb-8 px-2 flex items-center gap-3">
           <Link href="/">
-            <Image src="/logo-dark.png" alt="MEDAS" width={100} height={30} className="object-contain" />
+            <Image src="/logos/Medas_gor_b.svg" alt="MEDAS" width={100} height={30} className="object-contain" unoptimized />
           </Link>
         </div>
 

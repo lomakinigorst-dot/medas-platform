@@ -103,7 +103,7 @@ export default function LoginForm() {
     <div className="min-h-screen bg-gradient-to-br from-[#f7f9fb] to-[#e6f9f4] flex items-center justify-center px-4">
       <div className="absolute top-6 left-6">
         <Link href="/">
-          <Image src="/logo-dark.png" alt="MEDAS" width={130} height={38} className="object-contain" />
+          <Image src="/logos/Medas_gor_b.svg" alt="MEDAS" width={130} height={38} className="object-contain" unoptimized />
         </Link>
       </div>
 

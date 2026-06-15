@@ -20,6 +20,10 @@ export const metadata: Metadata = {
     "Найдите лучших врачей и клиники рядом с вами. Запись онлайн, отзывы пациентов, специалисты всех направлений.",
   metadataBase: new URL("https://med-as.ru"),
   robots: { index: false, follow: false },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-10 py-16 max-w-screen-2xl mx-auto">
         {/* Brand */}
         <div className="flex flex-col gap-6">
-          <Image src="/logo-dark.png" alt="MEDAS" width={120} height={34} className="object-contain" />
+          <Image src="/logos/Medas_gor_b.svg" alt="MEDAS" width={120} height={34} className="object-contain" unoptimized />
           <p className="text-slate-500 normal-case tracking-normal text-sm">
             Лидерство в области экспертного медицинского совершенства. Соединяем
             вас с качественной помощью, которую вы заслуживаете.

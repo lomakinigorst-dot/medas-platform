@@ -15,11 +15,12 @@ const navLinks = [
 function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Image
-      src="/logo-dark.png"
+      src="/logos/Medas_gor_b.svg"
       alt="MEDAS"
       width={compact ? 120 : 140}
       height={compact ? 34 : 40}
       priority
+      unoptimized
       className="object-contain transition-all duration-300"
     />
   );
