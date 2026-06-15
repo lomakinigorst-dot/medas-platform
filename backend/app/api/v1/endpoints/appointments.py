@@ -256,6 +256,19 @@ async def clinic_stats(
     )
     booked_by_doctor: dict[int, int] = {row[0]: row[1] for row in doctors_today_res.all()}
 
+    # month_count per doctor (all non-cancelled this month)
+    doctors_month_res = await db.execute(
+        select(Appointment.doctor_id, func.count(Appointment.id))
+        .where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+        .group_by(Appointment.doctor_id)
+    )
+    month_by_doctor: dict[int, int] = {row[0]: row[1] for row in doctors_month_res.all()}
+
     # total_slots per doctor from DoctorSchedule for today's weekday
     today_weekday = today.weekday()  # 0=Mon
     schedules_res = await db.execute(
@@ -286,6 +299,7 @@ async def clinic_stats(
             doctor_name=name_map.get(did, "Врач"),
             booked=booked,
             total_slots=slots_by_doctor.get(did, 0),
+            month_count=month_by_doctor.get(did, 0),
         )
         for did, booked in sorted(booked_by_doctor.items())
     ]

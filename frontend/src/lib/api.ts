@@ -215,6 +215,7 @@ export interface DoctorLoadItem {
   doctor_name: string;
   booked: number;
   total_slots: number;
+  month_count: number;
 }
 
 export interface RevenueDay {

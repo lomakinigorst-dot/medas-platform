@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-14
-Последнее ✅: Логотипы SVG + favicon — коммиты 8660bda, 6ae7eee
-Что сделано: 5 SVG в public/logos/, favicon (icon.svg + apple-icon.png), 4 компонента (Header/Footer/CabinetLayout/LoginForm), stitch HTML (15 файлов/30 замен), nginx location /logos/, frontend rebuild
-Следующее: Д1 — воронка пациентов + 5-я KPI карточка бонусов (дашборд клиники)
-Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. nginx — только MEDAS. /logos/ — bind mount на VPS /app/medas-platform/logos/
+Последнее ✅: Д1 — воронка пациентов + 5-я KPI карточка бонусов — коммит f2842c6
+Что сделано: Backend stats +4 поля (bonus_used, confirmed_month, completed_month, bonuses_applied_month), PatientFunnel компонент (4 шага с % конверсии), 5-я KPI карточка Бонусы, KPI grid 2→4 колонки. Воронка: 102→96→90→0.
+Следующее: Д2 — таблица врачей (апгрейд DoctorLoad bar chart → таблица с загруженностью/рейтингом)
+Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. nginx — только MEDAS. /logos/ bind mount. Shared Logo компонент: frontend/src/components/ui/Logo.tsx
 
 ---
 

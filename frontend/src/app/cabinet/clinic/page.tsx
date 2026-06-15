@@ -257,10 +257,10 @@ function DoctorLoad({ stats, loading }: { stats: ClinicStats | null; loading: bo
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}>
       <h3 className="text-sm font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">
-        Загрузка врачей сегодня
+        Загрузка врачей
       </h3>
       {loading ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => <div key={i} className="h-8 bg-[#f2f4f6] rounded-lg animate-pulse" />)}
         </div>
       ) : sorted.length === 0 ? (
@@ -270,32 +270,49 @@ function DoctorLoad({ stats, loading }: { stats: ClinicStats | null; loading: bo
         </div>
       ) : (
         <>
-          <div className="space-y-3">
-            {visible.map((doc) => {
-              const pct = doc.total_slots > 0
-                ? Math.min(Math.round((doc.booked / doc.total_slots) * 100), 100)
-                : null;
-              const color = pct === null ? "#003087" : pct >= 80 ? "#003087" : pct >= 50 ? "#00a982" : "#c3c6d7";
-              const shortName = doc.doctor_name.split(" ").slice(0, 2).join(" ");
-              return (
-                <div key={doc.doctor_name}>
-                  <div className="flex justify-between items-baseline mb-1">
-                    <span className="text-sm font-medium text-[#191c1e] truncate max-w-[140px]">{shortName}</span>
-                    <span className="text-[11px] text-slate-400 ml-2 flex-shrink-0">
-                      {doc.total_slots > 0 ? `${doc.booked} из ${doc.total_slots}` : `${doc.booked} зап.`}
-                      {pct !== null && <span className="ml-1 font-bold text-[#003087]">{pct}%</span>}
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-[#f2f4f6] rounded-full">
-                    <div
-                      className="h-1.5 rounded-full transition-all"
-                      style={{ width: pct !== null ? `${pct}%` : "100%", backgroundColor: color, maxWidth: "100%" }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-[#f2f4f6]">
+                <th className="text-left pb-2 font-bold">Врач</th>
+                <th className="text-right pb-2 font-bold">Сегодня</th>
+                <th className="text-right pb-2 font-bold">Месяц</th>
+                <th className="text-right pb-2 font-bold">Загрузка</th>
+              </tr>
+            </thead>
+            <tbody>
+              {visible.map((doc) => {
+                const pct = doc.total_slots > 0
+                  ? Math.min(Math.round((doc.booked / doc.total_slots) * 100), 100)
+                  : null;
+                const pctColor = pct !== null && pct >= 80
+                  ? "text-[#003087]"
+                  : pct !== null && pct >= 50
+                  ? "text-[#00a982]"
+                  : "text-slate-400";
+                const shortName = doc.doctor_name.split(" ").slice(0, 2).join(" ");
+                return (
+                  <tr key={doc.doctor_name} className="border-b border-[#f2f4f6] last:border-0">
+                    <td className="py-2.5 text-sm font-medium text-[#191c1e] max-w-[120px]">
+                      <span className="block truncate">{shortName}</span>
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums text-sm text-[#191c1e] font-semibold">
+                      {doc.booked}
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums text-sm text-slate-400">
+                      {doc.month_count}
+                    </td>
+                    <td className="py-2.5 text-right">
+                      {pct !== null ? (
+                        <span className={`text-xs font-bold ${pctColor}`}>{pct}%</span>
+                      ) : (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
           {sorted.length > 5 && (
             <button
               onClick={() => setShowAll((v) => !v)}

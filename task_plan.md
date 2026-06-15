@@ -19,32 +19,8 @@
 **Критерий готовности:** воронка и 5-я KPI карточка отображаются в /cabinet/clinic с реальными данными.
 
 #### Д1 — Backend stats расширить + Frontend воронка + 5-я KPI
-Status: pending
-
-**Backend (2 файла):**
-- [ ] `backend/app/schemas/appointment.py` — добавить в `ClinicStats`:
-  - `bonus_used: int` (сумма Appointment.bonuses_used за текущий месяц)
-  - `confirmed_month: int` (count статус in confirmed+completed за месяц)
-  - `completed_month: int` (count статус=completed за месяц)
-- [ ] `backend/app/api/v1/endpoints/appointments.py` — добавить 3 SQL-запроса к stats endpoint + возвращать новые поля
-
-**Frontend (2 файла):**
-- [ ] `frontend/src/lib/api.ts` — расширить `ClinicStats` интерфейс: `bonus_used`, `confirmed_month`, `completed_month`
-- [ ] `frontend/src/app/cabinet/clinic/page.tsx` — добавить:
-  - 5-я KPI карточка: "Бонусы" → `bonus_used` (в рублях)
-  - Компонент `PatientFunnel` (4 шага): Создано → Подтверждено → Завершено → Бонусы
-
-**Воронка (PatientFunnel):**
-- Шаг 1: "Создано" = `month_count` (уже есть)
-- Шаг 2: "Подтверждено" = `confirmed_month` (новое)
-- Шаг 3: "Завершено" = `completed_month` (новое)
-- Шаг 4: "С бонусами" = count appointments WHERE bonuses_used > 0 (новое поле `bonuses_applied_month`)
-- Между шагами: % конверсии (confirmed/total, completed/confirmed)
-- Стиль: горизонтальный блок, синий #003087 + зелёный #00a982, аналогично текущим карточкам
-
-**Примечание:** "paid_month" заменяется на "bonuses_applied_month" т.к. в MEDAS нет отдельного статуса "оплачено" (payment = completed + bonuses используются)
-
-Done: N/A
+Status: complete
+Done: Backend +4 поля в ClinicStats (bonus_used, confirmed_month, completed_month, bonuses_applied_month), PatientFunnel компонент (4 шага: 102→96→90→0), 5-я KPI карточка Бонусы, KPI grid grid-cols-2 lg:grid-cols-4. Коммит f2842c6.
 
 #### Д2 — Таблица врачей (апгрейд DoctorLoad)
 Status: pending

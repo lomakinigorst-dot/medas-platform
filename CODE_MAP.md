@@ -82,7 +82,7 @@
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
 | `/cabinet/patient/family` | `app/cabinet/patient/family/page.tsx` | CabinetLayout |
 | `/cabinet/patient/bonuses` | `app/cabinet/patient/bonuses/page.tsx` | CabinetLayout |
-| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout |
+| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout, PatientFunnel (inline), ClinicAppointments (client), DayTimeline (inline), NewRequestsSidebar (inline), DoctorLoad (inline) |
 | `/cabinet/clinic/reports` | `app/cabinet/clinic/reports/page.tsx` | CabinetLayout |
 | `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout |
 
@@ -146,6 +146,8 @@
 | `CabinetLayout` | `CabinetLayout.tsx` | `"use client"`. Sidebar + header. Загружает имя из /auth/me. Logout через clearToken() + router.push("/") |
 | `PatientHeroGreeting` | `cabinet/PatientHeroGreeting.tsx` | `"use client"`. Приветствие с именем пациента из /auth/me |
 | `PatientAppointments` | `cabinet/PatientAppointments.tsx` | `"use client"`. GET /appointments/my → список записей + отмена через PATCH /cancel |
+| `Logo` | `ui/Logo.tsx` | Shared логотип MEDAS. Src: /logos/Medas_gor_b.svg. Props: width/height/priority/className. Требует unoptimized. |
+| `PatientFunnel` | (inline в `cabinet/clinic/page.tsx`) | Воронка пациентов: Создано→Подтверждено→Завершено→С бонусами + % конверсии. Данные из ClinicStats. |
 
 **Высота Header:**
 - Mobile (только nav): ~68px → `<main>` получает `pt-[68px]`

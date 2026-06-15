@@ -39,6 +39,7 @@ class DoctorLoadItem(BaseModel):
     doctor_name: str
     booked: int
     total_slots: int
+    month_count: int = 0
 
 
 class RevenueDay(BaseModel):
