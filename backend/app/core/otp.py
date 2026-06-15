@@ -21,6 +21,12 @@ def _normalize_phone(phone: str) -> str:
     return "+" + digits
 
 
+def _voice_text(code: str) -> str:
+    # Read digits with pauses for clarity
+    spaced = ". ".join(code)
+    return f"Ваш код MEDAS: {spaced}. Повторяю: {spaced}."
+
+
 async def send_otp(phone: str, code: str) -> bool:
     if not settings.SMSC_LOGIN or not settings.SMSC_PASSWORD:
         return False
@@ -32,7 +38,9 @@ async def send_otp(phone: str, code: str) -> bool:
                     "login": settings.SMSC_LOGIN,
                     "psw": settings.SMSC_PASSWORD,
                     "phones": _normalize_phone(phone),
-                    "mes": f"Ваш код MEDAS: {code}. Никому не сообщайте.",
+                    "mes": _voice_text(code),
+                    "call": "1",
+                    "voice": "w",
                     "fmt": "3",
                     "charset": "utf-8",
                 },
