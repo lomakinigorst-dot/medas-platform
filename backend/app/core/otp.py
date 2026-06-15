@@ -8,6 +8,7 @@ from app.core.config import settings
 
 _WEBSMS_URL = "https://cab.websms.ru/http_in5.asp"
 _SMSC_URL = "https://smsc.ru/sys/send.php"
+_TG_URL = "https://api.telegram.org/bot{token}/sendMessage"
 
 
 def generate_otp(digits: int = 6) -> str:
@@ -21,6 +22,22 @@ def _normalize_phone(phone: str) -> str:
     elif len(d) == 10:
         d = "7" + d
     return d  # websms.ru expects 7XXXXXXXXXX without +
+
+
+async def send_telegram_alert(message: str) -> None:
+    """Send alert to Telegram. Silent on failure — never blocks OTP flow."""
+    if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
+        return
+    try:
+        url = _TG_URL.format(token=settings.TELEGRAM_BOT_TOKEN)
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            await client.post(url, json={
+                "chat_id": settings.TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "HTML",
+            })
+    except Exception:
+        pass  # alert failure must never break auth
 
 
 async def _websms_flash_call(phone: str) -> str | None:

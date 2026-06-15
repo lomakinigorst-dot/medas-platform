@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     # Master OTP bypass (any phone + this code = login without real OTP)
     OTP_MASTER_CODE: str = ""
 
+    # Telegram alerts (OTP provider failures)
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_CHAT_ID: str = ""
+
     # saas.med-as.ru = test domain; prod → med-as.ru (migration planned)
     CORS_ORIGINS: list[str] = [
         "https://saas.med-as.ru",

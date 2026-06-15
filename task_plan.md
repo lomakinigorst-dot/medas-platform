@@ -1,18 +1,66 @@
 # MEDAS — Полный план разработки
-**Версия:** 7.0 | **Дата:** 2026-06-15 | **Статус:** 🔄 В работе
+**Версия:** 8.0 | **Дата:** 2026-06-15 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-**Этап 4 — Публичные страницы (/about, /register, /services)** (активен с 2026-06-15)
+**Фаза OTP-R — Надёжность авторизации** (активна с 2026-06-15)
 
-Порядок: Э3-1 (миграция doctor_id в User + seed врача) → Э3-2 (GET /appointments/doctor endpoint) → деплой backend → Э3-3 (frontend /cabinet/doctor) → деплой frontend
-
-Критерий готовности: врач (+70000000002) входит и видит свои записи в /cabinet/doctor с реальными данными.
+Критерий готовности: все 9 задач задеплоены и протестированы на prod.
 
 ---
 
 ## Phases
+
+---
+
+### Фаза OTP-R — Надёжность и UX авторизации 🔄 in_progress (2026-06-15)
+
+**Зачем:** выявлены сценарии сбоев при входе/регистрации по телефону. Все исправления задеплоить до онбординга первых клиник.
+
+**Критерий готовности:** flash call → OTP работает, spam/DND хинты отображаются, lockout-ы работают, Telegram-алерт приходит при падении обоих провайдеров.
+
+#### OTP-R-A1 — DND + спам хинт под OTP полем
+Status: pending
+- [ ] LoginForm.tsx: добавить серый блок «Не приходит звонок? Проверьте режим Не беспокоить и блокировщик спама»
+
+#### OTP-R-A2 — Пример caller ID
+Status: pending
+- [ ] LoginForm.tsx: добавить пример «Входящий +7 (495) 123-45-67 → введите 4567»
+
+#### OTP-R-A3 — Улучшить ошибку при cooldown
+Status: pending
+- [ ] LoginForm.tsx: 429 от verify-otp → `attemptsExhausted=true`, отдельный UI вместо красной ошибки + счётчик
+
+#### OTP-R-B1 — Таймер 9:59 на OTP экране
+Status: pending
+- [ ] LoginForm.tsx: `otpExpiry` state + второй useEffect от otpTrigger → обратный отсчёт 600→0
+- [ ] При 0: показывать «Код устарел — запросите новый звонок», input disabled
+
+#### OTP-R-B2 — Плавный переход: 3 ошибки → cooldown UI
+Status: pending
+- [ ] LoginForm.tsx: `attemptsExhausted` state
+- [ ] handleVerify 429 → set attemptsExhausted=true, clear error, clear otp
+- [ ] renderResendArea: если attemptsExhausted + countdown > 0 → «попытки исчерпаны, новый звонок через N сек»
+
+#### OTP-R-B3 — Lockout 2 ч после провала SMS OTP
+Status: pending
+- [ ] auth.py: при отправке SMS → `r.setex("otp_type:{phone}", OTP_TTL, "sms")`
+- [ ] verify_otp: attempts >= MAX_ATTEMPTS AND otp_type=="sms" → `lockout:{phone}` 7200s → 429
+- [ ] verify_otp: проверять `lockout:{phone}` в начале, возвращать понятное сообщение с временем
+
+#### OTP-R-C1 — Telegram алерт при 503 (оба провайдера упали)
+Status: pending
+- [ ] config.py: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID
+- [ ] otp.py: async send_telegram_alert(msg) → POST api.telegram.org
+- [ ] auth.py _send_code: при code is None → send_telegram_alert → raise 503
+
+#### OTP-R-C2 — Lockout 30 мин после 5 неудачных сессий
+Status: pending
+- [ ] auth.py verify_otp: `otp_failures:{phone}` += 1 при каждой ошибке, TTL 1800s
+- [ ] При otp_failures >= 15 (5 сессий × 3 попытки) → `lockout:{phone}` 1800s → 429
+
+---
 
 ---
 
