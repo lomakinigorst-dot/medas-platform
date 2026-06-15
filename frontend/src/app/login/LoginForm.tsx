@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import { Logo } from "@/components/ui/Logo";
 import { setToken } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
@@ -103,7 +103,7 @@ export default function LoginForm() {
     <div className="min-h-screen bg-gradient-to-br from-[#f7f9fb] to-[#e6f9f4] flex items-center justify-center px-4">
       <div className="absolute top-6 left-6">
         <Link href="/">
-          <Image src="/logos/Medas_gor_b.svg" alt="MEDAS" width={130} height={38} className="object-contain" unoptimized />
+          <Logo width={130} height={38} priority />
         </Link>
       </div>
 

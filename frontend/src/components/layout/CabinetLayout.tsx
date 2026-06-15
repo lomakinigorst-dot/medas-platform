@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { clearToken, getToken } from "@/lib/auth";
@@ -64,7 +64,7 @@ export default function CabinetLayout({
         {/* Logo */}
         <div className="mb-8 px-2 flex items-center gap-3">
           <Link href="/">
-            <Image src="/logos/Medas_gor_b.svg" alt="MEDAS" width={100} height={30} className="object-contain" unoptimized />
+            <Logo width={100} height={30} />
           </Link>
         </div>
 

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getToken, clearToken } from "@/lib/auth";
+import { Logo } from "@/components/ui/Logo";
 
 const navLinks = [
   { href: "/search",  label: "Найти врача" },
@@ -12,19 +12,6 @@ const navLinks = [
   { href: "/promotions", label: "Акции" },
 ];
 
-function Logo({ compact = false }: { compact?: boolean }) {
-  return (
-    <Image
-      src="/logos/Medas_gor_b.svg"
-      alt="MEDAS"
-      width={compact ? 120 : 140}
-      height={compact ? 34 : 40}
-      priority
-      unoptimized
-      className="object-contain transition-all duration-300"
-    />
-  );
-}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
 
@@ -110,7 +97,7 @@ export default function Header() {
           }`}
         >
           <Link href="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            <Logo compact={scrolled} />
+            <Logo width={scrolled ? 120 : 140} height={scrolled ? 34 : 40} priority className="transition-all duration-300" />
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-px h-6 sm:h-8 bg-outline-variant/30 flex-shrink-0" />
               <div className="flex-shrink-0">
@@ -217,7 +204,7 @@ export default function Header() {
         }`}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/20">
-          <Logo compact />
+          <Logo width={120} height={34} />
           <button
             onClick={() => setOpen(false)}
             aria-label="Закрыть меню"
