@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: Flash call каскад + master-пароль + фикс CI/CD. Коммит e9b0966.
-Что сделано: LoginForm backspace fix, flashCount cascade ×3→SMS→поддержка, master-пароль 110792 (работает, протестировано), CI/CD deploy.yml docker build ./frontend.
-Следующее: Убедиться что CI/CD frontend деплой прошёл → проверить /login визуально → выбрать flash call провайдера
-Важно: Master-пароль: 110792 (любой существующий номер). OTP_MASTER_CODE в backend.env на VPS. Clinic: +70000000001, Doctor: +70000000002. Alembic HEAD = f5a6b7c8d9e0.
+Последнее ✅: websms.ru Flash Call API интеграция. Коммит d0b3820.
+Что сделано: otp.py → websms.ru (http_in5.asp), код берётся из XML ответа, LoginForm 5 попыток [60,90,120,120,120]s таймауты. Backend задеплоен + проверен (код 6040 в Redis). Frontend CI/CD в процессе.
+Следующее: Убедиться что CI/CD frontend деплой прошёл → проверить /login визуально → подождать договор от websms.ru
+Важно: WEBSMS_LOGIN=medas / WEBSMS_PASSWORD=[в backend.env]. Master-пароль: 110792. Clinic: +70000000001. Flash Call работает (тест: POST /login → Redis содержит 4-значный код).
 
 ---
 
