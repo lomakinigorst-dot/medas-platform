@@ -6,6 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.otp import generate_otp, send_flash_call, send_sms
+import logging
+
+logger = logging.getLogger(__name__)
 from app.core.security import create_access_token, verify_token
 from app.core.config import settings
 from app.models.user import User
@@ -29,15 +32,24 @@ def _redis() -> aioredis.Redis:
 
 
 async def _send_code(phone: str, method: str = "flash") -> None:
-    digits = 6 if method == "sms" else 4
-    code = generate_otp(digits)
-    async with _redis() as r:
-        await r.setex(f"otp:{phone}", OTP_TTL, code)
-        await r.delete(f"otp_attempts:{phone}")
     if method == "sms":
+        code = generate_otp(6)
+        async with _redis() as r:
+            await r.setex(f"otp:{phone}", OTP_TTL, code)
+            await r.delete(f"otp_attempts:{phone}")
         await send_sms(phone, code)
     else:
-        await send_flash_call(phone, code)
+        # Flash call: websms.ru generates the 4-digit code (last 4 digits of caller ID)
+        code = await send_flash_call(phone)
+        if code is None:
+            logger.warning("Flash call failed for %s, no code returned", phone)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Не удалось инициировать звонок. Попробуйте другой способ",
+            )
+        async with _redis() as r:
+            await r.setex(f"otp:{phone}", OTP_TTL, code)
+            await r.delete(f"otp_attempts:{phone}")
 
 
 @router.post("/register")

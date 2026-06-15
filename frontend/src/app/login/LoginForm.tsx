@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 import { setToken } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
+const FLASH_TIMEOUTS = [60, 90, 120, 120, 120]; // seconds per flash attempt 1-5
 
 type Step = "phone" | "register" | "otp";
 type OtpMethod = "flash" | "sms";
@@ -44,10 +45,11 @@ export default function LoginForm() {
   // ── OTP step ──
   const [otp, setOtp] = useState("");
   const [method, setMethod] = useState<OtpMethod>("flash");
-  const [flashCount, setFlashCount] = useState(0); // increments on each flash call (max 3)
+  const [flashCount, setFlashCount] = useState(0); // increments on each flash call (max 5)
   const [smsUsed, setSmsUsed] = useState(false);
   const [otpTrigger, setOtpTrigger] = useState(0); // increment → reset countdown
   const [countdown, setCountdown] = useState(0);
+  const countdownInitRef = useRef(60); // seconds to use on next countdown start
 
   // ── Misc ──
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ export default function LoginForm() {
   // Countdown timer — restarts whenever otpTrigger increments
   useEffect(() => {
     if (otpTrigger === 0) return;
-    setCountdown(60);
+    setCountdown(countdownInitRef.current);
     const id = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) { clearInterval(id); return 0; }
@@ -69,6 +71,11 @@ export default function LoginForm() {
     }, 1000);
     return () => clearInterval(id);
   }, [otpTrigger]);
+
+  function startCountdown(seconds: number) {
+    countdownInitRef.current = seconds;
+    setOtpTrigger((t) => t + 1);
+  }
 
   function handlePhoneChange(val: string) {
     setDigits(cleanDigits(val));
@@ -124,7 +131,7 @@ export default function LoginForm() {
         setFlashCount(1);
         setSmsUsed(false);
         setOtp("");
-        setOtpTrigger((t) => t + 1);
+        startCountdown(FLASH_TIMEOUTS[0]);
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
@@ -146,18 +153,18 @@ export default function LoginForm() {
       setFlashCount(1);
       setSmsUsed(false);
       setOtp("");
-      setOtpTrigger((t) => t + 1);
+      startCountdown(FLASH_TIMEOUTS[0]);
       setStep("otp");
     }
   }
 
   async function handleResend() {
-    // Flash call attempt 2 or 3
     const ok = await sendOtp("flash");
     if (ok) {
+      // flashCount is still old value here — use it to index next timeout
+      startCountdown(FLASH_TIMEOUTS[flashCount] ?? 120);
       setFlashCount((c) => c + 1);
       setOtp("");
-      setOtpTrigger((t) => t + 1);
     }
   }
 
@@ -167,7 +174,7 @@ export default function LoginForm() {
       setMethod("sms");
       setSmsUsed(true);
       setOtp("");
-      setOtpTrigger((t) => t + 1);
+      startCountdown(120);
     }
   }
 
@@ -210,7 +217,7 @@ export default function LoginForm() {
         </p>
       );
     }
-    if (method === "flash" && flashCount < 3) {
+    if (method === "flash" && flashCount < 5) {
       return (
         <button type="button" onClick={handleResend} disabled={loading}
           className="text-xs text-[#003087] hover:underline disabled:opacity-50">
@@ -218,7 +225,7 @@ export default function LoginForm() {
         </button>
       );
     }
-    if (method === "flash" && flashCount >= 3 && !smsUsed) {
+    if (method === "flash" && flashCount >= 5 && !smsUsed) {
       return (
         <button type="button" onClick={handleSwitchToSms} disabled={loading}
           className="text-xs text-[#003087] hover:underline disabled:opacity-50">

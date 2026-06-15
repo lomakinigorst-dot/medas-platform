@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
-    # SMS provider (SMSC.ru)
+    # Flash Call provider (websms.ru)
+    WEBSMS_LOGIN: str = ""
+    WEBSMS_PASSWORD: str = ""
+
+    # SMS fallback provider (SMSC.ru)
     SMSC_LOGIN: str = ""
     SMSC_PASSWORD: str = ""
 
