@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: T9+T10 — серые нерабочие дни в календаре записи — коммит 622fc48
-Что сделано: available-days endpoint работает (только Пн-Пт), AppointmentCalendar: unavailable дни серые + некликабельные (unavailable = days loaded AND not in set). Логика: size>0 guard чтобы не серить все дни при загрузке.
-Следующее: Этап 2 — ЛК Клиники (Э2-1..Э2-4 + Э2-3б DoctorDayOff). ⚠️ Каждая страница — Magic MCP (21st.dev) + /ui-ux-pro-max ОБЯЗАТЕЛЬНО перед стартом UI.
-Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / реальный SMS теперь. nginx — только MEDAS. Дизайн-правило: Magic MCP (21st.dev) + /ui-ux-pro-max при любой UI-задаче.
+Последнее ✅: Security fix — ownership checks добавлены в get_schedule/get_day_offs/remove_day_off; валидация времени в put_schedule; CODE_MAP.md обновлён (Alembic HEAD e4f5a6b7c8d9)
+Что сделано: Этап 2 ЗАВЕРШЁН ✅ + security фиксы в doctors.py (3 missing ownership checks + time validation)
+Следующее: Этап 3 — ЛК Врача (seed doctor user + GET /appointments/doctor + /cabinet/doctor страница)
+Важно: DoctorDayOff ✅ РЕАЛИЗОВАН. Clinic admin: +70000000001. Alembic HEAD = e4f5a6b7c8d9.
 
 ---
 

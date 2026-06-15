@@ -1,5 +1,5 @@
 # CODE_MAP — Карта кода MEDAS
-> Обновлён: 2026-06-12 | Читать вместо поиска по коду каждую сессию
+> Обновлён: 2026-06-15 | Читать вместо поиска по коду каждую сессию
 
 ---
 
@@ -82,13 +82,13 @@
 | `/cabinet/patient/medcard` | `app/cabinet/patient/medcard/page.tsx` | CabinetLayout |
 | `/cabinet/patient/family` | `app/cabinet/patient/family/page.tsx` | CabinetLayout |
 | `/cabinet/patient/bonuses` | `app/cabinet/patient/bonuses/page.tsx` | CabinetLayout |
-| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout, PatientFunnel (inline), ClinicAppointments (client), DayTimeline (inline), NewRequestsSidebar (inline), DoctorLoad-table (inline) |
+| `/cabinet/clinic` | `app/cabinet/clinic/page.tsx` | CabinetLayout, PatientFunnel (inline), DayTimeline (inline), NewRequestsSidebar (inline), DoctorLoad-table (inline), ссылка → /appointments |
 | `/cabinet/clinic/reports` | `app/cabinet/clinic/reports/page.tsx` | CabinetLayout + "use client", реальные данные из /clinic/analytics |
-| `/cabinet/clinic/appointments` | ❌ нет файла — 404 | Запланировано: Э2-1 |
-| `/cabinet/clinic/doctors` | ❌ нет файла — 404 | Запланировано: Э2-2 |
-| `/cabinet/clinic/schedule` | ❌ нет файла — 404 | Запланировано: Э2-3 |
-| `/cabinet/clinic/settings` | ❌ нет файла — 404 | Запланировано: Э2-4 |
-| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout — ⚠️ UI-заглушка, нет реальных данных |
+| `/cabinet/clinic/appointments` | `app/cabinet/clinic/appointments/page.tsx` | CabinetLayout + ClinicAppointments (showExport) — CSV экспорт ✅ |
+| `/cabinet/clinic/doctors` | `app/cabinet/clinic/doctors/page.tsx` | CabinetLayout + DoctorCard (inline) — inline edit цены, деактивация ✅ |
+| `/cabinet/clinic/schedule` | `app/cabinet/clinic/schedule/page.tsx` | CabinetLayout + DoctorScheduleRow (inline) — расписание по дням + DoctorDayOff ✅ |
+| `/cabinet/clinic/settings` | `app/cabinet/clinic/settings/page.tsx` | CabinetLayout + Field (inline) — read-only MVP ✅ |
+| `/cabinet/doctor` | `app/cabinet/doctor/page.tsx` | CabinetLayout — ⚠️ UI-заглушка (Этап 3) |
 
 ---
 
@@ -163,7 +163,7 @@
 
 **Стек:** FastAPI Python 3.12, SQLAlchemy 2.0 async, PostgreSQL 16, Alembic
 **Путь:** `backend/app/` | Image: `medas-backend:latest`
-**Alembic HEAD:** `d3e4f5a6b7c8` (add_user_role_clinic_id)
+**Alembic HEAD:** `e4f5a6b7c8d9` (add_doctor_day_off)
 
 ### Auth (`backend/app/api/v1/endpoints/auth.py`)
 | Method | Path | Описание | Статус |
@@ -182,12 +182,18 @@
 | GET | `/clinics/{slug}` | Клиника по slug | ✅ |
 
 ### Doctors (`backend/app/api/v1/endpoints/doctors.py`)
-| Method | Path | Описание | Статус |
-|---|---|---|---|
-| GET | `/doctors?specialty=&limit=` | Список врачей с фильтром | ✅ |
-| GET | `/doctors/{slug}` | Врач по slug | ✅ |
-| GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | Доступные слоты (30 мин, из DoctorSchedule) | ✅ |
-| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (из DoctorSchedule weekdays, date >= today) | ✅ |
+| Method | Path | Auth | Описание | Статус |
+|---|---|---|---|---|
+| GET | `/doctors?specialty=&clinic_id=&limit=` | — | Список врачей с фильтрами по специальности и клинике | ✅ |
+| GET | `/doctors/{slug}` | — | Врач по slug | ✅ |
+| PATCH | `/doctors/{id}` | Bearer (role=clinic) | Обновить price / is_active (только своя клиника) | ✅ |
+| GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | — | Доступные слоты (30 мин, из DoctorSchedule) | ✅ |
+| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | — | Рабочие дни (weekdays из DoctorSchedule минус DoctorDayOff) | ✅ |
+| GET | `/doctors/{id}/schedule` | Bearer (role=clinic) | Расписание врача по дням недели | ✅ |
+| PUT | `/doctors/{id}/schedule` | Bearer (role=clinic) | Bulk replace расписания (delete+insert) | ✅ |
+| GET | `/doctors/{id}/day-offs` | Bearer (role=clinic) | Список заблокированных дат врача | ✅ |
+| POST | `/doctors/{id}/day-offs` | Bearer (role=clinic) | Заблокировать дату (DoctorDayOff) | ✅ |
+| DELETE | `/doctors/{id}/day-offs/{date}` | Bearer (role=clinic) | Разблокировать дату | ✅ |
 
 ### Appointments (`backend/app/api/v1/endpoints/appointments.py`)
 | Method | Path | Auth | Описание | Статус |
@@ -206,9 +212,10 @@
 |---|---|---|
 | User | `user.py` | phone(unique), name, bonus_balance, is_verified |
 | Clinic | `clinic.py` | slug(unique), name, address, metro, rating, accepts_dms |
-| Doctor | `doctor.py` | slug(unique), clinic_id FK, specialty, price, is_verified, schedules[] |
+| Doctor | `doctor.py` | slug(unique), clinic_id FK, specialty, price, is_verified, is_active, schedules[], day_offs[] |
 | Appointment | `appointment.py` | patient_id(indexed), doctor_id, clinic_id, status, scheduled_at, bonuses_used/earned |
 | DoctorSchedule | `schedule.py` | doctor_id FK, weekday(0-6), start_time, end_time, slot_duration_min=30 |
+| DoctorDayOff | `day_off.py` | doctor_id FK(indexed), date Date, reason str? — блокировка конкретных дат | 
 | Review | `review.py` | patient_id, doctor_id, clinic_id, rating, text |
 | BonusTransaction | `bonus.py` | user_id, amount, type, appointment_id |
 
@@ -222,6 +229,7 @@
 | a3f8c2d1e5b9 | add_doctor_schedule |
 | c2d3e4f5a6b7 | add_appointments_patient_index |
 | d3e4f5a6b7c8 | add_user_role_clinic_id |
+| e4f5a6b7c8d9 | add_doctor_day_off (doctor_day_offs table) |
 
 ---
 

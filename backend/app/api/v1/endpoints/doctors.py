@@ -159,6 +159,12 @@ async def get_schedule(
 ) -> list[ScheduleItem]:
     if current_user.role != "clinic":
         raise HTTPException(status_code=403, detail="Доступ только для клиник")
+    dr = await db.execute(select(Doctor).where(Doctor.id == doctor_id))
+    doctor = dr.scalar_one_or_none()
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Врач не найден")
+    if doctor.clinic_id != current_user.clinic_id:
+        raise HTTPException(status_code=403, detail="Врач не принадлежит вашей клинике")
     rows = await db.execute(
         select(DoctorSchedule).where(DoctorSchedule.doctor_id == doctor_id)
     )
@@ -194,8 +200,11 @@ async def put_schedule(
     for row in existing.scalars().all():
         await db.delete(row)
     for item in items:
-        sh, sm = map(int, item.start_time.split(":"))
-        eh, em = map(int, item.end_time.split(":"))
+        try:
+            sh, sm = map(int, item.start_time.split(":"))
+            eh, em = map(int, item.end_time.split(":"))
+        except (ValueError, AttributeError):
+            raise HTTPException(status_code=422, detail=f"Неверный формат времени: {item.start_time}/{item.end_time}")
         db.add(DoctorSchedule(
             doctor_id=doctor_id,
             weekday=item.weekday,
@@ -215,6 +224,12 @@ async def get_day_offs(
 ) -> list[DayOffCreate]:
     if current_user.role != "clinic":
         raise HTTPException(status_code=403, detail="Доступ только для клиник")
+    dr = await db.execute(select(Doctor).where(Doctor.id == doctor_id))
+    doctor = dr.scalar_one_or_none()
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Врач не найден")
+    if doctor.clinic_id != current_user.clinic_id:
+        raise HTTPException(status_code=403, detail="Врач не принадлежит вашей клинике")
     rows = await db.execute(select(DoctorDayOff).where(DoctorDayOff.doctor_id == doctor_id))
     return [DayOffCreate(date=str(r.date), reason=r.reason) for r in rows.scalars().all()]
 
@@ -253,6 +268,12 @@ async def remove_day_off(
 ) -> dict:
     if current_user.role != "clinic":
         raise HTTPException(status_code=403, detail="Доступ только для клиник")
+    dr = await db.execute(select(Doctor).where(Doctor.id == doctor_id))
+    doctor = dr.scalar_one_or_none()
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Врач не найден")
+    if doctor.clinic_id != current_user.clinic_id:
+        raise HTTPException(status_code=403, detail="Врач не принадлежит вашей клинике")
     d = date.fromisoformat(day_off_date)
     existing = await db.execute(
         select(DoctorDayOff).where(DoctorDayOff.doctor_id == doctor_id, DoctorDayOff.date == d)
