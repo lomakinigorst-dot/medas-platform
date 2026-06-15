@@ -102,7 +102,8 @@ export default function AppointmentCalendar({
           const selected = selectedDay === d;
           const today_ = isToday(d);
           const hasSlots = availableDays?.has(d) ?? false;
-          const clickable = !past;
+          const unavailable = availableDays !== undefined && availableDays.size > 0 && !hasSlots;
+          const clickable = !past && !unavailable;
 
           return (
             <button
@@ -111,7 +112,7 @@ export default function AppointmentCalendar({
               onClick={() => clickable && onSelectDay(d)}
               className={[
                 "py-2 text-xs rounded-lg font-semibold transition-all",
-                past
+                past || unavailable
                   ? "text-on-surface-variant/30 cursor-not-allowed"
                   : selected
                   ? "bg-secondary text-white shadow-sm"
