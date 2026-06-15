@@ -5,11 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: Зафиксировано решение OTP каскад: Voice call ×3 (0.33 ₽/шт, smsc.ru) → SMS ×1 → поддержка. Flash call отклонён (дороже). task_plan.md + MEDAS_MASTER_PLAN.md обновлены.
-Что сделано: security fixes doctors.py ✅ + call OTP ✅ + форма телефона ✅ + мастер-план ✅
-Следующее: Этап 3 — ЛК Врача (Э3-1: User.doctor_id миграция + seed → Э3-2: endpoint → Э3-3: /cabinet/doctor)
-Важно: Clinic admin: +70000000001. Doctor (будущий): +70000000002. Alembic HEAD = e4f5a6b7c8d9.
-Docs: MEDAS_MASTER_PLAN.md + MEDAS_MASTER_PLAN.docx (2026-06-15)
+Последнее ✅: Этап 3 ЛК Врача — doctor_id в User (миграция f5a6b7c8d9e0), seed +70000000002, GET /appointments/doctor, /cabinet/doctor реальные данные (KPI+DayTimeline+таблица). Коммит f847730.
+Что сделано: OTP каскад зафиксирован ✅ + Этап 3 полностью выполнен ✅
+Следующее: Этап 4 или доработка каскада OTP (3 попытки voice → SMS)
+Важно: Clinic admin: +70000000001. Doctor: +70000000002 (doctor_id=1, Соколова А.М.). Alembic HEAD = f5a6b7c8d9e0.
 
 ---
 
