@@ -1,14 +1,138 @@
 # MEDAS — Полный план разработки
-**Версия:** 5.3 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
+**Версия:** 5.5 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Фаза Д — Дашборд клиники (редизайн + фиксы)
+Фаза Д — Дашборд клиники (улучшения)
 
 ---
 
 ## Phases
+
+---
+
+### Фаза Д — Дашборд клиники (улучшения) 🔄 in_progress (2026-06-14)
+
+**Зачем:** обогатить дашборд клиники данными из Stitch — воронка пациентов + 5-я KPI + таблица врачей.
+
+**Критерий готовности:** воронка и 5-я KPI карточка отображаются в /cabinet/clinic с реальными данными.
+
+#### Д1 — Backend stats расширить + Frontend воронка + 5-я KPI
+Status: pending
+
+**Backend (2 файла):**
+- [ ] `backend/app/schemas/appointment.py` — добавить в `ClinicStats`:
+  - `bonus_used: int` (сумма Appointment.bonuses_used за текущий месяц)
+  - `confirmed_month: int` (count статус in confirmed+completed за месяц)
+  - `completed_month: int` (count статус=completed за месяц)
+- [ ] `backend/app/api/v1/endpoints/appointments.py` — добавить 3 SQL-запроса к stats endpoint + возвращать новые поля
+
+**Frontend (2 файла):**
+- [ ] `frontend/src/lib/api.ts` — расширить `ClinicStats` интерфейс: `bonus_used`, `confirmed_month`, `completed_month`
+- [ ] `frontend/src/app/cabinet/clinic/page.tsx` — добавить:
+  - 5-я KPI карточка: "Бонусы" → `bonus_used` (в рублях)
+  - Компонент `PatientFunnel` (4 шага): Создано → Подтверждено → Завершено → Бонусы
+
+**Воронка (PatientFunnel):**
+- Шаг 1: "Создано" = `month_count` (уже есть)
+- Шаг 2: "Подтверждено" = `confirmed_month` (новое)
+- Шаг 3: "Завершено" = `completed_month` (новое)
+- Шаг 4: "С бонусами" = count appointments WHERE bonuses_used > 0 (новое поле `bonuses_applied_month`)
+- Между шагами: % конверсии (confirmed/total, completed/confirmed)
+- Стиль: горизонтальный блок, синий #003087 + зелёный #00a982, аналогично текущим карточкам
+
+**Примечание:** "paid_month" заменяется на "bonuses_applied_month" т.к. в MEDAS нет отдельного статуса "оплачено" (payment = completed + bonuses используются)
+
+Done: N/A
+
+#### Д2 — Таблица врачей (апгрейд DoctorLoad)
+Status: pending
+- [ ] Заменить bar chart DoctorLoad на таблицу: имя, записей сегодня, всего за месяц, загруженность %
+- [ ] Backend: добавить month_count per doctor в stats или отдельный endpoint
+
+#### Д3 — Страница /cabinet/clinic/reports
+Status: pending
+- [ ] Новый endpoint: GET /appointments/clinic/analytics (по неделям/месяцам)
+- [ ] Страница reports: графики по времени + воронка по месяцам
+
+---
+
+### Фаза Л — Логотипы SVG + Favicon ✅ complete (2026-06-14)
+
+**Что сделано:** коммиты 8660bda, 6ae7eee, 31f8b1c
+
+#### Л1 — SVG в public/logos/ + nginx volume
+Status: complete
+Done: rsync на VPS, nginx force-recreate, /logos/ → 200
+
+#### Л2 — Favicon + app icons
+Status: complete
+Done: icon.svg + apple-icon.png в src/app/
+
+#### Л3 — Логотип в .tsx компонентах
+Status: complete
+Done: shared Logo компонент + Header/Footer/CabinetLayout/LoginForm обновлены
+
+#### Л4 — Stitch preview pages
+Status: complete
+Done: 15 файлов, 30 замен, rsync на VPS
+
+#### Л5 — Deploy + verify
+Status: complete
+Done: git push 31f8b1c, /logos/ → 200, /icon.svg → 200
+
+---
+
+### Фаза Л — Логотипы SVG + Favicon 🔄 in_progress (2026-06-15)
+
+**Зачем:** заменить PNG-заглушки реальными SVG-логотипами MEDAS во всех компонентах и настроить favicon для браузеров и мобильных устройств.
+
+**Критерий готовности:** логотип отображается в Header/Footer/Login/Cabinet через SVG, в browser tab — правильный favicon, apple-touch-icon корректен.
+
+#### Л1 — Скопировать SVG в public/logos/ + nginx volume
+Status: pending
+- [ ] Создать `frontend/public/logos/`
+- [ ] Скопировать: Medas_gor_b.svg, Medas_gor_w.svg, Medas_gor_bez_podlojki_b.svg, Medas_gor_bez_podlojki_w.svg, 02.1_deep_blue_clean.svg
+- [ ] VPS: создать `/app/medas-platform/logos/` + rsync SVG туда
+- [ ] docker-compose.yml: добавить logos volume в nginx (аналогично stitch)
+- [ ] medas.conf: добавить `location /logos/` → alias на volume
+- [ ] Перезапустить nginx (force-recreate не нужен, только reload)
+
+#### Л2 — Favicon + app icons
+Status: pending
+- [ ] Скопировать `02.1_deep_blue_clean.svg` → `frontend/src/app/icon.svg` (Next.js favicon)
+- [ ] Скопировать `02.1_deep_blue_clean.png` → `frontend/src/app/apple-icon.png` (apple-touch-icon)
+- [ ] Обновить `layout.tsx` metadata: добавить `icons` с favicon SVG + apple-icon
+- Done: N/A
+
+#### Л3 — Заменить логотип в .tsx компонентах
+Status: pending
+Файлы (все 4 используют `/logo-dark.png` → заменить на `/logos/Medas_gor_b.svg`):
+- [ ] `src/app/login/LoginForm.tsx:106` → светлый фон → Medas_gor_b.svg
+- [ ] `src/components/layout/CabinetLayout.tsx:67` → sidebar светлый → Medas_gor_b.svg
+- [ ] `src/components/layout/Header.tsx:18` → header светлый → Medas_gor_b.svg
+- [ ] `src/components/layout/Footer.tsx:10` → проверить фон → b или w версия
+
+Примечание: `<Image>` с SVG требует prop `unoptimized` (Next.js не оптимизирует SVG)
+
+#### Л4 — Stitch preview pages (bulk find/replace)
+Status: pending
+- [ ] Заменить `lh3.googleusercontent.com/...` logo URLs в 16 HTML файлах на `/logos/Medas_gor_b.svg`
+- [ ] rsync обновлённых HTML → VPS `/app/medas-platform/stitch/`
+
+#### Л5 — Deploy + verify
+Status: pending
+- [ ] git commit + push всех изменений
+- [ ] `curl https://saas.med-as.ru/logos/Medas_gor_b.svg` → 200
+- [ ] Визуальная проверка Header на сайте
+- [ ] Проверить favicon в browser tab
+
+**Решения:**
+- SVG в nginx (не в docker image) → чтобы не пересобирать образ: аналогично stitch approach
+- `<Image unoptimized>` для SVG (Next.js требует это для SVG)
+- Favicon: `src/app/icon.svg` → Next.js App Router auto-picks, но это проявится при следующей сборке образа
+- До сборки: `favicon.ico` остаётся текущий (приемлемо, не критично)
 
 ---
 
@@ -285,21 +409,26 @@ Status: pending
 #### Д5 — /simplify (3 файла, 200+ строк)
 Status: pending
 
+**Критерий готовности Фазы Д — ВЫПОЛНЕН ✅** (2026-06-14, коммит b6ff5ea)
+
 #### Д6 — Фикс CabinetLayout: выравнивание имени клиники (sidebar)
-Status: pending
+Status: complete
+Done: px-2 → px-4 в user info блоке. Коммит b6ff5ea.
 - Проблема: padding сайдбарного user info (px-2) не совпадает с nav items (px-4) → визуальный сдвиг влево
 - Фикс: `px-2` → `px-4` в блоке user info + оставить min-w-0 flex-1 truncate
 - Файл: `frontend/src/components/layout/CabinetLayout.tsx` (строки 98-115)
 
 #### Д7 — Фикс backend: revenue_by_day пустой
-Status: pending
+Status: complete
+Done: status filter IN('confirmed','completed') → status != 'cancelled'. revenue_by_day: 22 дня с данными. Коммит b6ff5ea.
 - Причина: запрос фильтрует `status IN ('confirmed', 'completed')`, seed-записи — pending
 - Фикс: изменить фильтр на `status != 'cancelled'` для 30-дневного графика
 - Файл: `backend/app/api/v1/endpoints/appointments.py` (строка ~294-303)
 - Verify: curl /appointments/clinic/stats → revenue_by_day содержит ненулевые значения
 
 #### Д8 — «Расписание на день» таймлайн + редизайн clinic/page.tsx
-Status: pending
+Status: complete
+Done: KPI(3) → DayTimeline/NewRequests(2-col) → RevenueChart/DoctorLoad → ClinicAppointments. DoctorLoad top-5+collapse. Коммит b6ff5ea.
 - Новый layout: KPI (3 карточки) → [Таймлайн 60% | Новые заявки 40%] → [График | Врачи] → Таблица
 - Таймлайн: фильтрует сегодняшние записи из `fetchClinicAppointments`, сортирует по времени
 - Карточка слота: время (HH:MM) + имя пациента + врач + специальность + статус-бейдж
@@ -309,7 +438,8 @@ Status: pending
 - Verify: /cabinet/clinic рендерится, таймлайн отображает записи на сегодня
 
 #### Д9 — Deploy (backend фикс + frontend редизайн)
-Status: pending
+Status: complete
+Done: rsync→build→restart. Smoke: /health 200, revenue_by_day 22 дня, /cabinet/clinic 307. Коммит b6ff5ea.
 - rsync backend → docker build medas-backend (без alembic — нет новых миграций)
 - rsync frontend → docker build medas-frontend:latest
 - docker compose stop/up
@@ -381,6 +511,38 @@ Status: pending
 - [ ] python scripts/seed.py (или точечный скрипт для admin-пользователя)
 - [ ] docker build medas-frontend → docker compose up -d
 - [ ] Smoke: curl /auth/me с токеном клиники → role=clinic; curl /appointments/clinic → список; curl пациентом → 403
+
+---
+
+### Фаза СТ — Stitch Preview Pages (публичные) 🔄 in_progress
+
+**Зачем:** клиент хочет видеть оба варианта Stitch дашборда в браузере, выбрать что брать в продакшн.
+**Критерий готовности:** `saas.med-as.ru/stitch/` открывается без авторизации, переключение V1/V2 работает, все данные статические.
+
+#### СТ1 — frontend/src/app/stitch/page.tsx
+Status: pending
+- "use client", tab state: "v1" | "v2"
+- Mock данные жёстко в файле (без API вызовов)
+- V1 — Базовый дашборд:
+  - Sidebar: MED AS logo, Дашборд, График приёма, Входящие заявки [2], Врачи, Профиль клиники
+  - KPI (3): Новые заявки 12 | Записи сегодня 34 | Эффективность 428 пациентов +9% (тёмная)
+  - Главный блок (grid cols-5): Таймлайн (col-span-3) | Новые заявки (col-span-2)
+  - Таймлайн: 09:00 Артур Морган / В ПРОГРЕССЕ, 10:30 Сэди Миллер / ОЖИДАЕТСЯ, 11:15 Джон Марстон / ОСТРОЕ
+  - Новые заявки: 2 карточки с кнопками принять/отклонить
+- V2 — Расширенный дашборд:
+  - Sidebar: Dashboard, Products, Leads, Patients, Analytics + [Add New Lead]
+  - KPI (4): Users 24.8k | CTR 4.2% | 852 | 2.4M Revenue (тёмная)
+  - Главный блок: Воронка продаж (150k→12k→1.8k→940k₽) | Финансовый центр (3 платежа)
+  - Второй ряд: Управление врачами (2 карточки + Добавить специалиста)
+  - Третий ряд: Последние лиды | Центр отзывов
+- Цвета MEDAS: #003087 синий + #00a982 зелёный (НЕ Stitch navy)
+- Шрифт: Manrope (var(--font-manrope)), rounded-2xl, tonal layering
+
+#### СТ2 — Deploy
+Status: pending
+- rsync frontend → VPS → docker build medas-frontend:latest
+- docker compose stop frontend && docker compose up -d frontend
+- Smoke: curl -I saas.med-as.ru/stitch/ → 200
 
 ---
 

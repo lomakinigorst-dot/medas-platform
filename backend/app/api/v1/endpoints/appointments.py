@@ -307,6 +307,50 @@ async def clinic_stats(
         for row in rev_by_day_res.all()
     ]
 
+    # bonus_used: total bonuses spent by patients this month
+    bonus_used_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.bonuses_used), 0)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    bonus_used: int = bonus_used_res.scalar_one() or 0
+
+    # confirmed_month: confirmed + completed appointments this month
+    confirmed_month_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    confirmed_month: int = confirmed_month_res.scalar_one() or 0
+
+    # completed_month: completed appointments this month
+    completed_month_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.status == "completed",
+        )
+    )
+    completed_month: int = completed_month_res.scalar_one() or 0
+
+    # bonuses_applied_month: appointments where bonuses were used this month
+    bonuses_applied_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_of(Appointment.scheduled_at) >= month_start,
+            date_of(Appointment.scheduled_at) <= today,
+            Appointment.bonuses_used > 0,
+        )
+    )
+    bonuses_applied_month: int = bonuses_applied_res.scalar_one() or 0
+
     return ClinicStats(
         today_count=today_count,
         today_revenue=today_revenue,
@@ -316,6 +360,10 @@ async def clinic_stats(
         prev_month_revenue=prev_month_revenue,
         doctors_today=doctors_today,
         revenue_by_day=revenue_by_day,
+        bonus_used=bonus_used,
+        confirmed_month=confirmed_month,
+        completed_month=completed_month,
+        bonuses_applied_month=bonuses_applied_month,
     )
 
 

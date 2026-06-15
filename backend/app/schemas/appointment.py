@@ -55,3 +55,7 @@ class ClinicStats(BaseModel):
     prev_month_revenue: int
     doctors_today: list[DoctorLoadItem]
     revenue_by_day: list[RevenueDay]
+    bonus_used: int = 0
+    confirmed_month: int = 0
+    completed_month: int = 0
+    bonuses_applied_month: int = 0

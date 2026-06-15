@@ -310,6 +310,54 @@ function DoctorLoad({ stats, loading }: { stats: ClinicStats | null; loading: bo
   );
 }
 
+// ─── Patient funnel ──────────────────────────────────────────────────────────
+
+function PatientFunnel({ stats, loading }: { stats: ClinicStats | null; loading: boolean }) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl p-5 animate-pulse h-28" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }} />
+    );
+  }
+
+  const steps = [
+    { label: "Создано", value: stats?.month_count ?? 0 },
+    { label: "Подтверждено", value: stats?.confirmed_month ?? 0 },
+    { label: "Завершено", value: stats?.completed_month ?? 0 },
+    { label: "С бонусами", value: stats?.bonuses_applied_month ?? 0 },
+  ];
+
+  function convPct(a: number, b: number): string {
+    if (b === 0) return "—";
+    return Math.round((a / b) * 100) + "%";
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Воронка пациентов</p>
+      <div className="flex items-center">
+        {steps.map((step, i) => (
+          <div key={step.label} className="flex items-center flex-1 min-w-0">
+            <div className="flex-1 text-center">
+              <p className="text-2xl font-extrabold font-[family-name:var(--font-manrope)] text-[#003087]">
+                {step.value}
+              </p>
+              <p className="text-[10px] text-slate-400 mt-0.5">{step.label}</p>
+            </div>
+            {i < steps.length - 1 && (
+              <div className="flex flex-col items-center px-1 shrink-0">
+                <span className="text-slate-300 text-lg leading-none">→</span>
+                <span className="text-[9px] font-bold text-[#00a982]">
+                  {convPct(steps[i + 1].value, step.value)}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function ClinicCabinetPage() {
@@ -351,8 +399,8 @@ export default function ClinicCabinetPage() {
       headerTitle="Панель управления"
       headerAction={headerAction}
     >
-      {/* ── KPI row (3 карточки по Stitch V1) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+      {/* ── KPI row (4 карточки) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {/* Новые заявки */}
         <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}>
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Новые заявки</p>
@@ -407,6 +455,17 @@ export default function ClinicCabinetPage() {
             </div>
           )}
           <div className="absolute -right-3 -bottom-3 opacity-10 text-[80px] select-none pointer-events-none">📈</div>
+        </div>
+
+        {/* Бонусы использованы */}
+        <div className="bg-white rounded-2xl p-5" style={{ boxShadow: "0 4px 20px rgba(0,27,63,0.06)" }}>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Бонусы</p>
+          {statsLoading ? <KpiSkeleton /> : (
+            <p className="text-3xl font-extrabold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              {stats ? `${fmt(stats.bonus_used)} ₽` : "—"}
+            </p>
+          )}
+          <p className="text-xs text-slate-400 mt-2">использовано за месяц</p>
         </div>
       </div>
 
@@ -468,6 +527,11 @@ export default function ClinicCabinetPage() {
 
         {/* Doctor load */}
         <DoctorLoad stats={stats} loading={statsLoading} />
+      </div>
+
+      {/* ── Воронка пациентов ── */}
+      <div className="mb-5">
+        <PatientFunnel stats={stats} loading={statsLoading} />
       </div>
 
       {/* ── Входящие записи (полная таблица) ── */}

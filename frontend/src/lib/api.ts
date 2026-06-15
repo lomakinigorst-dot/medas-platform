@@ -231,6 +231,10 @@ export interface ClinicStats {
   prev_month_revenue: number;
   doctors_today: DoctorLoadItem[];
   revenue_by_day: RevenueDay[];
+  bonus_used: number;
+  confirmed_month: number;
+  completed_month: number;
+  bonuses_applied_month: number;
 }
 
 export async function fetchClinicStats(token: string): Promise<ClinicStats | null> {
