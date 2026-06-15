@@ -19,6 +19,7 @@ class RegisterRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     phone: str
+    method: str = "flash"  # "flash" or "sms"
 
 
 class OTPVerifyRequest(BaseModel):

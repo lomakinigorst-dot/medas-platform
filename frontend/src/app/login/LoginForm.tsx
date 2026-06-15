@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
@@ -9,45 +9,24 @@ import { setToken } from "@/lib/auth";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
 
 type Step = "phone" | "register" | "otp";
+type OtpMethod = "flash" | "sms";
 
 // ─── Phone helpers ────────────────────────────────────────────────────────────
 
-function extractDigits(value: string): string {
-  return value.replace(/\D/g, "");
-}
-
-/** Normalise to +7XXXXXXXXXX. Returns null if input is not a valid RU number. */
-function normalizePhone(raw: string): string | null {
-  let d = extractDigits(raw);
-  if (d.startsWith("8") && d.length === 11) d = "7" + d.slice(1);
-  if (d.startsWith("7") && d.length === 11) return "+" + d;
-  if (d.length === 10) return "+7" + d;
-  return null;
-}
-
-/** Format digits as +7 (9XX) XXX-XX-XX for display. */
-function formatPhone(raw: string): string {
-  let d = extractDigits(raw);
-  // drop leading 8 → treat as 7
-  if (d.startsWith("8")) d = "7" + d.slice(1);
-  // drop leading 7 (we'll add +7 ourselves)
+/** Keep only 10 digits after +7, handle 8→7 and 7→strip. */
+function cleanDigits(raw: string): string {
+  let d = raw.replace(/\D/g, "");
+  if (d.startsWith("8") && d.length >= 11) d = d.slice(1);
   if (d.startsWith("7")) d = d.slice(1);
-  // cap at 10 digits
-  d = d.slice(0, 10);
-
-  let out = "+7";
-  if (d.length > 0) out += " (" + d.slice(0, Math.min(3, d.length));
-  if (d.length >= 3) out += ") " + d.slice(3, Math.min(6, d.length));
-  if (d.length >= 6) out += "-" + d.slice(6, Math.min(8, d.length));
-  if (d.length >= 8) out += "-" + d.slice(8, 10);
-  return out;
+  return d.slice(0, 10);
 }
 
-function phoneError(raw: string): string | null {
-  if (!raw || raw === "+7") return null; // empty — no error yet
-  const norm = normalizePhone(raw);
-  if (!norm) return "Введите корректный номер в формате +7 (9XX) XXX-XX-XX";
-  return null;
+function phoneValid(digits: string): boolean {
+  return digits.length === 10;
+}
+
+function normalised(digits: string): string {
+  return "+7" + digits;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -55,56 +34,97 @@ function phoneError(raw: string): string | null {
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/cabinet/patient";
+
+  // ── Phone step ──
   const [step, setStep] = useState<Step>("phone");
-  const [phoneRaw, setPhoneRaw] = useState("+7 ");
+  const [digits, setDigits] = useState(""); // raw 10 digits
   const [name, setName] = useState("");
+
+  // ── OTP step ──
   const [otp, setOtp] = useState("");
+  const [method, setMethod] = useState<OtpMethod>("flash");
+  const [flashCount, setFlashCount] = useState(0); // increments on each flash call (max 3)
+  const [smsUsed, setSmsUsed] = useState(false);
+  const [otpTrigger, setOtpTrigger] = useState(0); // increment → reset countdown
+  const [countdown, setCountdown] = useState(0);
+
+  // ── Misc ──
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [countdown, setCountdown] = useState(0);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
 
-  const next = searchParams.get("next") ?? "/cabinet/patient";
+  const phone = normalised(digits);
 
-  // normalised phone sent to API
-  const normalised = normalizePhone(phoneRaw);
-  const phoneValid = normalised !== null;
-  const validationError = phoneError(phoneRaw);
-
+  // Countdown timer — restarts whenever otpTrigger increments
   useEffect(() => {
-    if (step !== "otp") return;
+    if (otpTrigger === 0) return;
     setCountdown(60);
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) { clearInterval(timer); return 0; }
-        return prev - 1;
+    const id = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) { clearInterval(id); return 0; }
+        return c - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
-  }, [step]);
+    return () => clearInterval(id);
+  }, [otpTrigger]);
 
-  function handlePhoneChange(raw: string) {
-    // keep +7 prefix always
-    const formatted = formatPhone(raw);
-    setPhoneRaw(formatted);
+  function handlePhoneChange(val: string) {
+    setDigits(cleanDigits(val));
     setError(null);
   }
 
+  // ── Shared OTP send helper ──
+  async function sendOtp(m: OtpMethod): Promise<boolean> {
+    setLoading(true);
+    setError(null);
+    try {
+      const endpoint = isNewUser
+        ? `${API_BASE}/auth/register`
+        : `${API_BASE}/auth/login`;
+      const body = isNewUser
+        ? { phone, name, method: m }
+        : { phone, method: m };
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError((data as { detail?: string }).detail ?? "Ошибка сервера");
+        return false;
+      }
+      return true;
+    } catch {
+      setError("Нет соединения с сервером");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handlePhone() {
-    if (!phoneValid) { setError("Введите корректный номер телефона"); return; }
+    if (!phoneValid(digits)) { setError("Введите корректный номер в формате +7 (9XX) XXX-XX-XX"); return; }
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalised }),
+        body: JSON.stringify({ phone, method: "flash" }),
       });
       if (res.status === 404) {
         setIsNewUser(true);
         setStep("register");
       } else if (res.ok) {
         setIsNewUser(false);
+        setMethod("flash");
+        setFlashCount(1);
+        setSmsUsed(false);
+        setOtp("");
+        setOtpTrigger((t) => t + 1);
         setStep("otp");
       } else {
         const data = await res.json().catch(() => ({}));
@@ -118,33 +138,37 @@ export default function LoginForm() {
   }
 
   async function handleRegister() {
-    if (!phoneValid) { setError("Введите корректный номер телефона"); return; }
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalised, name }),
-      });
-      if (res.ok) {
-        setStep("otp");
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setError((data as { detail?: string }).detail ?? "Ошибка регистрации");
-      }
-    } catch {
-      setError("Нет соединения с сервером");
-    } finally {
-      setLoading(false);
+    if (!phoneValid(digits)) { setError("Введите корректный номер телефона"); return; }
+    if (!name.trim()) { setError("Введите имя"); return; }
+    const ok = await sendOtp("flash");
+    if (ok) {
+      setMethod("flash");
+      setFlashCount(1);
+      setSmsUsed(false);
+      setOtp("");
+      setOtpTrigger((t) => t + 1);
+      setStep("otp");
     }
   }
 
   async function handleResend() {
-    setOtp("");
-    setError(null);
-    if (isNewUser) await handleRegister();
-    else await handlePhone();
+    // Flash call attempt 2 or 3
+    const ok = await sendOtp("flash");
+    if (ok) {
+      setFlashCount((c) => c + 1);
+      setOtp("");
+      setOtpTrigger((t) => t + 1);
+    }
+  }
+
+  async function handleSwitchToSms() {
+    const ok = await sendOtp("sms");
+    if (ok) {
+      setMethod("sms");
+      setSmsUsed(true);
+      setOtp("");
+      setOtpTrigger((t) => t + 1);
+    }
   }
 
   async function handleVerify() {
@@ -154,7 +178,7 @@ export default function LoginForm() {
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: normalised, code: otp }),
+        body: JSON.stringify({ phone, code: otp }),
       });
       if (res.ok) {
         const data = (await res.json()) as { access_token: string };
@@ -174,6 +198,48 @@ export default function LoginForm() {
   const inputCls =
     "w-full bg-[#f7f9fb] border border-[#c3c6d7]/30 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#003087]/20 transition-all";
 
+  // OTP input length: 4 for flash call, 6 for SMS
+  const otpLength = method === "sms" ? 6 : 4;
+
+  // Resend / fallback button after countdown
+  function renderResendArea() {
+    if (countdown > 0) {
+      return (
+        <p className="text-xs text-[#737686]">
+          {method === "flash" ? "Повторный звонок" : "Повторная SMS"} через {countdown} сек
+        </p>
+      );
+    }
+    if (method === "flash" && flashCount < 3) {
+      return (
+        <button type="button" onClick={handleResend} disabled={loading}
+          className="text-xs text-[#003087] hover:underline disabled:opacity-50">
+          Позвонить повторно
+        </button>
+      );
+    }
+    if (method === "flash" && flashCount >= 3 && !smsUsed) {
+      return (
+        <button type="button" onClick={handleSwitchToSms} disabled={loading}
+          className="text-xs text-[#003087] hover:underline disabled:opacity-50">
+          Другой способ — получить SMS
+        </button>
+      );
+    }
+    if (smsUsed) {
+      return (
+        <p className="text-xs text-[#737686]">
+          Напишите в{" "}
+          <a href="mailto:support@med-as.ru" className="text-[#003087] hover:underline">
+            поддержку
+          </a>{" "}
+          для восстановления доступа
+        </p>
+      );
+    }
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7f9fb] to-[#e6f9f4] flex items-center justify-center px-4">
       <div className="absolute top-6 left-6">
@@ -191,10 +257,11 @@ export default function LoginForm() {
             <p className="text-[#434655] text-sm">
               {step === "phone" && "Войдите или зарегистрируйтесь по номеру телефона"}
               {step === "register" && "Введите имя для создания аккаунта"}
-              {step === "otp" && (
-                <>
-                  Робот позвонит на <strong>{normalised}</strong> и продиктует код
-                </>
+              {step === "otp" && method === "flash" && (
+                <>Вам позвонят на <strong>{phone}</strong> — введите последние 4 цифры входящего номера</>
+              )}
+              {step === "otp" && method === "sms" && (
+                <>Код отправлен на <strong>{phone}</strong> по SMS</>
               )}
             </p>
           </div>
@@ -206,29 +273,31 @@ export default function LoginForm() {
                   Телефон
                 </label>
                 <input
+                  ref={phoneInputRef}
                   type="tel"
-                  value={phoneRaw}
+                  value={"+7" + digits}
                   onChange={(e) => handlePhoneChange(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && phoneValid && handlePhone()}
-                  onFocus={() => { if (!phoneRaw || phoneRaw === "+7") setPhoneRaw("+7 "); }}
-                  placeholder="+7 (999) 000-00-00"
+                  onKeyDown={(e) => e.key === "Enter" && phoneValid(digits) && handlePhone()}
+                  onFocus={(e) => {
+                    // move cursor to end
+                    const len = e.target.value.length;
+                    e.target.setSelectionRange(len, len);
+                  }}
+                  placeholder="+7 9991234567"
                   inputMode="tel"
-                  className={`${inputCls} ${validationError ? "border-red-400 focus:ring-red-200" : ""}`}
+                  className={inputCls}
                 />
-                {validationError && (
-                  <p className="mt-1 text-xs text-red-500">{validationError}</p>
-                )}
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <button
                 onClick={handlePhone}
-                disabled={loading || !phoneValid}
+                disabled={loading || !phoneValid(digits)}
                 className="w-full py-4 bg-gradient-to-r from-[#003087] to-[#1e40af] text-white font-bold rounded-xl shadow-lg shadow-[#003087]/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
                 {loading ? "Отправляем..." : "Получить код звонком"}
               </button>
               <p className="text-center text-xs text-[#737686]">
-                Робот позвонит и продиктует 6-значный код
+                Позвоним — введите последние 4 цифры входящего номера
               </p>
             </div>
           )}
@@ -239,7 +308,7 @@ export default function LoginForm() {
                 <label className="block text-xs font-bold text-[#434655] uppercase tracking-wider mb-2">
                   Телефон
                 </label>
-                <input type="tel" value={normalised ?? phoneRaw} disabled className={`${inputCls} text-[#737686] cursor-not-allowed`} />
+                <input type="tel" value={phone} disabled className={`${inputCls} text-[#737686] cursor-not-allowed`} />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#434655] uppercase tracking-wider mb-2">
@@ -258,7 +327,7 @@ export default function LoginForm() {
               {error && <p className="text-sm text-red-500">{error}</p>}
               <button
                 onClick={handleRegister}
-                disabled={loading || !name}
+                disabled={loading || !name.trim()}
                 className="w-full py-4 bg-gradient-to-r from-[#003087] to-[#1e40af] text-white font-bold rounded-xl shadow-lg shadow-[#003087]/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
                 {loading ? "Регистрируем..." : "Зарегистрироваться"}
@@ -277,45 +346,34 @@ export default function LoginForm() {
             <div className="space-y-5">
               <div>
                 <label className="block text-xs font-bold text-[#434655] uppercase tracking-wider mb-2">
-                  Код из звонка
+                  {method === "flash" ? "Последние 4 цифры входящего номера" : "Код из SMS"}
                 </label>
                 <input
                   type="text"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                  onKeyDown={(e) => e.key === "Enter" && otp.length === 6 && handleVerify()}
-                  placeholder="------"
-                  maxLength={6}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, otpLength))}
+                  onKeyDown={(e) => e.key === "Enter" && otp.length === otpLength && handleVerify()}
+                  placeholder={"—".repeat(otpLength)}
+                  maxLength={otpLength}
                   inputMode="numeric"
                   className={`${inputCls} text-center tracking-widest text-xl`}
                   autoFocus
                 />
                 <div className="mt-2 text-center">
-                  {countdown > 0 ? (
-                    <p className="text-xs text-[#737686]">Повторный звонок через {countdown} сек</p>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleResend}
-                      disabled={loading}
-                      className="text-xs text-[#003087] hover:underline disabled:opacity-50"
-                    >
-                      Позвонить повторно
-                    </button>
-                  )}
+                  {renderResendArea()}
                 </div>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <button
                 onClick={handleVerify}
-                disabled={loading || otp.length !== 6}
+                disabled={loading || otp.length !== otpLength}
                 className="w-full py-4 bg-gradient-to-r from-[#003087] to-[#1e40af] text-white font-bold rounded-xl shadow-lg shadow-[#003087]/20 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
               >
                 {loading ? "Проверяем..." : "Войти"}
               </button>
               <button
                 type="button"
-                onClick={() => { setStep("phone"); setOtp(""); setError(null); }}
+                onClick={() => { setStep("phone"); setOtp(""); setError(null); setFlashCount(0); setSmsUsed(false); }}
                 className="w-full text-sm text-[#434655] hover:text-[#003087] transition-colors"
               >
                 ← Изменить номер

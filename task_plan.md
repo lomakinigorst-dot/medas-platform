@@ -524,6 +524,36 @@ Status: pending
 
 ---
 
+### Фаза OTP-Flash — Flash call каскад + master-пароль + фиксы
+Status: in_progress
+
+#### F1 — CI/CD deploy.yml: docker build ./frontend
+Status: complete
+Done: `docker build .` → `docker build ./frontend`. Dockerfile всегда был в frontend/, CI падал каждый пуш.
+
+#### F2 — Backend: otp.py + auth.py + config.py + schemas.py
+Status: complete
+Done: generate_otp(digits=4), send_flash_call (smsc voice temp), send_sms; LoginRequest+method; OTP_MASTER_CODE bypass в verify-otp.
+
+#### F3 — Frontend: LoginForm.tsx (backspace + cascade + countdown)
+Status: complete
+Done: digits-only state (без маски → нет cursor jump), otpTrigger для сброса countdown, flashCount 1-3→SMS→поддержка.
+
+#### F4 — Deploy backend + OTP_MASTER_CODE на VPS
+Status: pending
+- [ ] SSH: echo "OTP_MASTER_CODE=110792" >> /app/medas-platform/backend.env
+- [ ] docker cp otp.py, auth.py, config.py, schemas/auth.py → контейнер
+- [ ] docker restart medas-backend
+- [ ] Verify: curl POST /verify-otp с code=110792 → JWT
+
+#### F5 — Deploy frontend (git push → CI/CD)
+Status: pending
+- [ ] git add + commit + push
+- [ ] GitHub Actions: build ./frontend → upload → force-recreate
+- [ ] Verify: https://saas.med-as.ru/login → форма без ошибок
+
+---
+
 ### ⚠️ БЛОКЕР ПЕРЕД PROD — Auth + Certbot
 Status: complete
 
@@ -836,7 +866,7 @@ Status: pending
 | 1 | Backend — первый приоритет после Frontend MVP | Без реального API нельзя показывать продукт клиентам и начать продажи |
 | 2 | FastAPI (async) + PostgreSQL + Alembic | Async нужен для I/O-bound задач; Alembic — единственный правильный путь миграций |
 | 3 | JWT Bearer (не httpOnly cookie пока) | Middleware.ts читает cookie, но Bearer проще для мобильного клиента в будущем |
-| 4 | OTP каскад: Voice call ×3 → SMS ×1 → поддержка | Flash call (caller ID) дороже voice call (0.45–0.85 ₽ vs 0.33 ₽). Итог: voice call smsc.ru ×3 попытки (макс 0.99 ₽) → кнопка «другой способ» → SMS ×1 → только поддержка. Коммит b42d392. |
+| 4 | OTP каскад: Flash call ×3 → SMS ×1 → поддержка | Flash call (4 последние цифры входящего номера) — ×3 попытки → кнопка «Другой способ» → SMS ×1 → «Напишите в поддержку». Backend: smsc.ru voice (временно, TODO: заменить на sigmasms.ru / redsms.ru / websms.ru для настоящего flash call). Master code: OTP_MASTER_CODE в .env. Коммит TBD. |
 | 5 | Единая модель пользователя: пациент = базовая роль | Все роли (clinic_owner, doctor, staff) — надстройка над аккаунтом пациента |
 | 6 | ЮKassa сплит-оплата | Поддерживает маршрутизацию платежей — не нужно делать это вручную |
 | 7 | Seed script вместо ручного заполнения | Воспроизводимость; можно сбросить и наполнить заново |

@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     SMSC_LOGIN: str = ""
     SMSC_PASSWORD: str = ""
 
+    # Master OTP bypass (any phone + this code = login without real OTP)
+    OTP_MASTER_CODE: str = ""
+
     # saas.med-as.ru = test domain; prod → med-as.ru (migration planned)
     CORS_ORIGINS: list[str] = [
         "https://saas.med-as.ru",
