@@ -170,10 +170,27 @@ async def seed() -> None:
             clinic_user.role = "clinic"
             clinic_user.clinic_id = sm_clinic_id
 
+        # Doctor user (upsert) — linked to first seeded doctor
+        if doctor_ids:
+            existing_doc = await session.execute(select(User).where(User.phone == "+70000000002"))
+            doctor_user = existing_doc.scalar_one_or_none()
+            if doctor_user is None:
+                session.add(User(
+                    phone="+70000000002",
+                    name="Иванова Мария Сергеевна",
+                    role="doctor",
+                    doctor_id=doctor_ids[0],
+                    is_active=True,
+                    is_verified=True,
+                ))
+            else:
+                doctor_user.role = "doctor"
+                doctor_user.doctor_id = doctor_ids[0]
+
         await session.commit()
 
     await engine.dispose()
-    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors + schedules + 1 clinic admin.")
+    print(f"✅ Seeded {len(CLINICS)} clinics, {len(DOCTORS)} doctors + schedules + 1 clinic admin + 1 doctor user.")
 
 
 if __name__ == "__main__":

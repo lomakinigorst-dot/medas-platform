@@ -35,6 +35,10 @@ class ClinicAppointmentOut(AppointmentOut):
     patient_name: str
 
 
+class DoctorAppointmentOut(AppointmentOut):
+    patient_name: str
+
+
 class DoctorLoadItem(BaseModel):
     doctor_name: str
     booked: int

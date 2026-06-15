@@ -18,6 +18,7 @@ from app.schemas.appointment import (
     ClinicAnalytics,
     ClinicAppointmentOut,
     ClinicStats,
+    DoctorAppointmentOut,
     DoctorLoadItem,
     DoctorRevenueStat,
     RevenueDay,
@@ -151,6 +152,51 @@ async def clinic_appointments(
             clinic_name = cl_result.scalar_one_or_none()
 
         out.append(ClinicAppointmentOut(
+            id=apt.id,
+            doctor_name=doctor.name if doctor else "Неизвестно",
+            patient_name=patient.name if patient else "Пациент",
+            clinic_name=clinic_name,
+            scheduled_at=apt.scheduled_at,
+            service_type=apt.service_type,
+            status=apt.status,
+            price=apt.price,
+            bonuses_used=apt.bonuses_used,
+            bonuses_earned=apt.bonuses_earned,
+        ))
+    return out
+
+
+@router.get("/doctor", response_model=list[DoctorAppointmentOut])
+async def doctor_appointments(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[DoctorAppointmentOut]:
+    if current_user.role != "doctor":
+        raise HTTPException(status_code=403, detail="Доступ только для врачей")
+    if current_user.doctor_id is None:
+        raise HTTPException(status_code=403, detail="Профиль врача не привязан к аккаунту")
+
+    result = await db.execute(
+        select(Appointment)
+        .where(Appointment.doctor_id == current_user.doctor_id)
+        .order_by(Appointment.scheduled_at.desc())
+    )
+    appointments = list(result.scalars().all())
+
+    out = []
+    for apt in appointments:
+        patient_result = await db.execute(select(User).where(User.id == apt.patient_id))
+        patient = patient_result.scalar_one_or_none()
+
+        clinic_name: str | None = None
+        if apt.clinic_id:
+            cl_result = await db.execute(select(Clinic.name).where(Clinic.id == apt.clinic_id))
+            clinic_name = cl_result.scalar_one_or_none()
+
+        dr_result = await db.execute(select(Doctor).where(Doctor.id == apt.doctor_id))
+        doctor = dr_result.scalar_one_or_none()
+
+        out.append(DoctorAppointmentOut(
             id=apt.id,
             doctor_name=doctor.name if doctor else "Неизвестно",
             patient_name=patient.name if patient else "Пациент",

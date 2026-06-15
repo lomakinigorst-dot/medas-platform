@@ -1,44 +1,114 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import CabinetLayout from "@/components/layout/CabinetLayout";
+import { getToken } from "@/lib/auth";
+import { fetchDoctorAppointments, fetchCurrentUser, DoctorAppointmentOut, UserMe } from "@/lib/api";
 
 const navItems = [
   { href: "/cabinet/doctor", icon: "🏠", label: "Главная" },
   { href: "/cabinet/doctor/schedule", icon: "📅", label: "Расписание" },
-  { href: "/cabinet/doctor/appointments", icon: "📋", label: "Приёмы" },
-  { href: "/cabinet/doctor/patients", icon: "👥", label: "Пациенты" },
-  { href: "/cabinet/doctor/profile", icon: "👤", label: "Мой профиль" },
+  { href: "/cabinet/doctor/settings", icon: "⚙️", label: "Настройки" },
 ];
 
-const todaySlots = [
-  { time: "09:00", patient: "Анна Козлова", type: "Первичный приём", status: "confirmed" },
-  { time: "10:00", patient: "Сергей Митин", type: "Повторный приём", status: "confirmed" },
-  { time: "11:00", patient: "—", type: "Свободно", status: "free" },
-  { time: "12:00", patient: "Обед", type: "—", status: "break" },
-  { time: "14:00", patient: "Ольга Петрова", type: "Кардиограмма", status: "confirmed" },
-  { time: "15:00", patient: "Иван Дмитриев", type: "Первичный приём", status: "new" },
-  { time: "16:00", patient: "—", type: "Свободно", status: "free" },
-  { time: "17:00", patient: "Мария Иванова", type: "Эхокардиография", status: "confirmed" },
-];
+const STATUS_LABEL: Record<string, string> = {
+  pending: "Ожидает",
+  confirmed: "Подтверждён",
+  completed: "Завершён",
+  cancelled: "Отменён",
+};
 
-const week = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const weekData = [8, 6, 9, 7, 5, 3, 0];
+const STATUS_COLOR: Record<string, string> = {
+  pending: "bg-amber-50 text-amber-700",
+  confirmed: "bg-[#e3fcef] text-[#006644]",
+  completed: "bg-[#dbe1ff] text-[#003087]",
+  cancelled: "bg-[#f2f4f6] text-[#737686]",
+};
+
+const SERVICE_LABEL: Record<string, string> = {
+  primary: "Первичный",
+  followup: "Повторный",
+  online: "Онлайн",
+};
+
+function toMoscow(iso: string): Date {
+  return new Date(iso);
+}
+
+function isToday(iso: string): boolean {
+  const d = toMoscow(iso);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+}
+
+function isThisWeek(iso: string): boolean {
+  const d = toMoscow(iso);
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  return d >= weekAgo && d <= now;
+}
+
+function isThisMonth(iso: string): boolean {
+  const d = toMoscow(iso);
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
 
 export default function DoctorCabinetPage() {
+  const router = useRouter();
+  const [appointments, setAppointments] = useState<DoctorAppointmentOut[]>([]);
+  const [user, setUser] = useState<UserMe | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) { router.push("/login?next=/cabinet/doctor"); return; }
+
+    Promise.all([
+      fetchDoctorAppointments(token),
+      fetchCurrentUser(token),
+    ]).then(([apts, me]) => {
+      if (!me || me.role !== "doctor") { router.push("/login"); return; }
+      setAppointments(apts);
+      setUser(me);
+      setLoading(false);
+    });
+  }, [router]);
+
+  const todayApts = appointments.filter(a => isToday(a.scheduled_at) && a.status !== "cancelled");
+  const weekCount = appointments.filter(a => isThisWeek(a.scheduled_at) && a.status !== "cancelled").length;
+  const monthCount = appointments.filter(a => isThisMonth(a.scheduled_at) && a.status !== "cancelled").length;
+  const pendingCount = appointments.filter(a => a.status === "pending").length;
+
+  const kpi = [
+    { label: "Приёмов сегодня", value: todayApts.length.toString(), icon: "📅", color: "bg-[#003087] text-white" },
+    { label: "За неделю", value: weekCount.toString(), icon: "📆", color: "bg-[#e3fcef] text-[#006644]" },
+    { label: "За месяц", value: monthCount.toString(), icon: "📊", color: "bg-[#dbe1ff] text-[#003087]" },
+    { label: "Новых заявок", value: pendingCount.toString(), icon: "🔔", color: "bg-amber-50 text-amber-700" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f7f9fb]">
+        <p className="text-[#737686]">Загрузка...</p>
+      </div>
+    );
+  }
+
   return (
     <CabinetLayout
       role="doctor"
-      userName="Д-р Александр Волков"
-      userSubtitle="Кардиолог"
+      userName={user?.name ?? "Врач"}
+      userSubtitle="Врач"
       navItems={navItems}
-      headerTitle="Управление расписанием"
+      headerTitle="Личный кабинет врача"
     >
-      {/* Today's Stats */}
+      {/* KPI */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {[
-          { label: "Приёмов сегодня", value: "6", icon: "📅", color: "bg-[#003087] text-white" },
-          { label: "Свободных слотов", value: "2", icon: "⏰", color: "bg-[#e3fcef] text-[#006644]" },
-          { label: "Новых заявок", value: "3", icon: "🔔", color: "bg-amber-50 text-amber-700" },
-          { label: "Рейтинг", value: "4.9 ★", icon: "⭐", color: "bg-[#dbe1ff] text-[#003087]" },
-        ].map((stat) => (
+        {kpi.map((stat) => (
           <div key={stat.label} className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-4 ${stat.color}`}>
               {stat.icon}
@@ -50,128 +120,108 @@ export default function DoctorCabinetPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Today Schedule */}
+        {/* Today's Timeline */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-[#c3c6d7]/10 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between p-6 border-b border-[#f2f4f6]">
-            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Расписание на сегодня — 7 ноября</h3>
-            <button className="text-xs font-bold text-[#003087] bg-[#dbe1ff]/30 px-3 py-1.5 rounded-lg hover:bg-[#dbe1ff]/50 transition-all">
-              + Добавить слот
-            </button>
+          <div className="p-6 border-b border-[#f2f4f6]">
+            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">
+              Приёмы сегодня{todayApts.length > 0 ? ` — ${todayApts.length}` : ""}
+            </h3>
           </div>
-          <div className="divide-y divide-[#f2f4f6]">
-            {todaySlots.map((slot) => (
-              <div key={slot.time} className={`flex items-center gap-4 px-6 py-4 transition-colors ${slot.status === "new" ? "bg-amber-50" : slot.status === "break" ? "bg-[#f7f9fb]" : "hover:bg-[#f7f9fb]"}`}>
-                <div className="w-14 text-center">
-                  <span className="font-bold text-sm text-[#003087]">{slot.time}</span>
-                </div>
-                <div className={`w-2 h-8 rounded-full flex-shrink-0 ${
-                  slot.status === "confirmed" ? "bg-[#00a982]" :
-                  slot.status === "new" ? "bg-amber-400" :
-                  slot.status === "free" ? "bg-[#c3c6d7]" :
-                  "bg-[#eceef0]"
-                }`}></div>
-                <div className="flex-1">
-                  <p className={`font-semibold text-sm ${slot.status === "free" || slot.status === "break" ? "text-[#737686]" : "text-[#191c1e]"}`}>
-                    {slot.patient}
-                  </p>
-                  <p className="text-xs text-[#434655]">{slot.type}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {slot.status === "new" && (
-                    <>
-                      <button className="px-3 py-1.5 bg-[#003087] text-white text-xs font-bold rounded-lg hover:opacity-90">Принять</button>
-                      <button className="px-3 py-1.5 bg-[#f2f4f6] text-[#434655] text-xs font-bold rounded-lg hover:bg-[#e6e8ea]">Отклонить</button>
-                    </>
-                  )}
-                  {slot.status === "confirmed" && (
-                    <button className="px-3 py-1.5 bg-[#f2f4f6] text-[#434655] text-xs font-bold rounded-lg hover:bg-[#e6e8ea]">Детали</button>
-                  )}
-                  {slot.status === "free" && (
-                    <span className="text-xs text-[#737686]">Свободно</span>
-                  )}
-                </div>
+          {todayApts.length === 0 ? (
+            <div className="p-8 text-center text-[#737686] text-sm">Записей на сегодня нет</div>
+          ) : (
+            <div className="divide-y divide-[#f2f4f6]">
+              {todayApts
+                .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())
+                .map((apt) => {
+                  const time = toMoscow(apt.scheduled_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                  return (
+                    <div key={apt.id} className="flex items-center gap-4 px-6 py-4 hover:bg-[#f7f9fb] transition-colors">
+                      <div className="w-14 text-center flex-shrink-0">
+                        <span className="font-bold text-sm text-[#003087]">{time}</span>
+                      </div>
+                      <div className={`w-2 h-8 rounded-full flex-shrink-0 ${
+                        apt.status === "confirmed" ? "bg-[#00a982]" :
+                        apt.status === "pending" ? "bg-amber-400" : "bg-[#c3c6d7]"
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-[#191c1e] truncate">{apt.patient_name}</p>
+                        <p className="text-xs text-[#434655]">{SERVICE_LABEL[apt.service_type] ?? apt.service_type}</p>
+                      </div>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0 ${STATUS_COLOR[apt.status] ?? "bg-[#f2f4f6] text-[#737686]"}`}>
+                        {STATUS_LABEL[apt.status] ?? apt.status}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+
+        {/* Summary */}
+        <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
+          <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">Сводка</h3>
+          <div className="space-y-3">
+            {[
+              { label: "Всего записей", value: appointments.length },
+              { label: "Подтверждённых", value: appointments.filter(a => a.status === "confirmed").length },
+              { label: "Завершённых", value: appointments.filter(a => a.status === "completed").length },
+              { label: "Отменённых", value: appointments.filter(a => a.status === "cancelled").length },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-center py-2 border-b border-[#f2f4f6] last:border-0">
+                <span className="text-sm text-[#434655]">{label}</span>
+                <span className="font-bold text-[#191c1e]">{value}</span>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Right Column */}
-        <div className="space-y-6">
-          {/* Weekly Overview */}
-          <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">Неделя</h3>
-            <div className="flex items-end gap-2 h-20 mb-3">
-              {week.map((day, i) => (
-                <div key={day} className="flex-1 flex flex-col items-center gap-1">
-                  <div
-                    className="w-full rounded-t transition-all"
-                    style={{
-                      height: `${(weekData[i] / 10) * 100}%`,
-                      backgroundColor: i === 0 ? "#003087" : weekData[i] > 0 ? "#e3fcef" : "#f2f4f6"
-                    }}
-                  ></div>
-                  <span className={`text-[10px] font-medium ${i === 0 ? "text-[#003087]" : "text-[#737686]"}`}>{day}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between text-xs text-[#434655] pt-3 border-t border-[#f2f4f6]">
-              <span>Всего за неделю:</span>
-              <span className="font-bold text-[#191c1e]">38 приёмов</span>
-            </div>
-          </div>
-
-          {/* Availability Settings */}
-          <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">Доступность</h3>
-            <div className="space-y-4">
-              {["Пн – Пт", "Суббота", "Воскресенье"].map((day, i) => (
-                <div key={day} className="flex items-center justify-between">
-                  <span className="text-sm text-[#434655]">{day}</span>
-                  <div className="flex items-center gap-2">
-                    {i < 2 ? (
-                      <>
-                        <span className="text-xs font-medium">09:00 – 18:00</span>
-                        <div className="w-9 h-5 bg-[#003087] rounded-full relative cursor-pointer">
-                          <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xs font-medium text-[#737686]">Выходной</span>
-                        <div className="w-9 h-5 bg-[#c3c6d7] rounded-full relative cursor-pointer">
-                          <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full"></div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button className="w-full mt-4 py-2.5 bg-[#003087] text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all">
-              Сохранить расписание
-            </button>
-          </div>
-
-          {/* Recent Reviews */}
-          <div className="bg-white rounded-2xl p-6 border border-[#c3c6d7]/10 shadow-sm">
-            <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)] mb-4">Последние отзывы</h3>
-            <div className="space-y-4">
-              {[
-                { patient: "Анна К.", stars: 5, text: "Отличный специалист!", time: "2 дня" },
-                { patient: "Сергей М.", stars: 5, text: "Очень внимательный врач.", time: "5 дней" },
-              ].map((review) => (
-                <div key={review.patient} className="border-b border-[#f2f4f6] pb-4 last:border-0 last:pb-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-xs">{review.patient}</span>
-                    <div className="text-amber-500 text-xs">{"★".repeat(review.stars)}</div>
-                  </div>
-                  <p className="text-xs text-[#434655]">{review.text}</p>
-                  <p className="text-[10px] text-[#737686] mt-1">{review.time} назад</p>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* All Appointments Table */}
+      <div className="mt-8 bg-white rounded-2xl border border-[#c3c6d7]/10 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-[#f2f4f6]">
+          <h3 className="font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Все записи</h3>
         </div>
+        {appointments.length === 0 ? (
+          <div className="p-8 text-center text-[#737686] text-sm">Записей пока нет</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#f7f9fb]">
+                <tr>
+                  <th className="text-left px-6 py-3 text-xs font-bold text-[#434655] uppercase tracking-wider">Дата и время</th>
+                  <th className="text-left px-6 py-3 text-xs font-bold text-[#434655] uppercase tracking-wider">Пациент</th>
+                  <th className="text-left px-6 py-3 text-xs font-bold text-[#434655] uppercase tracking-wider">Тип</th>
+                  <th className="text-left px-6 py-3 text-xs font-bold text-[#434655] uppercase tracking-wider">Статус</th>
+                  <th className="text-left px-6 py-3 text-xs font-bold text-[#434655] uppercase tracking-wider">Клиника</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f2f4f6]">
+                {appointments.map((apt) => {
+                  const dt = toMoscow(apt.scheduled_at);
+                  const dateStr = dt.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+                  const timeStr = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+                  return (
+                    <tr key={apt.id} className="hover:bg-[#f7f9fb] transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-semibold text-[#191c1e]">{dateStr}</span>
+                        <span className="text-[#737686] ml-2">{timeStr}</span>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-[#191c1e]">{apt.patient_name}</td>
+                      <td className="px-6 py-4 text-[#434655]">{SERVICE_LABEL[apt.service_type] ?? apt.service_type}</td>
+                      <td className="px-6 py-4">
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${STATUS_COLOR[apt.status] ?? "bg-[#f2f4f6] text-[#737686]"}`}>
+                          {STATUS_LABEL[apt.status] ?? apt.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-[#434655]">{apt.clinic_name ?? "—"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </CabinetLayout>
   );

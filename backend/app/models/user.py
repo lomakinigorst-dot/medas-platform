@@ -19,6 +19,7 @@ class User(Base):
     bonus_balance: Mapped[int] = mapped_column(Integer, default=500)  # welcome bonus
     role: Mapped[str] = mapped_column(String(20), default="patient", server_default="patient")
     clinic_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("clinics.id"), nullable=True)
+    doctor_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("doctors.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

@@ -267,6 +267,23 @@ export interface ClinicDoctorOut {
   clinic_id: number | null;
 }
 
+export interface DoctorAppointmentOut extends AppointmentOut {
+  patient_name: string;
+}
+
+export async function fetchDoctorAppointments(token: string): Promise<DoctorAppointmentOut[]> {
+  try {
+    const res = await fetch(`${API_BASE}/appointments/doctor`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as DoctorAppointmentOut[];
+  } catch {
+    return [];
+  }
+}
+
 export interface UserMe {
   id: number;
   phone: string;
@@ -274,6 +291,7 @@ export interface UserMe {
   bonus_balance: number;
   role: string;
   clinic_id: number | null;
+  doctor_id: number | null;
 }
 
 export async function fetchCurrentUser(token: string): Promise<UserMe | null> {
