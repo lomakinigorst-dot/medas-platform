@@ -251,6 +251,76 @@ export async function fetchClinicStats(token: string): Promise<ClinicStats | nul
   }
 }
 
+// ─── Clinic doctors ───────────────────────────────────────────────────────────
+
+export interface ClinicDoctorOut {
+  id: number;
+  slug: string;
+  name: string;
+  specialty: string;
+  avatar: string | null;
+  experience: number;
+  rating: number;
+  price: number;
+  is_verified: boolean;
+  is_active: boolean;
+  clinic_id: number | null;
+}
+
+export interface UserMe {
+  id: number;
+  phone: string;
+  name: string;
+  bonus_balance: number;
+  role: string;
+  clinic_id: number | null;
+}
+
+export async function fetchCurrentUser(token: string): Promise<UserMe | null> {
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as UserMe;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchClinicDoctors(clinicId: number, token: string): Promise<ClinicDoctorOut[]> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors?clinic_id=${clinicId}&limit=100`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { items: ClinicDoctorOut[] };
+    return data.items;
+  } catch {
+    return [];
+  }
+}
+
+export async function patchDoctor(
+  doctorId: number,
+  data: { price?: number; is_active?: boolean },
+  token: string
+): Promise<ClinicDoctorOut | null> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${doctorId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as ClinicDoctorOut;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Clinics / Doctors mappers ────────────────────────────────────────────────
 
 export function apiClinicToClinic(c: ApiClinic): Clinic {

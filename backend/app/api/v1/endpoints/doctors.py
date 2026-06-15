@@ -6,9 +6,11 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.deps import get_current_user
 from app.models.doctor import Doctor
 from app.models.schedule import DoctorSchedule
-from app.schemas.doctor import DoctorListOut, DoctorOut
+from app.models.user import User
+from app.schemas.doctor import DoctorListOut, DoctorOut, DoctorPatch
 from app.schemas.appointment import SlotOut
 from app.services.schedule_service import get_available_slots
 
@@ -20,6 +22,7 @@ async def list_doctors(
     skip: int = 0,
     limit: int = 20,
     specialty: str | None = None,
+    clinic_id: int | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> DoctorListOut:
     query = select(Doctor).where(Doctor.is_active == True)  # noqa: E712
@@ -28,6 +31,10 @@ async def list_doctors(
     if specialty:
         query = query.where(Doctor.specialty.ilike(f"%{specialty}%"))
         count_query = count_query.where(Doctor.specialty.ilike(f"%{specialty}%"))
+
+    if clinic_id is not None:
+        query = query.where(Doctor.clinic_id == clinic_id)
+        count_query = count_query.where(Doctor.clinic_id == clinic_id)
 
     total_result = await db.execute(count_query)
     total = total_result.scalar_one()
@@ -80,6 +87,30 @@ async def get_available_days(
         if d.weekday() in available_weekdays:
             result.append(d.isoformat())
     return result
+
+
+@router.patch("/{doctor_id}", response_model=DoctorOut)
+async def patch_doctor(
+    doctor_id: int,
+    body: DoctorPatch,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> DoctorOut:
+    if current_user.role != "clinic":
+        raise HTTPException(status_code=403, detail="Доступ только для клиник")
+    result = await db.execute(select(Doctor).where(Doctor.id == doctor_id))
+    doctor = result.scalar_one_or_none()
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Врач не найден")
+    if doctor.clinic_id != current_user.clinic_id:
+        raise HTTPException(status_code=403, detail="Врач не принадлежит вашей клинике")
+    if body.price is not None:
+        doctor.price = body.price
+    if body.is_active is not None:
+        doctor.is_active = body.is_active
+    await db.commit()
+    await db.refresh(doctor)
+    return doctor  # type: ignore[return-value]
 
 
 @router.get("/{slug}/slots", response_model=list[SlotOut])

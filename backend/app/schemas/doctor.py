@@ -28,3 +28,8 @@ class DoctorOut(DoctorBase):
 class DoctorListOut(BaseModel):
     total: int
     items: list[DoctorOut]
+
+
+class DoctorPatch(BaseModel):
+    price: int | None = None
+    is_active: bool | None = None
