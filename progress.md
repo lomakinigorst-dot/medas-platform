@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: Этап 3 ЛК Врача — doctor_id в User (миграция f5a6b7c8d9e0), seed +70000000002, GET /appointments/doctor, /cabinet/doctor реальные данные (KPI+DayTimeline+таблица). Коммит f847730.
-Что сделано: OTP каскад зафиксирован ✅ + Этап 3 полностью выполнен ✅
-Следующее: Этап 4 или доработка каскада OTP (3 попытки voice → SMS)
-Важно: Clinic admin: +70000000001. Doctor: +70000000002 (doctor_id=1, Соколова А.М.). Alembic HEAD = f5a6b7c8d9e0.
+Последнее ✅: Flash call каскад + master-пароль + фикс CI/CD. Коммит e9b0966.
+Что сделано: LoginForm backspace fix, flashCount cascade ×3→SMS→поддержка, master-пароль 110792 (работает, протестировано), CI/CD deploy.yml docker build ./frontend.
+Следующее: Убедиться что CI/CD frontend деплой прошёл → проверить /login визуально → выбрать flash call провайдера
+Важно: Master-пароль: 110792 (любой существующий номер). OTP_MASTER_CODE в backend.env на VPS. Clinic: +70000000001, Doctor: +70000000002. Alembic HEAD = f5a6b7c8d9e0.
 
 ---
 

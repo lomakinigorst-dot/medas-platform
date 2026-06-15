@@ -540,17 +540,13 @@ Status: complete
 Done: digits-only state (без маски → нет cursor jump), otpTrigger для сброса countdown, flashCount 1-3→SMS→поддержка.
 
 #### F4 — Deploy backend + OTP_MASTER_CODE на VPS
-Status: pending
-- [ ] SSH: echo "OTP_MASTER_CODE=110792" >> /app/medas-platform/backend.env
-- [ ] docker cp otp.py, auth.py, config.py, schemas/auth.py → контейнер
-- [ ] docker restart medas-backend
-- [ ] Verify: curl POST /verify-otp с code=110792 → JWT
+Status: complete
+Done: OTP_MASTER_CODE=110792 в backend.env, docker cp → force-recreate → restart. Verify: /verify-otp code=110792 → JWT OK. Коммит e9b0966.
 
 #### F5 — Deploy frontend (git push → CI/CD)
-Status: pending
-- [ ] git add + commit + push
-- [ ] GitHub Actions: build ./frontend → upload → force-recreate
-- [ ] Verify: https://saas.med-as.ru/login → форма без ошибок
+Status: in_progress
+- [x] git push e9b0966 → GitHub Actions запущен (deploy.yml исправлен)
+- [ ] GitHub Actions build ./frontend → verify на saas.med-as.ru/login
 
 ---
 
