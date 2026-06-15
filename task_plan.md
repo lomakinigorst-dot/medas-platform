@@ -523,8 +523,8 @@ Status: pending
 ### ⚠️ БЛОКЕР ПЕРЕД PROD — SMS OTP + Certbot
 Status: pending
 
-#### SMS-0 — Реальный OTP через SMSC.ru
-**Риск:** mock "123456" — любой, знающий номер телефона клиента, может войти в его кабинет. Обязательно до перехода на med-as.ru.
+#### SMS-0 — Реальный OTP через SMSC.ru ✅ (2026-06-15, коммиты 37d0e7c + e7cee3b)
+**Готово:** otp.py (generate_otp + send_otp → smsc.ru), Redis TTL 600s, 3 попытки → 429, нормализация номера, LoginForm countdown 60s. Вход +79271915291 подтверждён.
 - [ ] `backend/app/core/otp.py` (NEW): `send_otp(phone, code)` → HTTP GET к SMSC.ru API
 - [ ] `backend/app/core/config.py`: добавить SMSC_LOGIN, SMSC_PASSWORD в Settings
 - [ ] `backend/app/api/v1/endpoints/auth.py`:
@@ -547,7 +547,8 @@ Status: pending
 **Критерий готовности:** нерабочие дни врача серые (не кликабельны) в AppointmentCalendar.
 
 #### T9 — GET /doctors/{slug}/available-days?month=YYYY-MM (backend)
-Status: pending
+Status: complete
+Done: endpoint реализован в doctors.py (weekdays из DoctorSchedule, date >= today). Коммит 37d0e7c.
 - [ ] `backend/app/api/v1/endpoints/doctors.py` — новый endpoint:
   - Парсить `month=YYYY-MM` → year, month
   - Получить doctor по slug
@@ -557,7 +558,8 @@ Status: pending
 - Verify: `curl /doctors/maria-kozlova/available-days?month=2026-06` → список только Пн–Пт
 
 #### T10 — Frontend: fetchAvailableDays + AppointmentSidebarV2
-Status: pending
+Status: complete
+Done: AppointmentCalendar — unavailable дни (не в availableDays, size>0) серые + disabled. Коммит 622fc48.
 - [ ] `frontend/src/lib/api.ts` — `fetchAvailableDays(slug, month): Promise<number[]>` уже есть (строка 87–98), нужно только убедиться что работает с реальным endpoint
 - [ ] `frontend/src/components/doctor/v2/AppointmentSidebarV2.tsx`:
   - state `availableDays: Set<number>`
@@ -594,11 +596,24 @@ Status: pending
 
 #### Э2-3 — /cabinet/clinic/schedule (управление расписанием)
 Status: pending
+
+**Контекст (2026-06-15):** Серые/некликабельные дни в AppointmentCalendar привязаны к DoctorSchedule из БД. Дефолт — все дни кликабельны; серение активируется только если у врача есть записи в doctor_schedules. Нужен UI для управления этим + модель конкретных выходных.
+
 - [ ] `frontend/src/app/cabinet/clinic/schedule/page.tsx` — "use client"
   - Таблица: строки = врачи, столбцы = Пн–Вс
-  - Каждая ячейка: время начала–конца или "Выходной"
-  - PATCH /doctors/{id}/schedule (новый endpoint) или простое отображение без редактирования в MVP
-- Примечание: в MVP допустимо показать расписание read-only
+  - Каждая ячейка: время начала–конца или "Выходной" (чекбокс)
+  - PUT /doctors/{id}/schedule → обновить weekday-записи в doctor_schedules
+  - ⚠️ Magic MCP (21st.dev) + /ui-ux-pro-max обязательны при создании UI
+- [ ] Backend: PUT /doctors/{id}/schedule (bulk upsert DoctorSchedule)
+
+#### Э2-3б — DoctorDayOff (конкретные выходные дни)
+Status: pending
+**Зачем:** помимо еженедельного расписания, нужна возможность закрыть конкретную дату — отпуск, больничный, праздник.
+- [ ] `backend/app/models/day_off.py` (NEW) — DoctorDayOff(id, doctor_id FK, date Date, reason str optional)
+- [ ] Alembic миграция: add_doctor_day_off
+- [ ] `GET /doctors/{slug}/available-days` — дополнить: исключать даты из doctor_day_off
+- [ ] Admin UI (в рамках /schedule страницы): блокировать/разблокировать конкретную дату
+- Verify: заблокированная дата → серая в календаре; разблокированная → доступна
 
 #### Э2-4 — /cabinet/clinic/settings (настройки клиники)
 Status: pending

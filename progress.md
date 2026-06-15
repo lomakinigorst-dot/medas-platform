@@ -4,11 +4,11 @@
 ---
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
-Проект: MEDAS | Дата: 2026-06-14
-Последнее ✅: Д3 — /cabinet/clinic/reports реальные данные (GET /clinic/analytics) — коммит e15e120
-Что сделано: ClinicAnalytics schema + ServiceTypeStat + DoctorRevenueStat, /clinic/analytics endpoint, reports/page.tsx → "use client" с KPI/по типу приёма/бонусы/таблица врачей. Данные реальные: 102 зап, конверсия 94%.
-Следующее: ЛК врача (WeekCalendar расписание + записи) / SMS OTP реальный / /doctors/[slug]/available-days
-Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / 123456. nginx — только MEDAS. /logos/ bind mount. Shared Logo: frontend/src/components/ui/Logo.tsx
+Проект: MEDAS | Дата: 2026-06-15
+Последнее ✅: T9+T10 — серые нерабочие дни в календаре записи — коммит 622fc48
+Что сделано: available-days endpoint работает (только Пн-Пт), AppointmentCalendar: unavailable дни серые + некликабельные (unavailable = days loaded AND not in set). Логика: size>0 guard чтобы не серить все дни при загрузке.
+Следующее: Этап 2 — ЛК Клиники (Э2-1..Э2-4 + Э2-3б DoctorDayOff). ⚠️ Каждая страница — Magic MCP (21st.dev) + /ui-ux-pro-max ОБЯЗАТЕЛЬНО перед стартом UI.
+Важно: Alembic HEAD = d3e4f5a6b7c8. Clinic admin: +70000000001 / реальный SMS теперь. nginx — только MEDAS. Дизайн-правило: Magic MCP (21st.dev) + /ui-ux-pro-max при любой UI-задаче.
 
 ---
 
@@ -21,6 +21,14 @@
 ---
 
 ## Выполненные шаги
+
+### Сессия 2026-06-15 — SMS OTP + T9/T10 + план Этапа 2
+- ✅ SMS-0: реальный OTP через SMSC.ru (логин=medas, Redis TTL 600s, 3 попытки→429, countdown UI, убран хинт 123456)
+- ✅ T9: GET /doctors/{slug}/available-days endpoint — только рабочие дни из DoctorSchedule
+- ✅ T10: AppointmentCalendar — нерабочие дни серые + некликабельные (guard size>0)
+- ✅ Добавлен в план: Э2-3б DoctorDayOff (конкретные выходные дни), DoctorDayOff модель + миграция + admin UI
+- ✅ Magic MCP (21st.dev) добавлен в конфиг — готов к Этапу 2
+- Коммиты: 37d0e7c (SMS OTP), e7cee3b (normalize_phone), 622fc48 (calendar unavailable days)
 
 ### Фаза Л — Логотипы SVG + Favicon ✅ (2026-06-14)
 - ✅ Л1: 5 SVG скопированы в public/logos/ + nginx volume /logos/ + VPS rsync

@@ -163,15 +163,17 @@
 
 **Стек:** FastAPI Python 3.12, SQLAlchemy 2.0 async, PostgreSQL 16, Alembic
 **Путь:** `backend/app/` | Image: `medas-backend:latest`
-**Alembic HEAD:** `c2d3e4f5a6b7` (ix_appointments_patient_id)
+**Alembic HEAD:** `d3e4f5a6b7c8` (add_user_role_clinic_id)
 
 ### Auth (`backend/app/api/v1/endpoints/auth.py`)
 | Method | Path | Описание | Статус |
 |---|---|---|---|
-| POST | `/auth/register` | Upsert User по phone → `{"phone": "+7...", "code": "123456"}` | ✅ |
-| POST | `/auth/login` | Найти User по phone → `{"phone": "+7...", "code": "123456"}` | ⚠️ OTP mock |
-| POST | `/auth/verify-otp` | code=="123456" → JWT access_token (7 дней) | ⚠️ OTP mock |
+| POST | `/auth/register` | Upsert User → генерирует OTP → Redis TTL 600s → SMSC.ru SMS | ✅ |
+| POST | `/auth/login` | Найти User → генерирует OTP → Redis TTL 600s → SMSC.ru SMS | ✅ |
+| POST | `/auth/verify-otp` | Redis lookup → 3 попытки → 429 → JWT 7 дней | ✅ |
 | GET | `/auth/me` | Bearer JWT → UserResponse(id, phone, name, bonus_balance, role, clinic_id) | ✅ |
+
+**OTP:** `backend/app/core/otp.py` — `generate_otp()` + `send_otp(phone, code)` → smsc.ru HTTP API. Логин=medas, SMSC_LOGIN/PASSWORD в backend.env на VPS.
 
 ### Clinics (`backend/app/api/v1/endpoints/clinics.py`)
 | Method | Path | Описание | Статус |
@@ -185,7 +187,7 @@
 | GET | `/doctors?specialty=&limit=` | Список врачей с фильтром | ✅ |
 | GET | `/doctors/{slug}` | Врач по slug | ✅ |
 | GET | `/doctors/{slug}/slots?date=YYYY-MM-DD` | Доступные слоты (30 мин, из DoctorSchedule) | ✅ |
-| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (Пн-Пт) | ❌ T9 — не реализован |
+| GET | `/doctors/{slug}/available-days?month=YYYY-MM` | Рабочие дни в месяце (из DoctorSchedule weekdays, date >= today) | ✅ |
 
 ### Appointments (`backend/app/api/v1/endpoints/appointments.py`)
 | Method | Path | Auth | Описание | Статус |
