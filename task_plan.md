@@ -1,10 +1,14 @@
 # MEDAS — Полный план разработки
-**Версия:** 6.0 | **Дата:** 2026-06-14 | **Статус:** 🔄 В работе
+**Версия:** 7.0 | **Дата:** 2026-06-15 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-Этап 0 — Блокер перед prod (SMS OTP + Certbot) → Этап 1 — ЛК Клиники страницы → Этап 2 — ЛК Врача
+**Этап 3 — ЛК Врача: реальные данные** (активен с 2026-06-15)
+
+Порядок: Э3-1 (миграция doctor_id в User + seed врача) → Э3-2 (GET /appointments/doctor endpoint) → деплой backend → Э3-3 (frontend /cabinet/doctor) → деплой frontend
+
+Критерий готовности: врач (+70000000002) входит и видит свои записи в /cabinet/doctor с реальными данными.
 
 ---
 
@@ -571,85 +575,67 @@ Done: AppointmentCalendar — unavailable дни (не в availableDays, size>0)
 ---
 
 ### Этап 2 — ЛК Клиники: недостающие страницы
-Status: pending
+Status: complete
+Done: все 6 пунктов навигации ЛК клиники работают. DoctorDayOff реализован. Коммиты: ec4d661 + 4290355.
 
-**Зачем:** в навигации ЛК клиники есть 6 пунктов, из которых работают только 2 (Дашборд + Отчёты). Остальные — 404, что плохо при демонстрации клиентам.
-**Критерий готовности:** все пункты навигации открываются (хотя бы с UI-заглушкой).
+#### Э2-1 — /cabinet/clinic/appointments
+Status: complete
+Done: страница создана с ClinicAppointments + кнопка "Экспорт CSV" (Blob), дашборд показывает ссылку → /appointments.
 
-#### Э2-1 — /cabinet/clinic/appointments (перенос таблицы записей)
-Status: pending
-**Зачем:** полная таблица записей принадлежит отдельной странице "Записи", а не дашборду.
-- [ ] Создать `frontend/src/app/cabinet/clinic/appointments/page.tsx`
-  - "use client", ClinicAppointments компонент (уже есть) + расширенные фильтры: дата-диапазон, врач
-  - Кнопка "Экспорт CSV" (frontend-only: download blob)
-- [ ] На дашборде `/cabinet/clinic/page.tsx` — ClinicAppointments заменить на "топ-5 сегодня" и ссылку → /appointments
-- Verify: /cabinet/clinic/appointments → список всех записей; дашборд → только сегодняшние
+#### Э2-2 — /cabinet/clinic/doctors
+Status: complete
+Done: GET /doctors?clinic_id= (backend), карточки врачей + inline edit цены + деактивация.
 
-#### Э2-2 — /cabinet/clinic/doctors (список врачей клиники)
-Status: pending
-- [ ] `frontend/src/app/cabinet/clinic/doctors/page.tsx` — "use client"
-  - GET /doctors?clinic_id= (нужно добавить параметр в backend) → список врачей
-  - Карточки: фото/аватар-инициалы, специальность, цена, статус active/inactive
-  - Кнопка "Изменить цену" (inline edit) + кнопка деактивации
-- [ ] Backend: `GET /doctors?clinic_id=N` — добавить фильтр по clinic_id (1 строка WHERE)
-- Verify: /cabinet/clinic/doctors → список врачей клиники
+#### Э2-3 — /cabinet/clinic/schedule
+Status: complete
+Done: accordion per doctor, 7 дней, time inputs, PUT /doctors/{id}/schedule.
 
-#### Э2-3 — /cabinet/clinic/schedule (управление расписанием)
-Status: pending
+#### Э2-3б — DoctorDayOff
+Status: complete
+Done: модель day_off.py + Alembic e4f5a6b7c8d9 + POST/DELETE /doctors/{id}/day-offs + available-days исключает blocked dates. Security fix (ownership checks) — коммит 3d30d8a.
 
-**Контекст (2026-06-15):** Серые/некликабельные дни в AppointmentCalendar привязаны к DoctorSchedule из БД. Дефолт — все дни кликабельны; серение активируется только если у врача есть записи в doctor_schedules. Нужен UI для управления этим + модель конкретных выходных.
-
-- [ ] `frontend/src/app/cabinet/clinic/schedule/page.tsx` — "use client"
-  - Таблица: строки = врачи, столбцы = Пн–Вс
-  - Каждая ячейка: время начала–конца или "Выходной" (чекбокс)
-  - PUT /doctors/{id}/schedule → обновить weekday-записи в doctor_schedules
-  - ⚠️ Magic MCP (21st.dev) + /ui-ux-pro-max обязательны при создании UI
-- [ ] Backend: PUT /doctors/{id}/schedule (bulk upsert DoctorSchedule)
-
-#### Э2-3б — DoctorDayOff (конкретные выходные дни)
-Status: pending
-**Зачем:** помимо еженедельного расписания, нужна возможность закрыть конкретную дату — отпуск, больничный, праздник.
-- [ ] `backend/app/models/day_off.py` (NEW) — DoctorDayOff(id, doctor_id FK, date Date, reason str optional)
-- [ ] Alembic миграция: add_doctor_day_off
-- [ ] `GET /doctors/{slug}/available-days` — дополнить: исключать даты из doctor_day_off
-- [ ] Admin UI (в рамках /schedule страницы): блокировать/разблокировать конкретную дату
-- Verify: заблокированная дата → серая в календаре; разблокированная → доступна
-
-#### Э2-4 — /cabinet/clinic/settings (настройки клиники)
-Status: pending
-- [ ] `frontend/src/app/cabinet/clinic/settings/page.tsx`
-  - Статичная страница: название клиники, адрес, телефон (read-only пока нет PATCH /clinics/{id})
-  - Секция смены пароля/телефона (MVP: показать текущий телефон)
+#### Э2-4 — /cabinet/clinic/settings
+Status: complete
+Done: read-only MVP (имя, телефон, роль из /auth/me).
 
 ---
 
 ### Этап 3 — ЛК Врача (реальные данные)
-Status: pending
+Status: in_progress
 
 **Зачем:** без ЛК врача нельзя онбордить врачей на платформу — они не видят своих записей.
-**Критерий готовности:** врач входит под своей ролью, видит свои записи на сегодня + неделю, может завершить приём.
+**Критерий готовности:** врач (+70000000002) входит и видит свои записи в /cabinet/doctor с реальными данными.
 
-#### Э3-1 — Seed пользователя с role=doctor
+#### Э3-1 — Alembic миграция doctor_id в User + seed врача
 Status: pending
-- [ ] `backend/scripts/seed.py` — добавить user: phone="+70000000002", name="Козлова М.А.", role="doctor", doctor_id FK (нужно поле doctor_id в User)
-- [ ] Alembic миграция: добавить `doctor_id: int | None` в User (nullable FK → doctors.id)
-- Verify: curl GET /auth/me с токеном +70000000002 → role=doctor, doctor_id=N
+- [ ] `backend/app/models/user.py`: добавить `doctor_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("doctors.id"), nullable=True)`
+- [ ] Alembic миграция `f5a6b7c8d9e0_add_user_doctor_id.py` (down_revision = "e4f5a6b7c8d9"):
+  - `op.add_column("users", sa.Column("doctor_id", sa.Integer(), nullable=True))`
+  - `op.create_foreign_key(None, "users", "doctors", ["doctor_id"], ["id"])`
+- [ ] `backend/scripts/seed_doctor.py` (NEW): upsert User(phone="+70000000002", name="Иванова Мария Сергеевна", role="doctor", doctor_id=<первый активный врач clinic_id=3>)
+- [ ] `backend/app/schemas/auth.py`: добавить `doctor_id: int | None` в UserResponse
+- Verify: POST /auth/login +70000000002 → verify-otp → GET /auth/me → {role:"doctor", doctor_id:N}
 
-#### Э3-2 — Backend: GET /appointments/doctor (записи врача)
+#### Э3-2 — Backend: GET /appointments/doctor endpoint
 Status: pending
+- [ ] `backend/app/schemas/appointment.py`: добавить `DoctorAppointmentOut` (id, patient_name, clinic_name, status, scheduled_at, service_type, price, bonuses_used)
 - [ ] `backend/app/api/v1/endpoints/appointments.py`:
-  - `GET /appointments/doctor` — role=doctor required, фильтр по current_user.doctor_id
-  - Вернуть DoctorAppointmentOut (AppointmentOut + patient_name)
-- Verify: curl → только записи к данному врачу
+  - `GET /appointments/doctor` — role=doctor required (403 иначе), фильтр `Appointment.doctor_id == current_user.doctor_id`
+  - JOIN: `User.name AS patient_name`, `Clinic.name AS clinic_name`
+  - Порядок: scheduled_at DESC
+- [ ] `frontend/src/lib/api.ts`: добавить `DoctorAppointmentOut` тип + `fetchDoctorAppointments(token)`
+- Verify: `curl -H "Authorization: Bearer $TOKEN" https://api.med-as.ru/api/v1/appointments/doctor` → список записей врача
 
-#### Э3-3 — Frontend /cabinet/doctor страница
+#### Э3-3 — Frontend /cabinet/doctor страница (реальные данные)
 Status: pending
-- [ ] `frontend/src/app/cabinet/doctor/page.tsx` — "use client"
-  - KPI: записей сегодня, записей на неделю, завершено за месяц
-  - Таймлайн сегодня (аналог DayTimeline из дашборда клиники)
-  - Кнопка "Завершить приём" → PATCH /appointments/{id}/complete
-  - Кнопка "Отменить" → PATCH /appointments/{id}/cancel
-- Verify: /cabinet/doctor → записи врача из БД
+- [ ] `frontend/src/app/cabinet/doctor/page.tsx` — "use client", полная замена заглушки:
+  - KPI cards: записей сегодня / за 7 дней / завершено за месяц (считать из appointments[])
+  - DayTimeline: записи с scheduled_at = сегодня, сортировка по времени, имя пациента + время
+  - Таблица всех записей: дата, пациент, клиника, статус, цена
+  - Кнопка «Завершить» (status=confirmed) → PATCH /appointments/{id}/complete → optimistic update
+  - Кнопка «Отменить» (status=pending|confirmed) → PATCH /appointments/{id}/cancel → optimistic update
+  - NavItems: Главная (ЛК), Расписание (⚠️ заглушка), Настройки (⚠️ заглушка)
+- Verify: логин +70000000002 → /cabinet/doctor → таблица с реальными записями пациентов
 
 ---
 
