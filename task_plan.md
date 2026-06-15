@@ -524,23 +524,16 @@ Status: pending
 
 ---
 
-### ⚠️ БЛОКЕР ПЕРЕД PROD — SMS OTP + Certbot
-Status: pending
+### ⚠️ БЛОКЕР ПЕРЕД PROD — Auth + Certbot
+Status: complete
 
-#### SMS-0 — Реальный OTP через SMSC.ru ✅ (2026-06-15, коммиты 37d0e7c + e7cee3b)
-**Готово:** otp.py (generate_otp + send_otp → smsc.ru), Redis TTL 600s, 3 попытки → 429, нормализация номера, LoginForm countdown 60s. Вход +79271915291 подтверждён.
-- [ ] `backend/app/core/otp.py` (NEW): `send_otp(phone, code)` → HTTP GET к SMSC.ru API
-- [ ] `backend/app/core/config.py`: добавить SMSC_LOGIN, SMSC_PASSWORD в Settings
-- [ ] `backend/app/api/v1/endpoints/auth.py`:
-  - POST /auth/login → генерировать 6-значный код → сохранить в Redis `otp:{phone}` TTL=600s → отправить через send_otp
-  - POST /auth/verify-otp → получить из Redis → сравнить → удалить → 3 неверных попытки → 429
-- [ ] Frontend `app/login/LoginForm.tsx`: countdown "повторить через 60 сек" после отправки кода
-- Verify: реальный телефон получает SMS с кодом, 4-я попытка → ошибка
+#### Auth-0 — OTP через звонок (не SMS) ✅ (2026-06-15, коммиты 37d0e7c + b42d392)
+**Готово:** otp.py call=1 voice=w (smsc.ru звонит, диктует код), Redis TTL 600s, 3 попытки → 429.
+LoginForm: normalizePhone+formatPhone (+7 auto-prefix, 8→7, 10цифр→+7), маска, валидация, текст «Код из звонка».
+- Verify: реальный телефон принимает звонок с кодом, 4-я попытка → 429
 
-#### SMS-1 — Certbot auto-renewal (5 минут)
-**Риск:** сертификат истекает 2026-09-11. Без crontab — в сентябре сайт упадёт с SSL-ошибкой.
-- [ ] VPS: `crontab -e` → `0 3 1,15 * * certbot renew --quiet && nginx -s reload`
-- Verify: `crontab -l` показывает задачу
+#### Auth-1 — Certbot auto-renewal ✅ (2026-06-15)
+**Готово:** Docker-based cron `0 3 * * *` certbot renew. Сертификат до 2026-09-11. Автопродление настроено.
 
 ---
 
@@ -766,19 +759,88 @@ Status: pending
 
 ---
 
+### Этап 7 — Единая модель ролей (auth refactor)
+Status: pending
+**Зачем:** текущая модель (1 user = 1 role) не позволяет врачу записываться как пациент или владельцу иметь несколько клиник.
+
+#### Р1 — Миграция User: поддержка нескольких ролей
+- [ ] Добавить `is_clinic_owner: bool = False` в User
+- [ ] Добавить таблицу `clinic_staff(id, user_id FK, clinic_id FK, role: "admin"|"reception"|"analytics")`
+- [ ] Добавить `managed_clinics: list[int]` через таблицу `user_managed_clinics(user_id, clinic_id)`
+- [ ] Alembic миграция
+- [ ] FastAPI dependency: `require_roles(*roles)` — проверяет любую из ролей
+- [ ] JWT payload: добавить `roles: list[str]`
+
+#### Р2 — Переключатель контекста в UI
+- [ ] Header: если роль clinic → показать dropdown «Как клиника / Как пациент»
+- [ ] CabinetLayout: динамический nav в зависимости от active_context
+- [ ] /cabinet — умный редирект (role=clinic → /cabinet/clinic, role=doctor → /cabinet/doctor, иначе /cabinet/patient)
+
+---
+
+### Этап 8 — Онбординг клиники (для новых клиентов B2B)
+Status: pending
+**Зачем:** без онбординга новые клиники не могут самостоятельно подключиться — нужен ручной процесс.
+
+#### О1 — /for-clinics лендинг
+- [ ] `frontend/src/app/for-clinics/page.tsx` — лендинг для клиник: преимущества, тарифы, форма заявки
+- [ ] Форма заявки: название клиники, ИНН, контакт, телефон → POST /clinics/request-access
+
+#### О2 — Backend: заявка на регистрацию клиники
+- [ ] Модель `ClinicOnboardingRequest(id, user_id FK, clinic_name, inn, contact_phone, status, created_at)`
+- [ ] POST /clinics/request-access → создать заявку + уведомление суперадмину
+- [ ] GET /admin/onboarding-requests — суперадмин видит список заявок
+- [ ] PATCH /admin/onboarding-requests/{id}/approve → создать Clinic запись + выдать user.is_clinic_owner=true + clinic_id
+
+#### О3 — Онбординг-мастер (после одобрения)
+- [ ] `/cabinet/clinic/onboarding` — 5 шагов: лого/описание → врачи → расписание → первая запись → done
+- [ ] Progress tracker (step 1/5)
+
+---
+
+### Этап 9 — Инвайт врача (связать Doctor ↔ User)
+Status: pending
+**Зачем:** врачи должны войти в ЛК и видеть записи — сейчас doctor_id не связан с User по invite-flow.
+
+#### И1 — Инвайт-ссылка
+- [ ] Модель `DoctorInvite(id, doctor_id FK, clinic_id FK, token str unique, used_at, expired_at)`
+- [ ] POST /doctors/{id}/invite → создать токен → отправить звонок/SMS со ссылкой
+- [ ] GET /invite/{token} — страница принятия инвайта
+- [ ] После входа: user.doctor_id = invite.doctor_id, user.role = "doctor"
+
+#### И2 — /for-doctors лендинг
+- [ ] `frontend/src/app/for-doctors/page.tsx` — лендинг для врачей
+
+---
+
+### Этап 10 — Тарифы и монетизация
+Status: pending
+
+#### Т1 — Тарифные планы
+- [ ] Модель `Subscription(id, clinic_id FK, plan: "start"|"pro"|"business", started_at, expires_at, price_monthly)`
+- [ ] GET /clinics/subscription — текущий тариф
+- [ ] Ограничения по плану: Старт (2 врача, базовая аналитика), Профи (10 врачей, отчёты), Бизнес (∞, мульти-клиника, API)
+- [ ] Frontend: `/cabinet/clinic/billing` — страница тарифа и оплаты
+
+#### Т2 — ЮKassa интеграция
+- [ ] POST /payments/create → redirect на оплату
+- [ ] Webhook: payment.succeeded → update Subscription
+
+---
+
 ## Decisions
 
 | # | Решение | Обоснование |
 |---|---|---|
 | 1 | Backend — первый приоритет после Frontend MVP | Без реального API нельзя показывать продукт клиентам и начать продажи |
 | 2 | FastAPI (async) + PostgreSQL + Alembic | Async нужен для I/O-bound задач; Alembic — единственный правильный путь миграций |
-| 3 | JWT в httpOnly cookie, не localStorage | Защита от XSS; refresh token с ротацией |
-| 4 | Redis для SMS-кодов (TTL 10 мин) + Celery для уведомлений | SMS-коды не нужны в PostgreSQL; Celery — стандарт для background tasks в Python |
-| 5 | Новые фронтенд-страницы — после Фазы 2 (Auth) | Страницы /register, /articles, /symptoms не имеет смысла делать без реального бэкенда |
+| 3 | JWT Bearer (не httpOnly cookie пока) | Middleware.ts читает cookie, но Bearer проще для мобильного клиента в будущем |
+| 4 | OTP через звонок (SMSC.ru call=1) вместо SMS | Дешевле в 2-5x; UI обновлён: «Код из звонка», нормализация номера; коммит b42d392 |
+| 5 | Единая модель пользователя: пациент = базовая роль | Все роли (clinic_owner, doctor, staff) — надстройка над аккаунтом пациента |
 | 6 | ЮKassa сплит-оплата | Поддерживает маршрутизацию платежей — не нужно делать это вручную |
 | 7 | Seed script вместо ручного заполнения | Воспроизводимость; можно сбросить и наполнить заново |
-| 8 | Не трогать фронтенд-компоненты до Фазы 1 готова | Нет смысла делать новые UI-страницы пока API не существует |
-| 9 | **Дизайн/страницы — обязательно Magic MCP (21st.dev) + `/ui-ux-pro-max`** | Любая новая страница, редизайн, UI-компонент: включить `/mcp-magic-on` → выполнить задачу → выключить `/mcp-magic-off`. API ключ — в settings.local.json (не в коде). |
+| 8 | **Дизайн/страницы — обязательно Magic MCP (21st.dev) + `/ui-ux-pro-max`** | Любая новая страница, редизайн, UI-компонент: включить `/mcp-magic-on` → выполнить задачу → выключить `/mcp-magic-off`. API ключ — в settings.local.json (не в коде). |
+| 9 | MEDAS_MASTER_PLAN.md — источник истины по сценариям | Документ с 9 частями (2098 строк) + Word экспорт. Обновлять при изменении архитектуры. |
 
 ---
 

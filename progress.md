@@ -5,10 +5,11 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: Security fix — ownership checks добавлены в get_schedule/get_day_offs/remove_day_off; валидация времени в put_schedule; CODE_MAP.md обновлён (Alembic HEAD e4f5a6b7c8d9)
-Что сделано: Этап 2 ЗАВЕРШЁН ✅ + security фиксы в doctors.py (3 missing ownership checks + time validation)
-Следующее: Этап 3 — ЛК Врача (seed doctor user + GET /appointments/doctor + /cabinet/doctor страница)
-Важно: DoctorDayOff ✅ РЕАЛИЗОВАН. Clinic admin: +70000000001. Alembic HEAD = e4f5a6b7c8d9.
+Последнее ✅: OTP via call (smsc.ru call=1, voice=w), phone form normalization, MEDAS_MASTER_PLAN.md (2098 строк, 9 частей), Word экспорт, task_plan.md обновлён (Этапы 7-10 + Decisions)
+Что сделано: security fixes doctors.py ✅ + call OTP ✅ + форма телефона ✅ + мастер-план ✅
+Следующее: Этап 3 — ЛК Врача (Э3-1: User.doctor_id миграция + seed → Э3-2: endpoint → Э3-3: /cabinet/doctor)
+Важно: Clinic admin: +70000000001. Doctor (будущий): +70000000002. Alembic HEAD = e4f5a6b7c8d9.
+Docs: MEDAS_MASTER_PLAN.md + MEDAS_MASTER_PLAN.docx (2026-06-15)
 
 ---
 

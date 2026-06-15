@@ -3,6 +3,68 @@
 
 ---
 
+## Этап 2 — Архитектурные решения (2026-06-15)
+
+### Э2-1 /appointments
+- ClinicAppointments.tsx уже есть — переиспользуем без изменений
+- Дашборд: заменить ClinicAppointments на мини-таймлайн (top-5 сегодня) со ссылкой → /appointments
+- CSV экспорт: client-side, `Blob` + `URL.createObjectURL` — не нужен backend endpoint
+
+### Э2-2 /doctors
+- Backend: `GET /doctors` → добавить `WHERE clinic_id = :clinic_id` (один параметр, одна строка)
+- Inline edit цены: optimistic update → PATCH /doctors/{id} (нужен endpoint, или через PUT /schedule)
+- Аватар-инициалы если нет фото: `name[0] + name.split(' ')[1][0]`, bg = #003087
+
+### Э2-3 + Э2-3б /schedule + DoctorDayOff
+- Объединить в одну страницу: верхняя часть = расписание по дням недели, нижняя = конкретные выходные
+- DoctorDayOff модель: `(id, doctor_id FK→doctors.id, date Date UNIQUE per doctor, reason str?)`
+- Alembic: новая миграция после d3e4f5a6b7c8
+- available-days endpoint: добавить LEFT JOIN с doctor_day_off → исключить совпадающие даты
+- ⚠️ Magic MCP (21st.dev) + /ui-ux-pro-max ОБЯЗАТЕЛЬНО перед созданием UI этой страницы
+
+### Э2-4 /settings
+- Read-only MVP: данные из GET /clinics/{slug} (уже есть)
+- Смена телефона — только UI-заглушка (нет PATCH /auth/phone endpoint)
+- Нет нового backend endpoint — чистый frontend
+
+### Порядок деплоя
+1. Э2-1 и Э2-2 — только frontend changes → rsync src/ → rebuild image → restart
+2. Э2-3б — backend (новая модель + миграция) + frontend → сначала backend deploy + alembic upgrade → потом frontend
+3. Итоговый деплой после Э2-4 — один общий `./deploy.sh`
+
+---
+
+## Логотипы MEDAS (2026-06-15)
+
+**Источник:** `/Users/igor/Documents/CLAUDE CODE/Сайт медас/Лого MEDAS/`
+
+| Файл | Назначение | Использовать |
+|---|---|---|
+| `02.1_deep_blue_clean.svg` | Символ без текста, глубокий синий | Favicon, apple-icon, компактные места |
+| `Medas_gor_b.svg` | Горизонтальный, тёмный текст, с подложкой | Светлые фоны (header, sidebar, login, footer если светлый) |
+| `Medas_gor_w.svg` | Горизонтальный, белый текст, с подложкой | Тёмные фоны |
+| `Medas_gor_bez_podlojki_b.svg` | Горизонтальный, тёмный текст, без подложки | Светлые фоны без нужды в подложке |
+| `Medas_gor_bez_podlojki_w.svg` | Горизонтальный, белый текст, без подложки | Тёмные фоны, рассылки, почта |
+
+**Правила использования:**
+- Светлый фон → `Medas_gor_b.svg` (с подложкой) или `Medas_gor_bez_podlojki_b.svg` (без)
+- Тёмный фон → `Medas_gor_w.svg` или `Medas_gor_bez_podlojki_w.svg`
+- Favicon, мобильные иконки, маленькие форматы → `02.1_deep_blue_clean.svg`
+- Для рассылок/почты → без подложки версии (подложка не нужна в email)
+
+**Текущие использования в коде (до замены):**
+- `Header.tsx:18` — `/logo-dark.png` → заменить на `/logos/Medas_gor_b.svg`
+- `CabinetLayout.tsx:67` — `/logo-dark.png` → заменить на `/logos/Medas_gor_b.svg`
+- `LoginForm.tsx:106` — `/logo-dark.png` → заменить на `/logos/Medas_gor_b.svg`
+- `Footer.tsx:10` — `/logo-dark.png` → проверить фон Footer, скорее всего тёмный → `Medas_gor_w.svg`
+
+**Деплой-стратегия для SVG:**
+- Next.js standalone не отдаёт файлы добавленные в public/ после сборки образа
+- Решение: nginx volume `/app/medas-platform/logos/` → `/logos/` (аналогично /stitch/)
+- Полный эффект: при следующей сборке образа логотипы войдут в bundle
+
+---
+
 ## Stitch + конкурентный анализ дашборда клиники (2026-06-14)
 
 ### Stitch Вариант 1 — «ЛК клиника - Админка» (ПРИОРИТЕТ)
