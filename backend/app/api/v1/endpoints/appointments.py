@@ -15,10 +15,13 @@ from app.models.user import User
 from app.schemas.appointment import (
     AppointmentCreate,
     AppointmentOut,
+    ClinicAnalytics,
     ClinicAppointmentOut,
     ClinicStats,
     DoctorLoadItem,
+    DoctorRevenueStat,
     RevenueDay,
+    ServiceTypeStat,
 )
 
 MOSCOW = ZoneInfo("Europe/Moscow")
@@ -378,6 +381,151 @@ async def clinic_stats(
         confirmed_month=confirmed_month,
         completed_month=completed_month,
         bonuses_applied_month=bonuses_applied_month,
+    )
+
+
+@router.get("/clinic/analytics", response_model=ClinicAnalytics)
+async def clinic_analytics(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> ClinicAnalytics:
+    if current_user.role != "clinic":
+        raise HTTPException(status_code=403, detail="Доступ только для клиник")
+    if not current_user.clinic_id:
+        raise HTTPException(status_code=403, detail="Клиника не привязана к аккаунту")
+
+    today = date.today()
+    month_start = today.replace(day=1)
+    base = Appointment.clinic_id == current_user.clinic_id
+
+    def date_col(col):  # type: ignore[no-untyped-def]
+        return func.cast(col, __import__("sqlalchemy").Date)
+
+    # Total non-cancelled this month
+    total_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+    )
+    period_appointments: int = total_res.scalar_one() or 0
+
+    # Revenue
+    rev_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.price), 0)).where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+    )
+    period_revenue: int = rev_res.scalar_one() or 0
+
+    # Conversion (confirmed + completed) / total
+    conv_res = await db.execute(
+        select(func.count(Appointment.id)).where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status.in_(["confirmed", "completed"]),
+        )
+    )
+    conv_count: int = conv_res.scalar_one() or 0
+    conversion_pct = round(conv_count / period_appointments * 100) if period_appointments > 0 else 0
+
+    # Bonuses earned (completed only)
+    earned_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.bonuses_earned), 0)).where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status == "completed",
+        )
+    )
+    bonuses_earned: int = earned_res.scalar_one() or 0
+
+    # Bonuses used (spent by patients)
+    used_res = await db.execute(
+        select(func.coalesce(func.sum(Appointment.bonuses_used), 0)).where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+    )
+    bonuses_used: int = used_res.scalar_one() or 0
+
+    # By service type
+    stype_res = await db.execute(
+        select(Appointment.service_type, func.count(Appointment.id))
+        .where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+        .group_by(Appointment.service_type)
+    )
+    stype_rows = stype_res.all()
+    stype_total = sum(r[1] for r in stype_rows) or 1
+    by_service_type = [
+        ServiceTypeStat(type=r[0], count=r[1], pct=round(r[1] / stype_total * 100))
+        for r in sorted(stype_rows, key=lambda x: -x[1])
+    ]
+
+    # By doctor (aggregated)
+    doc_res = await db.execute(
+        select(
+            Appointment.doctor_id,
+            func.count(Appointment.id),
+            func.coalesce(func.sum(Appointment.price), 0),
+        )
+        .where(
+            base,
+            date_col(Appointment.scheduled_at) >= month_start,
+            date_col(Appointment.scheduled_at) <= today,
+            Appointment.status != "cancelled",
+        )
+        .group_by(Appointment.doctor_id)
+    )
+    doc_rows = doc_res.all()
+    doc_ids = [r[0] for r in doc_rows]
+
+    if doc_ids:
+        doctors_info_res = await db.execute(
+            select(Doctor.id, Doctor.name, Doctor.specialty, Doctor.rating)
+            .where(Doctor.id.in_(doc_ids))
+        )
+        doctor_map: dict[int, tuple[str, str, float]] = {
+            r[0]: (r[1], r[2], float(r[3]))
+            for r in doctors_info_res.all()
+        }
+    else:
+        doctor_map = {}
+
+    by_doctor = [
+        DoctorRevenueStat(
+            doctor_name=doctor_map[did][0],
+            specialty=doctor_map[did][1],
+            month_count=cnt,
+            revenue=int(rev),
+            rating=doctor_map[did][2],
+        )
+        for did, cnt, rev in sorted(doc_rows, key=lambda x: -x[2])
+        if did in doctor_map
+    ]
+
+    return ClinicAnalytics(
+        period_appointments=period_appointments,
+        period_revenue=period_revenue,
+        conversion_pct=conversion_pct,
+        bonuses_earned=bonuses_earned,
+        bonuses_used=bonuses_used,
+        bonus_discount_rub=bonuses_used,
+        by_service_type=by_service_type,
+        by_doctor=by_doctor,
     )
 
 

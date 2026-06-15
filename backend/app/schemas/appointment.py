@@ -47,6 +47,31 @@ class RevenueDay(BaseModel):
     revenue: int
 
 
+class ServiceTypeStat(BaseModel):
+    type: str
+    count: int
+    pct: int
+
+
+class DoctorRevenueStat(BaseModel):
+    doctor_name: str
+    specialty: str
+    month_count: int
+    revenue: int
+    rating: float
+
+
+class ClinicAnalytics(BaseModel):
+    period_appointments: int
+    period_revenue: int
+    conversion_pct: int
+    bonuses_earned: int
+    bonuses_used: int
+    bonus_discount_rub: int
+    by_service_type: list[ServiceTypeStat]
+    by_doctor: list[DoctorRevenueStat]
+
+
 class ClinicStats(BaseModel):
     today_count: int
     today_revenue: int
