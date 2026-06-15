@@ -23,13 +23,8 @@ def _normalize_phone(phone: str) -> str:
     return d  # websms.ru expects 7XXXXXXXXXX without +
 
 
-async def send_flash_call(phone: str) -> str | None:
-    """Initiate flash call via websms.ru.
-    websms.ru calls the user and returns the 4-digit code (last 4 digits of caller ID).
-    Returns the code string to store in Redis, or None on failure.
-    """
-    if not settings.WEBSMS_LOGIN or not settings.WEBSMS_PASSWORD:
-        return None
+async def _websms_flash_call(phone: str) -> str | None:
+    """websms.ru flash call: returns 4-digit code (caller ID last 4 digits) or None."""
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             r = await client.get(
@@ -53,6 +48,48 @@ async def send_flash_call(phone: str) -> str | None:
         return None
     except Exception:
         return None
+
+
+async def _smsc_voice_call(phone: str, code: str) -> bool:
+    """smsc.ru voice call: reads 4-digit code aloud. Fallback if websms.ru unavailable."""
+    spaced = ". ".join(code)
+    text = f"Ваш код MEDAS: {spaced}. Повторяю: {spaced}."
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.get(
+                _SMSC_URL,
+                params={
+                    "login": settings.SMSC_LOGIN,
+                    "psw": settings.SMSC_PASSWORD,
+                    "phones": _normalize_phone(phone),
+                    "mes": text,
+                    "call": "1",
+                    "voice": "w",
+                    "fmt": "3",
+                    "charset": "utf-8",
+                },
+            )
+            return "id" in r.json()
+    except Exception:
+        return False
+
+
+async def send_flash_call(phone: str) -> str | None:
+    """Initiate OTP call. Tries websms.ru flash call first, falls back to smsc.ru voice.
+    Returns the 4-digit code stored in Redis, or None if both fail.
+    """
+    if settings.WEBSMS_LOGIN and settings.WEBSMS_PASSWORD:
+        code = await _websms_flash_call(phone)
+        if code:
+            return code
+
+    # Fallback: smsc.ru voice call with 4-digit code
+    if settings.SMSC_LOGIN and settings.SMSC_PASSWORD:
+        code = generate_otp(4)
+        if await _smsc_voice_call(phone, code):
+            return code
+
+    return None
 
 
 async def send_sms(phone: str, code: str) -> bool:
