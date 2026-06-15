@@ -5,7 +5,7 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: OTP via call (smsc.ru call=1, voice=w), phone form normalization, MEDAS_MASTER_PLAN.md (2098 строк, 9 частей), Word экспорт, task_plan.md обновлён (Этапы 7-10 + Decisions)
+Последнее ✅: Зафиксировано решение OTP каскад: Voice call ×3 (0.33 ₽/шт, smsc.ru) → SMS ×1 → поддержка. Flash call отклонён (дороже). task_plan.md + MEDAS_MASTER_PLAN.md обновлены.
 Что сделано: security fixes doctors.py ✅ + call OTP ✅ + форма телефона ✅ + мастер-план ✅
 Следующее: Этап 3 — ЛК Врача (Э3-1: User.doctor_id миграция + seed → Э3-2: endpoint → Э3-3: /cabinet/doctor)
 Важно: Clinic admin: +70000000001. Doctor (будущий): +70000000002. Alembic HEAD = e4f5a6b7c8d9.
