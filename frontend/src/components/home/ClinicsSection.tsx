@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -17,11 +18,22 @@ const CLINIC_COLORS = [
 const container = staggerContainer();
 const cardVariant = fadeUpItem(24);
 
-function ClinicPlaceholder({ name, colorClass }: { name: string; colorClass: string }) {
+function ClinicImage({ clinic, colorClass }: { clinic: ApiClinic; colorClass: string }) {
+  if (clinic.logo_url) {
+    return (
+      <Image
+        src={clinic.logo_url}
+        alt={clinic.name}
+        fill
+        className="object-cover"
+        unoptimized
+      />
+    );
+  }
   return (
     <div className={`w-full h-full bg-gradient-to-br ${colorClass} flex items-center justify-center`}>
       <span className="text-white/30 text-4xl font-extrabold select-none">
-        {name.slice(0, 2).toUpperCase()}
+        {clinic.name.slice(0, 2).toUpperCase()}
       </span>
     </div>
   );
@@ -90,7 +102,7 @@ export default function ClinicsSection() {
               variants={cardVariant}
             >
               <div className="relative flex-1 overflow-hidden min-h-[300px]">
-                <ClinicPlaceholder name={featured.name} colorClass={CLINIC_COLORS[0]} />
+                <ClinicImage clinic={featured} colorClass={CLINIC_COLORS[0]} />
                 {featured.accepts_dms && (
                   <div className="absolute top-6 left-6 bg-secondary text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">
                     ДМС
@@ -132,7 +144,7 @@ export default function ClinicsSection() {
               variants={cardVariant}
             >
               <div className="w-1/3 relative overflow-hidden min-h-[160px]">
-                <ClinicPlaceholder name={horizontal.name} colorClass={CLINIC_COLORS[1]} />
+                <ClinicImage clinic={horizontal} colorClass={CLINIC_COLORS[1]} />
               </div>
               <div className="w-2/3 p-6 flex flex-col justify-center">
                 <div className="flex justify-between items-start mb-2">
@@ -165,7 +177,7 @@ export default function ClinicsSection() {
               variants={cardVariant}
             >
               <div className="h-1/2 relative overflow-hidden min-h-[140px]">
-                <ClinicPlaceholder name={clinic.name} colorClass={CLINIC_COLORS[idx + 2] ?? CLINIC_COLORS[0]} />
+                <ClinicImage clinic={clinic} colorClass={CLINIC_COLORS[idx + 2] ?? CLINIC_COLORS[0]} />
               </div>
               <div className="p-6">
                 <h3 className="font-headline font-bold mb-1">{clinic.name}</h3>

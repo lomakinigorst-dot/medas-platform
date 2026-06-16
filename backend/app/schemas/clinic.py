@@ -14,6 +14,7 @@ class ClinicBase(BaseModel):
     rating: float
     review_count: int
     accepts_dms: bool
+    logo_url: str | None = None
 
 
 class ClinicOut(ClinicBase):

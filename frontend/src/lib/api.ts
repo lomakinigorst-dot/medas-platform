@@ -13,6 +13,7 @@ export interface ApiClinic {
   rating: number;
   review_count: number;
   accepts_dms: boolean;
+  logo_url: string | null;
 }
 
 export interface ApiDoctor {
