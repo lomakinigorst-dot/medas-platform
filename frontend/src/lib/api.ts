@@ -312,6 +312,36 @@ export interface UserMe {
   role: string;
   clinic_id: number | null;
   doctor_id: number | null;
+  birth_date: string | null;
+  blood_type: string | null;
+  allergies: string | null;
+  chronic_conditions: string | null;
+  weight_kg: number | null;
+  height_cm: number | null;
+}
+
+export interface ProfileUpdate {
+  name?: string;
+  birth_date?: string | null;
+  blood_type?: string | null;
+  allergies?: string | null;
+  chronic_conditions?: string | null;
+  weight_kg?: number | null;
+  height_cm?: number | null;
+}
+
+export async function patchProfile(data: ProfileUpdate, token: string): Promise<UserMe | null> {
+  try {
+    const res = await fetch(`${API_BASE}/auth/profile`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as UserMe;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchCurrentUser(token: string): Promise<UserMe | null> {

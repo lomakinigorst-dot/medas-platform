@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, field_validator
 import re
 
@@ -40,5 +42,21 @@ class UserResponse(BaseModel):
     role: str
     clinic_id: int | None
     doctor_id: int | None = None
+    birth_date: date | None = None
+    blood_type: str | None = None
+    allergies: str | None = None
+    chronic_conditions: str | None = None
+    weight_kg: float | None = None
+    height_cm: int | None = None
 
     model_config = {"from_attributes": True}
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: str | None = None
+    birth_date: date | None = None
+    blood_type: str | None = None
+    allergies: str | None = None
+    chronic_conditions: str | None = None
+    weight_kg: float | None = None
+    height_cm: int | None = None

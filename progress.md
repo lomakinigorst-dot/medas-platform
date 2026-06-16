@@ -5,11 +5,11 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-16
-Последнее ✅: Фаза P0 задеплоена на VPS + deploy.sh создан + logo_url в Clinic (миграция a1b2c3d4e5f6). Коммит 3570a49. Все 9 P0 ссылок дают 200.
-Что сделано: P0 деплой (b37e4de), deploy-frontend.sh + deploy-backend.sh на VPS, Clinic.logo_url миграция + schema + frontend ClinicsSection.
-Следующее: Фаза P1 (6 задач). Привязка врачей к аккаунтам требует телефонов от Игоря. Magic MCP нужен для дизайна P1 страниц.
-Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. Деплой: rsync + deploy-frontend.sh на VPS.
-Проекты с открытыми issues: MEDAS — 10 remaining broken flows (P1/P2), logo_url пустой у всех клиник (нужно заполнить).
+Последнее ✅: P0-FIX завершена — booking 404 исправлен, фото врача fallback, аккаунты врачей 2-6 созданы. Коммит 73af82c. Деплой 200 OK.
+Что сделано: booking/page.tsx — resolveDoctor fallback; ClinicContent.tsx — gradient initials вместо белого блока; VPS: +70000000002..+70000000006 role=doctor созданы.
+Следующее: P1-7 (Записаться на клинике → только врачи клиники), P1-8 (редизайн медкарты — Magic MCP + ui-ux-pro-max).
+Важно: websms.ru контракт pending. OTP мастер [REDACTED]. Врачи 2-6 логин через тел.+OTP мастер. Logo_url у клиник NULL (нужно заполнить).
+Проекты с открытыми issues: MEDAS — P1-7, P1-8, P1-1..P1-6 (фильтры, избранные, настройки врача/клиники).
 
 ---
 

@@ -116,21 +116,18 @@ Done: "use client" + fetchCurrentUser() → реальное имя вместо
 **Зачем:** P0 задеплоена, но скриншоты выявили новые критические баги.
 
 #### P0-FIX-1 — Тестовые аккаунты для врачей 2-6
-Status: pending
+Status: complete
+Done: Python-скрипт через docker cp + exec. +70000000002..+70000000006, role=doctor, doctor_id=2..6. Коммит 73af82c.
 - Создать users в БД через SSH/SQL: phone +70000000002..+70000000006, role='doctor', doctor_id=2..6
 - Для входа — OTP master code (без SMS). Только SQL на сервере, нет изменений в репо.
 
 #### P0-FIX-2 — 404 на /doctor/[slug]/booking у API-врачей
-Status: pending
-- booking/page.tsx строка 32: getDoctorBySlug(slug) — static only → notFound()
-- Добавить resolveDoctor() fallback (статика → API) по образцу doctor/[slug]/page.tsx
-- Файл: `frontend/src/app/doctor/[slug]/booking/page.tsx`
+Status: complete
+Done: resolveDoctor() + apiDoctorToFull() добавлены в booking/page.tsx. Коммит 73af82c. curl → 200.
 
 #### P0-FIX-3 — Пустое фото врача в карточках клиники (white box)
-Status: pending
-- doctor.photo="" → <Image src=""> → белый пустой блок
-- Добавить gradient fallback + initials когда photo пустая
-- Файл: компонент карточки врача на странице клиники
+Status: complete
+Done: ClinicContent.tsx — gradient from-primary to-secondary + initials fallback. Коммит 73af82c.
 
 ---
 

@@ -15,6 +15,7 @@ from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
     OTPVerifyRequest,
+    ProfileUpdateRequest,
     RegisterRequest,
     TokenResponse,
     UserResponse,
@@ -210,4 +211,26 @@ async def get_me(
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
+    return UserResponse.model_validate(user)
+
+
+@router.patch("/profile", response_model=UserResponse)
+async def update_profile(
+    body: ProfileUpdateRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(_bearer),
+    db: AsyncSession = Depends(get_db),
+) -> UserResponse:
+    payload = verify_token(credentials.credentials)
+    if payload is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Токен недействителен")
+    user_id = int(payload["sub"])
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
+
+    for field, value in body.model_dump(exclude_none=True).items():
+        setattr(user, field, value)
+    await db.commit()
+    await db.refresh(user)
     return UserResponse.model_validate(user)
