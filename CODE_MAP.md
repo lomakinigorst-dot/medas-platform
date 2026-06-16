@@ -77,7 +77,7 @@
 | `/register` | `app/register/page.tsx` | `RegisterForm` (client) — имя+телефон→OTP flash/SMS→/cabinet/patient |
 | `/about` | `app/about/page.tsx` | inline SSR — Hero, Stats, Values, Story, Team, CTA |
 | `/search` | `app/search/page.tsx` | `SearchClient` (client) |
-| `/services` | `app/services/page.tsx` | inline |
+| `/services` | `app/services/page.tsx` | `ServicesClient` (client) — рабочий поиск, карточки врачей из /doctors, ссылки → /search?q= |
 | `/doctor/[slug]` | `app/doctor/[slug]/page.tsx` | `DoctorHero`, `DoctorContentSections`, `AppointmentSidebarV2` (client), `MobileBookingBar` (client), `SimilarDoctors` |
 | `/doctor/[slug]/booking` | `app/doctor/[slug]/booking/page.tsx` | `BookingForm` (client), `DoctorBookingCard` |
 | `/clinics` | `app/clinics/page.tsx` | `ClinicsClient` (client) — фильтры + список ClinicCard |
