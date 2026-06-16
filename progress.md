@@ -5,11 +5,11 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-16
-Последнее ✅: Все файлы сохранены и запушены (3197d9a). MASTER_TZ.md v2.0 (56KB) + MASTER_TZ.docx (48KB) + task_plan.md (P0/P1/P2) + CODE_MAP.md (таблица 22 страниц).
-Что сделано: Аудит 22 page.tsx — 16 broken flows задокументированы. 4 страницы = 404 (appointments, favorites, doctor/schedule, doctor/settings). 3/6 врачей → 404. 3/5 клиник → 404. Медкарта/семья = "Алекс Стерлинг" для всех. ClinicsSection = фейковые ID.
-Следующее: Ждём подтверждения Игоря → Фаза P0 (6 задач): P0-1 профили врачей, P0-2 профили клиник, P0-3 /appointments, P0-4 /doctor/schedule, P0-5 ClinicsSection, P0-6 медкарта+реальное имя.
-Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. /register работает через мастер-код.
-Проекты с открытыми issues: MEDAS — 16 broken flows, 4 отсутствующих страницы.
+Последнее ✅: Фаза P0 — 6 задач выполнены, код запушен b37e4de. Деплой на VPS ждёт rsync + docker build (нет deploy.sh на VPS, Игорь должен дать разрешение).
+Что сделано: P0-1 врачи API fallback, P0-2 клиники API fallback, P0-3 /appointments страница, P0-4 /doctor/schedule страница, P0-5 ClinicsSection реальные данные, P0-6 медкарта реальное имя.
+Следующее: Деплой P0 на VPS → проверка всех 6 исправлений → Фаза P1 (6 задач: фильтры, избранные, doctor/settings, clinic/settings форма, бонусы).
+Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. На VPS нет deploy.sh — создать!
+Проекты с открытыми issues: MEDAS — 10 remaining broken flows (P1/P2), нет deploy.sh на VPS.
 
 ---
 

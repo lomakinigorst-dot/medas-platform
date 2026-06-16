@@ -70,48 +70,44 @@ MASTER_TZ.docx — Word-версия для Игоря (48KB).
 
 ---
 
-### Фаза P0 — Критические исправления ⏸️ pending (ждём подтверждения Игоря)
+### Фаза P0 — Критические исправления ✅ complete (2026-06-16)
 
 **Зачем:** 6 задач, без которых платформа неработоспособна для показа клиентам и инвесторам. Источник: аудит MASTER_TZ.md v2.0.
 **Критерий готовности:** 0 404-ошибок при стандартной навигации пользователя.
 
 #### P0-1 — Профили 3 врачей (elena-morozova-sm, pavel-ivanov-sm, aleksey-sidorov-sm)
-Status: pending
+Status: complete
+Done: resolveDoctor() — статика приоритет, fallback на fetchDoctorBySlug(). Коммит b37e4de.
 - Файл: `frontend/src/app/doctor/[slug]/page.tsx`
-- Изменение: `getDoctorBySlug(slug)` → `fetchDoctorBySlug(slug)` из lib/api.ts
-- Backend: GET /doctors/{slug} уже работает ✅
-- Результат: все 6 API-врачей получат рабочие страницы профиля
+- lib/api.ts: добавлен fetchDoctorBySlug()
 
 #### P0-2 — Профили 3 клиник (medicina-na-tsvetnoy, evromedservice, sm-klinika)
-Status: pending
+Status: complete
+Done: resolveClinic() — статика приоритет, fallback на fetchClinicBySlug(). Коммит b37e4de.
 - Файл: `frontend/src/app/clinic/[slug]/page.tsx`
-- Изменение: `getClinicBySlug(slug)` → `fetchClinicBySlug(slug)` (добавить в lib/api.ts)
-- Backend: GET /clinics/{slug} уже работает ✅
-- Результат: все 5 API-клиник получат рабочие страницы
+- lib/api.ts: добавлены fetchClinicBySlug() + fetchDoctorBySlug()
 
 #### P0-3 — Создать страницу /cabinet/patient/appointments
-Status: pending
-- Создать: `frontend/src/app/cabinet/patient/appointments/page.tsx`
-- Backend: GET /appointments/patient уже работает ✅
-- Включить: пагинация, фильтр по статусу/дате, карточки записей, "Отменить"
+Status: complete
+Done: создан page.tsx с CabinetLayout + PatientAppointments component. Коммит b37e4de.
+- Файл: `frontend/src/app/cabinet/patient/appointments/page.tsx`
 
 #### P0-4 — Создать страницу /cabinet/doctor/schedule
-Status: pending
-- Создать: `frontend/src/app/cabinet/doctor/schedule/page.tsx`
-- Backend: GET /doctors/{id}/schedule, POST/DELETE /doctors/{id}/day-offs уже работают ✅
-- UI: переиспользовать компоненты из /cabinet/clinic/schedule
+Status: complete
+Done: создан page.tsx с полным UI расписания + выходных дней. Коммит b37e4de.
+- Файл: `frontend/src/app/cabinet/doctor/schedule/page.tsx`
 
 #### P0-5 — ClinicsSection на главной → реальные данные
-Status: pending
+Status: complete
+Done: fetchClinics() + /clinic/{slug} ссылки. Градиент-плейсхолдеры для фото. Коммит b37e4de.
 - Файл: `frontend/src/components/home/ClinicsSection.tsx`
-- Изменение: заменить массив [st-ethos, lumina-dental...] на fetchClinics(), ссылки → /clinic/{slug}
-- Backend: GET /clinics уже работает ✅
 
 #### P0-6 — Медкарта: убрать чужие данные (минимум — реальное имя)
-Status: pending
+Status: complete
+Done: "use client" + fetchCurrentUser() → реальное имя вместо "Алекс Стерлинг". Коммит b37e4de.
 - Файл: `frontend/src/app/cabinet/patient/medcard/page.tsx`
-- Изменение: добавить GET /auth/me, показывать реальное имя вместо "Алекс Стерлинг"
-- Backend: GET /auth/me уже работает ✅
+
+⚠️ Деплой: код запушен в git (b37e4de), VPS ждёт rsync + docker build (нет deploy.sh).
 
 ---
 
