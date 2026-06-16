@@ -1,4 +1,9 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import CabinetLayout from "@/components/layout/CabinetLayout";
+import { getToken } from "@/lib/auth";
+import { fetchCurrentUser } from "@/lib/api";
 
 const navItems = [
   { href: "/cabinet/patient", icon: "🏠", label: "Главная" },
@@ -16,10 +21,22 @@ const visits = [
 ];
 
 export default function PatientMedcardPage() {
+  const [userName, setUserName] = useState("Пациент");
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    fetchCurrentUser(token).then((me) => {
+      if (me?.name) setUserName(me.name);
+    });
+  }, []);
+
+  const initials = userName.slice(0, 1).toUpperCase();
+
   return (
     <CabinetLayout
       role="patient"
-      userName="Алекс Стерлинг"
+      userName={userName}
       userSubtitle="Управление здоровьем"
       navItems={navItems}
       headerTitle="Электронная медкарта"
@@ -29,10 +46,10 @@ export default function PatientMedcardPage() {
         <div className="flex flex-col md:flex-row items-start justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#003087] to-[#1e40af] flex items-center justify-center text-white text-3xl font-bold">
-              А
+              {initials}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">Алекс Стерлинг</h2>
+              <h2 className="text-2xl font-bold text-[#191c1e] font-[family-name:var(--font-manrope)]">{userName}</h2>
               <p className="text-[#434655] text-sm">Дата рождения: 12.03.1990 • Мужской • 34 года</p>
               <div className="flex gap-3 mt-2">
                 <span className="px-3 py-1 bg-[#003087] text-white text-xs font-bold rounded-lg">Группа крови: O+</span>

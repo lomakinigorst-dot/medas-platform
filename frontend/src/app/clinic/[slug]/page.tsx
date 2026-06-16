@@ -7,12 +7,49 @@ import ClinicHero from "@/components/clinic/ClinicHero";
 import ClinicContent from "@/components/clinic/ClinicContent";
 import ClinicInfoSidebar from "@/components/clinic/ClinicInfoSidebar";
 import { getClinicBySlug, type Clinic } from "@/lib/clinics";
+import { fetchClinicBySlug, type ApiClinic } from "@/lib/api";
+
+function apiClinicToFull(c: ApiClinic): Clinic {
+  return {
+    slug: c.slug,
+    name: c.name,
+    address: c.address,
+    phone: c.phone ?? "",
+    email: "",
+    rating: c.rating,
+    reviewCount: c.review_count,
+    description: c.description ?? "",
+    hours: { weekdays: "09:00–20:00", weekends: "10:00–18:00" },
+    acceptsDMS: c.accepts_dms,
+    stats: { specialties: 10, doctors: 5, patientsPerYear: "1 000+" },
+    services: [],
+    specialtyTags: [],
+    reviews: [],
+    doctorSlugs: [],
+    metro: c.metro ?? "",
+    heroImageUrl: undefined,
+    bookingsLastMonth: 0,
+    scheduleByDay: [],
+    ratingCategories: [],
+    promotions: [],
+    insuranceCompanies: [],
+    certifications: [],
+    parking: "",
+  };
+}
+
+async function resolveClinic(slug: string): Promise<Clinic | undefined> {
+  const staticClinic = getClinicBySlug(slug);
+  if (staticClinic) return staticClinic;
+  const apiClinic = await fetchClinicBySlug(slug);
+  return apiClinic ? apiClinicToFull(apiClinic) : undefined;
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const clinic = getClinicBySlug(slug);
+  const clinic = await resolveClinic(slug);
   if (!clinic) return { title: "Клиника не найдена | MEDAS" };
   return {
     title: `${clinic.name} — клиника в Москве | MEDAS`,
@@ -60,7 +97,7 @@ function ClinicSchema({ clinic }: { clinic: Clinic }) {
 
 export default async function ClinicProfilePage({ params }: Props) {
   const { slug } = await params;
-  const clinic = getClinicBySlug(slug);
+  const clinic = await resolveClinic(slug);
   if (!clinic) notFound();
 
   return (

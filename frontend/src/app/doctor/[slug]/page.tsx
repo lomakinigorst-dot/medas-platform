@@ -9,12 +9,58 @@ import AppointmentSidebarV2 from "@/components/doctor/v2/AppointmentSidebarV2";
 import SimilarDoctors from "@/components/doctor/SimilarDoctors";
 import MobileBookingBar from "@/components/doctor/MobileBookingBar";
 import { getDoctorBySlug, getSimilarDoctors, type Doctor } from "@/lib/doctors";
+import { fetchDoctorBySlug, type ApiDoctor } from "@/lib/api";
+
+function apiDoctorToFull(d: ApiDoctor): Doctor {
+  const specialtySlug = d.specialty
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zа-яё0-9-]/gi, "");
+  return {
+    id: String(d.slug),
+    slug: d.slug,
+    name: d.name,
+    specialty: d.specialty,
+    specialtySlug,
+    experience: d.experience,
+    rating: d.rating,
+    reviewCount: d.review_count,
+    ratingBreakdown: {
+      5: Math.round(d.review_count * 0.7),
+      4: Math.round(d.review_count * 0.2),
+      3: Math.round(d.review_count * 0.06),
+      2: Math.round(d.review_count * 0.03),
+      1: Math.round(d.review_count * 0.01),
+    },
+    price: d.price,
+    status: "today" as const,
+    avatar: d.avatar ?? "",
+    photo: d.avatar ?? "",
+    bio: d.bio ?? "",
+    education: [],
+    specializations: [d.specialty],
+    services: [{ name: "Первичный приём", duration: "30 мин", price: d.price }],
+    reviews: [],
+    clinic: { id: "medas", name: "MEDAS", address: "Москва", metro: "", schedule: [] },
+    slots: [],
+    acceptsDMS: false,
+    onlineAppointment: false,
+    verified: d.is_verified,
+  };
+}
+
+async function resolveDoctor(slug: string): Promise<Doctor | undefined> {
+  const staticDoc = getDoctorBySlug(slug);
+  if (staticDoc) return staticDoc;
+  const apiDoc = await fetchDoctorBySlug(slug);
+  return apiDoc ? apiDoctorToFull(apiDoc) : undefined;
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await resolveDoctor(slug);
   if (!doctor) return { title: "Врач не найден | MEDAS" };
   return {
     title: `${doctor.name} — ${doctor.specialty} в Москве | MEDAS`,
@@ -70,7 +116,7 @@ function PhysicianSchema({ doctor }: { doctor: Doctor }) {
 
 export default async function DoctorProfilePage({ params }: Props) {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await resolveDoctor(slug);
   if (!doctor) notFound();
 
   const similar = getSimilarDoctors(doctor, 3);

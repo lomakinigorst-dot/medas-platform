@@ -70,6 +70,26 @@ export async function fetchClinics(): Promise<ApiClinic[] | null> {
   return fetchList("/clinics?limit=50");
 }
 
+export async function fetchClinicBySlug(slug: string): Promise<ApiClinic | null> {
+  try {
+    const res = await fetch(`${API_BASE}/clinics/${slug}`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    return (await res.json()) as ApiClinic;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchDoctorBySlug(slug: string): Promise<ApiDoctor | null> {
+  try {
+    const res = await fetch(`${API_BASE}/doctors/${slug}`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    return (await res.json()) as ApiDoctor;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchDoctors(specialty?: string): Promise<ApiDoctor[] | null> {
   const qs = specialty
     ? `?specialty=${encodeURIComponent(specialty)}&limit=50`
