@@ -158,6 +158,12 @@ export default function Header() {
                   Войти
                 </Link>
                 <Link
+                  href="/register"
+                  className="text-on-surface-variant hover:text-primary font-semibold text-[14px] px-4 py-2 rounded-lg hover:bg-primary/5 transition-all duration-200 whitespace-nowrap"
+                >
+                  Регистрация
+                </Link>
+                <Link
                   href="/search"
                   className="bg-secondary text-white px-5 py-2.5 rounded-xl font-bold text-[14px] shadow-sm hover:bg-secondary/90 transition-all duration-200 active:scale-95 flex items-center gap-2 whitespace-nowrap"
                 >
@@ -267,6 +273,16 @@ export default function Header() {
             </>
           ) : (
             <>
+              <div className="flex gap-2">
+                <Link href="/login" onClick={() => setOpen(false)}
+                  className="flex-1 flex items-center justify-center py-3 rounded-xl border border-outline-variant text-on-surface-variant font-semibold text-[15px] hover:bg-primary/5 transition-colors">
+                  Войти
+                </Link>
+                <Link href="/register" onClick={() => setOpen(false)}
+                  className="flex-1 flex items-center justify-center py-3 rounded-xl border border-[#003087] text-[#003087] font-semibold text-[15px] hover:bg-primary/5 transition-colors">
+                  Регистрация
+                </Link>
+              </div>
               <a
                 href="tel:+78001234567"
                 className="flex items-center justify-center gap-2 py-3 rounded-xl border border-outline-variant text-primary font-semibold text-[15px] hover:bg-primary/5 transition-colors"
