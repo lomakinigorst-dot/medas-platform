@@ -5,10 +5,10 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-16
-Последнее ✅: Фаза 6 — Deploy завершён. Backend /bonuses/my задеплоен (docker cp + restart). Frontend /register /about /services /bonuses — все 200. Все коммиты: 071b1e8 02a00a3 0184092 2f9acb7.
-Что сделано: /register (RegisterForm OTP), /about (статика), /services (SVG+fix links), /bonuses (реальные данные), backend GET /bonuses/my. Все страницы подтверждены через curl 200.
-Следующее: Следующая сессия — уточнить у Игоря: 1) продовский домен med-as.ru, 2) OTP websms.ru контракт, 3) /cabinet/patient/medcard модель.
-Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. Certbot crontab — нужно явное разрешение Игоря.
+Последнее ✅: Э6 — фикс /bonuses (UserResponse.doctor_id=None → fix 500 на /auth/me), welcome-бонус +500 при первой верификации, /services рабочий поиск + карточки врачей из API. Коммит 1772ba1, деплой OK.
+Что сделано: schemas/auth.py (doctor_id default), endpoints/auth.py (welcome bonus), services/ServicesClient.tsx (new: client, поиск, врачи), services/page.tsx (SSR shell). Все страницы 200.
+Следующее: Следующая сессия — 1) продовский домен med-as.ru, 2) OTP websms.ru контракт, 3) /register реальная регистрация проверить с OTP.
+Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. /register работает через мастер-код.
 
 ---
 

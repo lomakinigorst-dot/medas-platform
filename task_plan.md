@@ -90,6 +90,24 @@ Done: bonuses/page.tsx → "use client", Promise.all(auth/me + bonuses/my) на 
 
 ---
 
+### Фаза Э6 — Критические фиксы + /services апгрейд ✅ complete (2026-06-16)
+
+**Зачем:** /bonuses не работал (500 на /auth/me из-за doctor_id), welcome-бонус не начислялся, /services статичная без реального поиска.
+
+#### Э6-1 — Фикс UserResponse.doctor_id
+Status: complete
+Done: schemas/auth.py — doctor_id: int | None = None (default). Фикс ValidationError на /auth/me → 500 → fix Promise.all catch на /bonuses. Коммит 1772ba1.
+
+#### Э6-2 — Welcome-бонус при регистрации
+Status: complete
+Done: auth.py verify_otp — при is_verified=False: user.bonus_balance += 500, BonusTransaction(welcome, 500). Работает для мастер-кода и реального OTP. Коммит 1772ba1.
+
+#### Э6-3 — /services: рабочий поиск + карточки врачей
+Status: complete
+Done: ServicesClient.tsx (new, "use client") — fetch /doctors, поиск по name/description/services/q в реальном времени, DoctorMiniCard под каждой категорией, "Найти врача" → /search?q=..., empty state. services/page.tsx → SSR shell + Suspense. Коммит 1772ba1. curl https://saas.med-as.ru/services → 200.
+
+---
+
 ### Фаза Д — Дашборд клиники (улучшения) 🔄 in_progress (2026-06-14)
 
 **Зачем:** обогатить дашборд клиники данными из Stitch — воронка пациентов + 5-я KPI + таблица врачей.
