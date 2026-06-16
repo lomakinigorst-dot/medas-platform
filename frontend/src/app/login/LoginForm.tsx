@@ -413,23 +413,9 @@ export default function LoginForm() {
 
           {/* ── OTP STEP ── */}
           {step === "otp" && (
-            <div className="space-y-4">
-              {/* Code expiry bar */}
-              {otpTrigger > 0 && (
-                <div className="flex items-center justify-between text-xs bg-[#f7f9fb] rounded-lg px-3 py-2">
-                  <span className="text-[#737686]">Код действителен</span>
-                  {codeExpired ? (
-                    <span className="text-red-500 font-semibold">Истёк</span>
-                  ) : (
-                    <span className={`font-mono font-semibold tabular-nums ${otpExpiry < 60 ? "text-amber-500" : "text-[#003087]"}`}>
-                      {fmtTime(otpExpiry)}
-                    </span>
-                  )}
-                </div>
-              )}
-
+            <div className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-[#434655] uppercase tracking-wider mb-2">
+                <label className="block text-xs text-[#737686] mb-2">
                   {method === "flash" ? "Последние 4 цифры входящего номера" : "Код из SMS"}
                 </label>
                 <input
@@ -445,30 +431,29 @@ export default function LoginForm() {
                   autoFocus={!otpDisabled}
                 />
 
-                {/* Caller ID example (flash only, code not expired) */}
+                {/* Caller ID example — subtle, flash only */}
                 {method === "flash" && !codeExpired && (
-                  <p className="text-xs text-[#737686] mt-1.5 text-center">
-                    Пример: <span className="font-mono">+7 (495) 123-<strong className="text-[#191c1e]">45-67</strong></span> → введите <strong className="text-[#191c1e]">4567</strong>
+                  <p className="text-xs text-[#9b9eb0] mt-1.5 text-center">
+                    Пример: +7 (495) 123-<span className="text-[#434655]">45-67</span> → введите <span className="text-[#434655]">4567</span>
                   </p>
                 )}
 
+                {/* Resend / expired / exhausted */}
                 <div className="mt-2 text-center">
                   {codeExpired ? (
-                    <p className="text-xs text-red-500 font-medium">
-                      Код устарел — запросите новый звонок
-                    </p>
+                    <p className="text-xs text-red-400">Код устарел — запросите новый звонок</p>
                   ) : (
                     renderResendArea()
                   )}
                 </div>
-              </div>
 
-              {/* DND / spam blocker hint (flash, before SMS) */}
-              {method === "flash" && !codeExpired && !smsUsed && (
-                <div className="bg-[#f7f9fb] rounded-xl px-4 py-3 text-xs text-[#737686] text-center">
-                  Не приходит звонок? Проверьте режим «Не беспокоить» и приложения-блокировщики спама
-                </div>
-              )}
+                {/* Timer — tiny, right-aligned, unobtrusive */}
+                {otpTrigger > 0 && !codeExpired && (
+                  <p className="text-right text-[11px] text-[#b0b3c4] mt-1 tabular-nums">
+                    {fmtTime(otpExpiry)}
+                  </p>
+                )}
+              </div>
 
               {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
@@ -480,18 +465,24 @@ export default function LoginForm() {
                 {loading ? "Проверяем..." : "Войти"}
               </button>
 
-              {/* Allow new code request when code expired */}
               {codeExpired && flashCount < 5 && (
                 <button type="button" onClick={handleResend} disabled={loading}
-                  className="w-full py-3 border border-[#003087] text-[#003087] font-bold rounded-xl hover:bg-[#003087]/5 transition-all disabled:opacity-50 text-sm">
+                  className="w-full py-3 border border-[#003087] text-[#003087] rounded-xl hover:bg-[#003087]/5 transition-all disabled:opacity-50 text-sm">
                   {loading ? "Отправляем..." : "Запросить новый звонок"}
                 </button>
               )}
 
-              <button type="button" onClick={resetToPhone}
-                className="w-full text-sm text-[#434655] hover:text-[#003087] transition-colors">
-                ← Изменить номер
-              </button>
+              <div className="text-center space-y-2">
+                <button type="button" onClick={resetToPhone}
+                  className="text-sm text-[#434655] hover:text-[#003087] transition-colors">
+                  ← Изменить номер
+                </button>
+                {method === "flash" && !codeExpired && !smsUsed && (
+                  <p className="text-xs text-[#b0b3c4]">
+                    Не приходит звонок? Проверьте «Не беспокоить» и блокировщики спама
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>
