@@ -4,7 +4,7 @@
 ---
 
 ## Current Phase
-**Фаза OTP-R — Надёжность авторизации** (активна с 2026-06-15)
+**Фаза Э4 — Публичные страницы + Бонусы пациента** (активна с 2026-06-16)
 
 Критерий готовности: все 9 задач задеплоены и протестированы на prod.
 
@@ -14,51 +14,77 @@
 
 ---
 
-### Фаза OTP-R — Надёжность и UX авторизации 🔄 in_progress (2026-06-15)
+### Фаза OTP-R — Надёжность и UX авторизации ✅ complete (2026-06-16)
 
 **Зачем:** выявлены сценарии сбоев при входе/регистрации по телефону. Все исправления задеплоить до онбординга первых клиник.
 
-**Критерий готовности:** flash call → OTP работает, spam/DND хинты отображаются, lockout-ы работают, Telegram-алерт приходит при падении обоих провайдеров.
+**Критерий готовности:** flash call → OTP работает, spam/DND хинты отображаются, lockout-ы работают, Telegram-алерт приходит при падении обоих провайдеров. ✅ ВЫПОЛНЕН.
 
 #### OTP-R-A1 — DND + спам хинт под OTP полем
-Status: pending
-- [ ] LoginForm.tsx: добавить серый блок «Не приходит звонок? Проверьте режим Не беспокоить и блокировщик спама»
+Status: complete
+Done: LoginForm.tsx — серый DND хинт под «← Изменить номер» без подложки. Коммит c2e778f.
 
 #### OTP-R-A2 — Пример caller ID
-Status: pending
-- [ ] LoginForm.tsx: добавить пример «Входящий +7 (495) 123-45-67 → введите 4567»
+Status: complete
+Done: LoginForm.tsx — пример caller ID в OTP экране. Коммит e94d3d1.
 
 #### OTP-R-A3 — Улучшить ошибку при cooldown
-Status: pending
-- [ ] LoginForm.tsx: 429 от verify-otp → `attemptsExhausted=true`, отдельный UI вместо красной ошибки + счётчик
+Status: complete
+Done: LoginForm.tsx — attemptsExhausted state, 429 → отдельный UI со счётчиком. Коммит e94d3d1.
 
 #### OTP-R-B1 — Таймер 9:59 на OTP экране
-Status: pending
-- [ ] LoginForm.tsx: `otpExpiry` state + второй useEffect от otpTrigger → обратный отсчёт 600→0
-- [ ] При 0: показывать «Код устарел — запросите новый звонок», input disabled
+Status: complete
+Done: LoginForm.tsx — таймер мелкий серый справа, отсчёт 600→0. Коммиты c2e778f, a89b081.
 
 #### OTP-R-B2 — Плавный переход: 3 ошибки → cooldown UI
-Status: pending
-- [ ] LoginForm.tsx: `attemptsExhausted` state
-- [ ] handleVerify 429 → set attemptsExhausted=true, clear error, clear otp
-- [ ] renderResendArea: если attemptsExhausted + countdown > 0 → «попытки исчерпаны, новый звонок через N сек»
+Status: complete
+Done: LoginForm.tsx — attemptsExhausted + countdown UI. Коммит e94d3d1.
 
 #### OTP-R-B3 — Lockout 2 ч после провала SMS OTP
-Status: pending
-- [ ] auth.py: при отправке SMS → `r.setex("otp_type:{phone}", OTP_TTL, "sms")`
-- [ ] verify_otp: attempts >= MAX_ATTEMPTS AND otp_type=="sms" → `lockout:{phone}` 7200s → 429
-- [ ] verify_otp: проверять `lockout:{phone}` в начале, возвращать понятное сообщение с временем
+Status: complete
+Done: auth.py — lockout:{phone} 7200s после провала SMS OTP. Коммит e94d3d1.
 
 #### OTP-R-C1 — Telegram алерт при 503 (оба провайдера упали)
-Status: pending
-- [ ] config.py: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID
-- [ ] otp.py: async send_telegram_alert(msg) → POST api.telegram.org
-- [ ] auth.py _send_code: при code is None → send_telegram_alert → raise 503
+Status: complete
+Done: otp.py send_telegram_alert + auth.py _send_code → alert при 503. Коммит e94d3d1.
 
 #### OTP-R-C2 — Lockout 30 мин после 5 неудачных сессий
-Status: pending
-- [ ] auth.py verify_otp: `otp_failures:{phone}` += 1 при каждой ошибке, TTL 1800s
-- [ ] При otp_failures >= 15 (5 сессий × 3 попытки) → `lockout:{phone}` 1800s → 429
+Status: complete
+Done: auth.py — otp_failures:{phone} TTL 1800s, lockout при 15 ошибках (5 сессий × 3). Коммит e94d3d1.
+
+---
+
+### Фаза Э4 — Публичные страницы ✅ complete (2026-06-16)
+
+**Зачем:** без /about нет страницы для инвесторов; /register нужна отдельно для SEO и UX; /services должна вести на реальный поиск.
+**Критерий готовности:** /about, /register, /services доступны на prod, /register → реальная регистрация работает.
+
+#### Э4-1 — /about страница
+Status: complete
+Done: frontend/src/app/about/page.tsx — Hero #003087 градиент, Stats 4 карточки, Values 4 SVG-иконки, Story таймлайн, Team 3 основателя, CTA. Header: /services и /about добавлены в navLinks. tsc OK. Коммит fc243eb.
+
+#### Э4-2 — /register страница + RegisterForm
+Status: complete
+Done: register/page.tsx (SSR + Suspense + metadata), register/RegisterForm.tsx (client, OTP flash/SMS цикл, attemptsExhausted, otpExpiry, redirect → /cabinet/patient), Header desktop+mobile добавлены ссылки «Регистрация». tsc OK. Коммит 071b1e8. curl https://saas.med-as.ru/register → 200.
+
+#### Э4-3 — /services апгрейд
+Status: complete
+Done: 9 эмодзи-иконок → inline SVG с цветными фонами (no-emoji-icons), ссылки ?specialty= → ?q= (SearchClient фильтрует по ?q), export metadata добавлен, label + sr-only для поиска (a11y). Коммит 02a00a3. curl https://saas.med-as.ru/services → 200.
+
+---
+
+### Фаза Э5 — Бонусы пациента ✅ complete (2026-06-16)
+
+**Зачем:** /cabinet/patient/bonuses сейчас показывает хардкод — пользователь видит чужие данные.
+**Критерий готовности:** баланс и история бонусов — реальные данные из БД.
+
+#### Э5-1 — Backend GET /bonuses/my
+Status: complete
+Done: schemas/bonus.py (BonusTransactionOut + BonusHistoryResponse, Pydantic v2), endpoints/bonuses.py (GET /bonuses/my, auth required, limit 50, order by created_at DESC), router.py подключён. Задеплоен docker cp + restart. Коммит 0184092. curl https://api.med-as.ru/api/v1/openapi.json | grep bonuses → /api/v1/bonuses/my ✅.
+
+#### Э5-2 — Frontend /bonuses реальные данные
+Status: complete
+Done: bonuses/page.tsx → "use client", Promise.all(auth/me + bonuses/my) на mount, real balance + history из API, loading/error состояния, empty state «Транзакций пока нет», totalEarned/totalSpent из транзакций, прогресс-бар реальный. Коммит 2f9acb7. curl https://saas.med-as.ru/cabinet/patient/bonuses → 200.
 
 ---
 

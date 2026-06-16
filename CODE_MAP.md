@@ -33,7 +33,9 @@
 │   │   │   ├── layout.tsx      # Root layout (шрифты, meta, noindex)
 │   │   │   ├── globals.css     # Дизайн-токены MEDAS + Tailwind v4
 │   │   │   ├── robots.ts       # robots.txt — disallow: / (dev mode)
+│   │   │   ├── about/          # /about — О компании (статическая, SSR)
 │   │   │   ├── login/          # /login — страница входа
+│   │   │   ├── register/       # /register — регистрация (в работе)
 │   │   │   ├── search/         # /search — поиск врачей
 │   │   │   ├── services/       # /services — услуги
 │   │   │   ├── doctor/[slug]/  # /doctor/[slug] — профиль врача + /booking
@@ -71,7 +73,9 @@
 | URL | Файл | Компоненты |
 |---|---|---|
 | `/` | `app/page.tsx` | HeroSection, StatsSection, SpecialtiesSection, OffersSection, ClinicsSection, ArticlesSection, CTASection |
-| `/login` | `app/login/page.tsx` | inline |
+| `/login` | `app/login/page.tsx` | inline (`LoginForm` client) |
+| `/register` | `app/register/page.tsx` | `RegisterForm` (client) — имя+телефон→OTP flash/SMS→/cabinet/patient |
+| `/about` | `app/about/page.tsx` | inline SSR — Hero, Stats, Values, Story, Team, CTA |
 | `/search` | `app/search/page.tsx` | `SearchClient` (client) |
 | `/services` | `app/services/page.tsx` | inline |
 | `/doctor/[slug]` | `app/doctor/[slug]/page.tsx` | `DoctorHero`, `DoctorContentSections`, `AppointmentSidebarV2` (client), `MobileBookingBar` (client), `SimilarDoctors` |
