@@ -177,7 +177,13 @@ const cardItem: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" as const } },
 };
 
-export default function SearchClient({ initialDoctors = [] }: { initialDoctors?: Doctor[] }) {
+export default function SearchClient({
+  initialDoctors = [],
+  clinicName = null,
+}: {
+  initialDoctors?: Doctor[];
+  clinicName?: string | null;
+}) {
   const doctors = initialDoctors.length > 0 ? initialDoctors : DOCTORS;
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
@@ -334,6 +340,21 @@ export default function SearchClient({ initialDoctors = [] }: { initialDoctors?:
             </button>
           </div>
         </div>
+
+        {/* Clinic filter banner */}
+        {clinicName && (
+          <div className="flex items-center gap-2 mb-4 p-3 bg-primary/5 border border-primary/15 rounded-xl">
+            <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span className="text-sm font-semibold text-primary flex-1">
+              Врачи клиники: <span className="font-bold">{clinicName}</span>
+            </span>
+            <a href="/search" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">
+              Все врачи
+            </a>
+          </div>
+        )}
 
         {/* Active chips */}
         <AnimatePresence>

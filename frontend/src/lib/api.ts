@@ -3,6 +3,7 @@ import type { Clinic } from "@/lib/clinics";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://api.med-as.ru/api/v1";
 
 export interface ApiClinic {
+  id: number;
   slug: string;
   name: string;
   description: string | null;
@@ -91,11 +92,11 @@ export async function fetchDoctorBySlug(slug: string): Promise<ApiDoctor | null>
   }
 }
 
-export async function fetchDoctors(specialty?: string): Promise<ApiDoctor[] | null> {
-  const qs = specialty
-    ? `?specialty=${encodeURIComponent(specialty)}&limit=50`
-    : "?limit=50";
-  return fetchList(`/doctors${qs}`);
+export async function fetchDoctors(specialty?: string, clinicId?: number): Promise<ApiDoctor[] | null> {
+  const params = new URLSearchParams({ limit: "50" });
+  if (specialty) params.set("specialty", specialty);
+  if (clinicId !== undefined) params.set("clinic_id", String(clinicId));
+  return fetchList(`/doctors?${params.toString()}`);
 }
 
 // ─── Slots ───────────────────────────────────────────────────────────────────
