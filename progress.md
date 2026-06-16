@@ -4,11 +4,11 @@
 ---
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
-Проект: MEDAS | Дата: 2026-06-15
-Последнее ✅: websms.ru Flash Call API интеграция. Коммит d0b3820.
-Что сделано: otp.py → websms.ru (http_in5.asp), код берётся из XML ответа, LoginForm 5 попыток [60,90,120,120,120]s таймауты. Backend задеплоен + проверен (код 6040 в Redis). Frontend CI/CD в процессе.
-Следующее: Убедиться что CI/CD frontend деплой прошёл → проверить /login визуально → подождать договор от websms.ru
-Важно: WEBSMS_LOGIN=medas / WEBSMS_PASSWORD=[в backend.env]. Master-пароль: 110792. Clinic: +70000000001. Flash Call работает (тест: POST /login → Redis содержит 4-значный код).
+Проект: MEDAS | Дата: 2026-06-16
+Последнее ✅: OTP UI polish — метка по центру, карточки удалены, DND хинт под кнопкой без подложки, таймер мелкий серый справа. Коммит a89b081.
+Что сделано: CI/CD настроен (VPS_SSH_KEY + VPS_HOST). Backend + Frontend OTP-R задеплоены. API /health 200, мастер-пароль 110792 работает.
+Следующее: Добавить TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID в /app/medas-platform/backend.env на VPS. Ждать одобрения контракта websms.ru.
+Важно: Звонки не работают (websms.ru контракт pending). Войти: мастер-пароль 110792.
 
 ---
 
