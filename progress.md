@@ -5,9 +5,9 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-16
-Последнее ✅: MASTER_TZ.md v2.0 (56KB) + MASTER_TZ.docx (48KB) — полный аудит 22 страниц с x5 детализацией. 16 broken flows задокументированы. Коммит: ждёт push.
-Что сделано: Глубокий аудит кода — проверены все 22 page.tsx, lib/doctors.ts, lib/clinics.ts, api.ts, apiDoctorToDoctor. Выявлены: 4 отсутствующих страницы (404), 3/6 врачей→404, 3/5 клиник→404, 4 сломанных фильтра, 11 декоративных кнопок.
-Следующее: Ждём подтверждения Игоря по MASTER_TZ.docx → Фаза P0 (5 задач): профили врачей, профили клиник, /appointments страница, /doctor/schedule, ClinicsSection на главной.
+Последнее ✅: Все файлы сохранены и запушены (3197d9a). MASTER_TZ.md v2.0 (56KB) + MASTER_TZ.docx (48KB) + task_plan.md (P0/P1/P2) + CODE_MAP.md (таблица 22 страниц).
+Что сделано: Аудит 22 page.tsx — 16 broken flows задокументированы. 4 страницы = 404 (appointments, favorites, doctor/schedule, doctor/settings). 3/6 врачей → 404. 3/5 клиник → 404. Медкарта/семья = "Алекс Стерлинг" для всех. ClinicsSection = фейковые ID.
+Следующее: Ждём подтверждения Игоря → Фаза P0 (6 задач): P0-1 профили врачей, P0-2 профили клиник, P0-3 /appointments, P0-4 /doctor/schedule, P0-5 ClinicsSection, P0-6 медкарта+реальное имя.
 Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. /register работает через мастер-код.
 Проекты с открытыми issues: MEDAS — 16 broken flows, 4 отсутствующих страницы.
 
