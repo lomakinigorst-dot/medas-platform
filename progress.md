@@ -5,18 +5,19 @@
 
 ## БЫСТРОЕ ВОЗОБНОВЛЕНИЕ
 Проект: MEDAS | Дата: 2026-06-16
-Последнее ✅: Э6 — фикс /bonuses (UserResponse.doctor_id=None → fix 500 на /auth/me), welcome-бонус +500 при первой верификации, /services рабочий поиск + карточки врачей из API. Коммит 1772ba1, деплой OK.
-Что сделано: schemas/auth.py (doctor_id default), endpoints/auth.py (welcome bonus), services/ServicesClient.tsx (new: client, поиск, врачи), services/page.tsx (SSR shell). Все страницы 200.
-Следующее: Следующая сессия — 1) продовский домен med-as.ru, 2) OTP websms.ru контракт, 3) /register реальная регистрация проверить с OTP.
+Последнее ✅: MASTER_TZ.md v2.0 (56KB) + MASTER_TZ.docx (48KB) — полный аудит 22 страниц с x5 детализацией. 16 broken flows задокументированы. Коммит: ждёт push.
+Что сделано: Глубокий аудит кода — проверены все 22 page.tsx, lib/doctors.ts, lib/clinics.ts, api.ts, apiDoctorToDoctor. Выявлены: 4 отсутствующих страницы (404), 3/6 врачей→404, 3/5 клиник→404, 4 сломанных фильтра, 11 декоративных кнопок.
+Следующее: Ждём подтверждения Игоря по MASTER_TZ.docx → Фаза P0 (5 задач): профили врачей, профили клиник, /appointments страница, /doctor/schedule, ClinicsSection на главной.
 Важно: websms.ru контракт pending. Мастер-пароль OTP [REDACTED]. /register работает через мастер-код.
+Проекты с открытыми issues: MEDAS — 16 broken flows, 4 отсутствующих страницы.
 
 ---
 
 ## Текущий шаг
 
-**Что делаем сейчас:** Сессия 2026-06-16 — публичные страницы + бонусы
-**Фаза:** Фаза Э4 — /about, /register, /services
-**Следующий шаг:** /about страница (Э4-1)
+**Что делаем сейчас:** Сессия 2026-06-16 — MASTER_TZ v2.0 полный аудит
+**Фаза:** Фаза P0 — 5 критических исправлений (ждём подтверждения Игоря)
+**Следующий шаг:** P0-1 (профили врачей), P0-2 (профили клиник), P0-3 (/appointments), P0-4 (/doctor/schedule), P0-5 (ClinicsSection)
 
 ---
 
