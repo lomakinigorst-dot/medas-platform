@@ -487,18 +487,6 @@ export default function LoginForm() {
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-6">
-          {[
-            { icon: "📞", label: "Звонок" },
-            { icon: "⚡", label: "Быстро" },
-            { icon: "🎁", label: "Бонусы" },
-          ].map((b) => (
-            <div key={b.label} className="bg-white/70 backdrop-blur rounded-xl p-3 text-center border border-white shadow-sm">
-              <p className="text-lg mb-1">{b.icon}</p>
-              <p className="text-xs font-bold text-[#434655]">{b.label}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
