@@ -68,8 +68,14 @@ export default function ClinicContent({ clinic }: { clinic: Clinic }) {
               return (
                 <div key={doc!.slug} className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,45,98,0.06)] border border-outline-variant/10">
                   <div className="flex gap-4 mb-4">
-                    <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden">
-                      <Image src={doc!.photo} alt={doc!.name} fill className="object-cover" />
+                    <div className="relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-primary to-secondary">
+                      {doc!.photo ? (
+                        <Image src={doc!.photo} alt={doc!.name} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-white text-xl font-extrabold select-none">{doc!.name.charAt(0)}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="font-headline font-bold text-primary text-sm leading-tight">{doc!.name}</p>

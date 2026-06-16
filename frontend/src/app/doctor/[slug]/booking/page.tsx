@@ -4,13 +4,53 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BookingForm from "@/components/doctor/booking/BookingForm";
-import { getDoctorBySlug } from "@/lib/doctors";
+import { getDoctorBySlug, type Doctor } from "@/lib/doctors";
+import { fetchDoctorBySlug, type ApiDoctor } from "@/lib/api";
+
+function apiDoctorToFull(d: ApiDoctor): Doctor {
+  const specialtySlug = d.specialty
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zа-яё0-9-]/gi, "");
+  return {
+    id: String(d.slug),
+    slug: d.slug,
+    name: d.name,
+    specialty: d.specialty,
+    specialtySlug,
+    experience: d.experience,
+    rating: d.rating,
+    reviewCount: d.review_count,
+    ratingBreakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+    price: d.price,
+    status: "today" as const,
+    avatar: d.avatar ?? "",
+    photo: d.avatar ?? "",
+    bio: d.bio ?? "",
+    education: [],
+    specializations: [d.specialty],
+    services: [{ name: "Первичный приём", duration: "30 мин", price: d.price }],
+    reviews: [],
+    clinic: { id: "medas", name: "MEDAS", address: "Москва", metro: "", schedule: [] },
+    slots: [],
+    acceptsDMS: false,
+    onlineAppointment: false,
+    verified: d.is_verified,
+  };
+}
+
+async function resolveDoctor(slug: string): Promise<Doctor | undefined> {
+  const staticDoc = getDoctorBySlug(slug);
+  if (staticDoc) return staticDoc;
+  const apiDoc = await fetchDoctorBySlug(slug);
+  return apiDoc ? apiDoctorToFull(apiDoc) : undefined;
+}
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await resolveDoctor(slug);
   if (!doctor) return { title: "Врач не найден | MEDAS" };
   return {
     title: `Запись к ${doctor.name} — ${doctor.specialty} | MEDAS`,
@@ -29,7 +69,7 @@ function Chevron() {
 
 export default async function BookingPage({ params }: Props) {
   const { slug } = await params;
-  const doctor = getDoctorBySlug(slug);
+  const doctor = await resolveDoctor(slug);
   if (!doctor) notFound();
 
   return (

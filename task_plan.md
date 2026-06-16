@@ -111,6 +111,29 @@ Done: "use client" + fetchCurrentUser() → реальное имя вместо
 
 ---
 
+### Фаза P0-FIX — Баги после P0-деплоя ⏸️ pending (2026-06-16, сессия 2)
+
+**Зачем:** P0 задеплоена, но скриншоты выявили новые критические баги.
+
+#### P0-FIX-1 — Тестовые аккаунты для врачей 2-6
+Status: pending
+- Создать users в БД через SSH/SQL: phone +70000000002..+70000000006, role='doctor', doctor_id=2..6
+- Для входа — OTP master code (без SMS). Только SQL на сервере, нет изменений в репо.
+
+#### P0-FIX-2 — 404 на /doctor/[slug]/booking у API-врачей
+Status: pending
+- booking/page.tsx строка 32: getDoctorBySlug(slug) — static only → notFound()
+- Добавить resolveDoctor() fallback (статика → API) по образцу doctor/[slug]/page.tsx
+- Файл: `frontend/src/app/doctor/[slug]/booking/page.tsx`
+
+#### P0-FIX-3 — Пустое фото врача в карточках клиники (white box)
+Status: pending
+- doctor.photo="" → <Image src=""> → белый пустой блок
+- Добавить gradient fallback + initials когда photo пустая
+- Файл: компонент карточки врача на странице клиники
+
+---
+
 ### Фаза P1 — Важные улучшения ⏸️ pending (после P0)
 
 **Зачем:** убрать самые раздражающие UX-проблемы, достроить недостающий функционал.
@@ -145,6 +168,23 @@ Status: pending
 Status: pending
 - Файлы: medcard/page.tsx, family/page.tsx
 - Изменение: GET /auth/me → реальное имя (помимо P0-6)
+
+#### P1-7 — Страница клиники: "Записаться" → только врачи этой клиники
+Status: pending
+- Backend: убедиться что GET /doctors?clinic_id=X работает без auth
+- Frontend: кнопка/ссылка /search?clinic_id=X на странице клиники
+- SearchClient: фильтрация по clinic_id когда параметр задан
+- Файлы: `/app/clinic/[slug]/page.tsx`, `/app/search/SearchClient.tsx`, `/lib/api.ts`
+
+#### P1-8 — Редизайн медкарты /cabinet/patient/medcard (ПРИОРИТИЗИРОВАН из P2)
+Status: pending
+- Убрать: температура/пульс как постоянные. Добавить: ИМТ, группа крови, аллергии, хронические, витамины
+- История визитов: раскрываемые карточки с диагнозом/лечением
+- Кнопки: "Скачать PDF", "Поделиться", "Редактировать профиль" — рабочие
+- Единая структура данных для пациента и врача
+- Backend: новые поля в User / отдельная таблица MedCard
+- Design: Magic MCP (21st.dev) + ui-ux-pro-max
+- Файлы: `medcard/page.tsx`, возможно `/components/medcard/`, backend модели
 
 ---
 
