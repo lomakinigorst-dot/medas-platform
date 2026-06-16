@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { StarIcon } from "@/components/ui/StarIcon";
 
 const RU_FORMAT = new Intl.NumberFormat("ru-RU");
@@ -218,7 +220,7 @@ const SPECIALTIES: Specialty[] = [
 function SpecialtyCard({ spec }: { spec: Specialty }) {
   return (
     <Link
-      href={`/search?specialty=${encodeURIComponent(spec.slug)}`}
+      href={`/search?q=${encodeURIComponent(spec.slug)}`}
       className="group flex flex-col items-center text-center p-5 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5 transition-all duration-200"
     >
       <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center mb-3 group-hover:bg-primary/12 transition-colors">
@@ -240,6 +242,8 @@ export default function DoctorsPage() {
   const topDoctors = TOP_DOCTORS;
 
   return (
+    <>
+    <Header />
     <main className="min-h-screen bg-slate-50">
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
@@ -503,5 +507,7 @@ export default function DoctorsPage() {
       </section>
 
     </main>
+    <Footer />
+    </>
   );
 }

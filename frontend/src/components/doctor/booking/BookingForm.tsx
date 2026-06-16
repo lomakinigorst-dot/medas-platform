@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { StarIcon } from "@/components/ui/StarIcon";
@@ -163,6 +164,7 @@ function BookingSuccess({
 
 export default function BookingForm({ doctor }: { doctor: Doctor }) {
   const ruPrice = new Intl.NumberFormat("ru-RU");
+  const searchParams = useSearchParams();
 
   // Derive available services from doctor.services
   const services = useMemo(
@@ -200,11 +202,23 @@ export default function BookingForm({ doctor }: { doctor: Doctor }) {
     });
   }, [doctor.slots, today]);
 
-  // ── State ──
+  // ── State ── (initialised from ?date=&time= searchParams if present)
+  const prefillDate = searchParams?.get("date");  // format: YYYY-M-D
+  const prefillTime = searchParams?.get("time");
+  const prefillDay  = prefillDate ? parseInt(prefillDate.split("-")[2]) : null;
+  const prefillIdx  = prefillDay !== null ? (() => {
+    return doctor.slots.findIndex((s) => {
+      if (s.label === "Сегодня") return prefillDay === today.getDate();
+      if (s.label === "Завтра")  return prefillDay === today.getDate() + 1;
+      const m = s.label.match(/(\d+)$/);
+      return m ? parseInt(m[1]) === prefillDay : false;
+    });
+  })() : -1;
+
   const [selectedSvcIdx, setSelectedSvcIdx] = useState(0);
-  const [selectedDayIdx, setSelectedDayIdx] = useState(-1);
-  const [selectedDayNum, setSelectedDayNum] = useState<number | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedDayIdx, setSelectedDayIdx] = useState(prefillIdx);
+  const [selectedDayNum, setSelectedDayNum] = useState<number | null>(prefillDay);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(prefillTime ?? null);
   const [useBonuses, setUseBonuses] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
