@@ -96,6 +96,49 @@
 
 ---
 
+## СТАТУС ДАННЫХ ПО СТРАНИЦАМ (аудит 2026-06-16)
+
+> Источник правды: MASTER_TZ.md v2.0. Обновлять при исправлении broken flows.
+
+| URL | Данные | Статус | Проблема / Приоритет |
+|---|---|---|---|
+| `/` | Mock | ⚠️ | ClinicsSection → 404 (фиктивные IDs). Fix: P0-5 |
+| `/search` | API врачи (6) | ⚠️ | 3/6 doctor links → 404. Фильтры ДМС/метро/онлайн сломаны. Fix: P0-1, P1-1 |
+| `/doctors` | Статика | ✅ | Исправлено b3ece6c |
+| `/clinics` | API клиники (5) | ⚠️ | 3/5 clinic links → 404. Fix: P0-2 |
+| `/doctor/[slug]` | Профиль: статика lib/doctors.ts. Слоты: API | ⚠️ | 3/6 слагов → 404 (elena-morozova-sm, pavel-ivanov-sm, aleksey-sidorov-sm). Fix: P0-1 |
+| `/doctor/[slug]/booking` | API (POST /appointments) | ✅ | Исправлено b3ece6c |
+| `/clinic/[slug]` | Статика lib/clinics.ts | ⚠️ | 3/5 API-слагов → 404. Fix: P0-2 |
+| `/login` /register | API | ✅ | Реальные звонки websms.ru pending |
+| `/services` | API врачи | ⚠️ | 3/6 doctor links → 404. Fix: P0-1 |
+| `/about` | Статика | ✅ | — |
+| `/cabinet/patient` | Имя+записи: API. Бонусы+stats: HARDCODED | ⚠️ | Nav: /appointments, /favorites → 404. Fix: P0-3 |
+| `/cabinet/patient/bonuses` | API (/auth/me + /bonuses/my) | ✅ | "Получить" декоративная |
+| `/cabinet/patient/medcard` | **100% HARDCODED (чужие данные!)** | ❌ | "Алекс Стерлинг" для всех. Fix: P0-6 |
+| `/cabinet/patient/family` | **100% HARDCODED (чужие данные!)** | ❌ | "Семья Стерлинг" для всех. Fix: P1-6 |
+| `/cabinet/patient/appointments` | **НЕ СУЩЕСТВУЕТ** | ❌ | 404. Fix: P0-3 |
+| `/cabinet/patient/favorites` | **НЕ СУЩЕСТВУЕТ** | ❌ | 404. Fix: P1-2 |
+| `/cabinet/clinic` | 100% API | ✅ | — |
+| `/cabinet/clinic/appointments` | 100% API + CSV | ✅ | — |
+| `/cabinet/clinic/doctors` | 100% API | ✅ | — |
+| `/cabinet/clinic/schedule` | 100% API | ✅ | — |
+| `/cabinet/clinic/reports` | 100% API | ✅ | — |
+| `/cabinet/clinic/settings` | Частично API (phone). userName: HARDCODED | ⚠️ | Нельзя изменить данные. Fix: P1-4 |
+| `/cabinet/doctor` | 100% API | ✅ | Nav: /schedule, /settings → 404 |
+| `/cabinet/doctor/schedule` | **НЕ СУЩЕСТВУЕТ** | ❌ | 404. Fix: P0-4 |
+| `/cabinet/doctor/settings` | **НЕ СУЩЕСТВУЕТ** | ❌ | 404. Fix: P1-3 |
+
+### Критические файлы статики (главные источники проблем)
+
+| Файл | Роль | Проблема |
+|---|---|---|
+| `frontend/src/lib/doctors.ts` | Статика 3 врача (346 строк) | Только 3 из 6 API-врачей. Нужно переключить /doctor/[slug] на API |
+| `frontend/src/lib/clinics.ts` | Статика 12 клиник (796 строк) | Только 2 из 5 API-клиник по слагам. Нужно переключить /clinic/[slug] на API |
+| `frontend/src/lib/api.ts` | HTTP к API | apiDoctorToDoctor: metro/DMS/online/gender теряются |
+| `frontend/src/components/home/ClinicsSection.tsx` | Главная — секция клиник | Фиктивные IDs (st-ethos, lumina-dental...), ссылки /clinics/{id} → 404 |
+
+---
+
 ## КОМПОНЕНТЫ ДОКТОРА (`src/components/doctor/`)
 
 | Компонент | Файл | Что делает |

@@ -1,16 +1,186 @@
 # MEDAS — Полный план разработки
-**Версия:** 8.0 | **Дата:** 2026-06-15 | **Статус:** 🔄 В работе
+**Версия:** 9.0 | **Дата:** 2026-06-16 | **Статус:** 🔄 В работе
 
 ---
 
 ## Current Phase
-**Фаза Э4 — Публичные страницы + Бонусы пациента** (активна с 2026-06-16)
+**Фаза P0 — Критические исправления (5 задач)** (активна с 2026-06-16)
 
-Критерий готовности: все 9 задач задеплоены и протестированы на prod.
+Критерий готовности: 0 кликов на платформе ведут в 404, медкарта не показывает чужие данные.
+Источник правды: **MASTER_TZ.md v2.0** (56KB) — полный аудит 22 страниц, 16 broken flows, план P0/P1/P2.
+MASTER_TZ.docx — Word-версия для Игоря (48KB).
+
+---
+
+## Аудит 2026-06-16 — ПОЛНАЯ КАРТИНА (16 Broken Flows)
+
+### Исправлено (коммит b3ece6c)
+
+| Проблема | Статус |
+|---|---|
+| /doctors нет Header/Footer | ✅ ИСПРАВЛЕНО b3ece6c |
+| /doctors ссылки ?specialty= вместо ?q= | ✅ ИСПРАВЛЕНО b3ece6c |
+| /doctor/[slug]/booking не pre-fill дату/время | ✅ ИСПРАВЛЕНО b3ece6c |
+
+### 16 Broken Flows (все подтверждены аудитом кода 2026-06-16)
+
+| # | Сломанный путь | Причина | Приоритет |
+|---|---|---|---|
+| BF-01 | Главная → клиника → 404 | ClinicsSection: фиктивные IDs (st-ethos...), маршрут /clinics/[slug] не существует | P0 |
+| BF-02 | /search → elena-morozova-sm / pavel-ivanov-sm / aleksey-sidorov-sm → 404 | lib/doctors.ts: только 3 из 6 API-врачей | P0 |
+| BF-03 | /clinics → medicina-na-tsvetnoy / evromedservice / sm-klinika → 404 | lib/clinics.ts: 3 из 5 API-клиник не зарегистрированы | P0 |
+| BF-04 | ЛК пациент → "Приёмы" → 404 | Нет page.tsx в /cabinet/patient/appointments/ | P0 |
+| BF-05 | ЛК пациент → "Избранные" → 404 | Нет страницы, нет модели Favorite в БД | P1 |
+| BF-06 | ЛК врач → "Расписание" → 404 | Нет page.tsx в /cabinet/doctor/schedule/ | P0 |
+| BF-07 | ЛК врач → "Настройки" → 404 | Нет page.tsx в /cabinet/doctor/settings/ | P1 |
+| BF-08 | /search → фильтр "ДМС" → 0 результатов | apiDoctorToDoctor: acceptsDMS всегда false | P1 |
+| BF-09 | /search → фильтр "Метро" → 0 результатов | apiDoctorToDoctor: metro всегда [] | P1 |
+| BF-10 | Медкарта → чужие данные "Алекс Стерлинг" | Весь контент hardcoded, нет API-вызова | P0 |
+| BF-11 | Семья → чужие данные "Семья Стерлинг" | Весь контент hardcoded | P1 |
+| BF-12 | Бонусы на главной ЛК → "1 230" неверная сумма | Число hardcoded, нет GET /auth/me для виджета | P1 |
+| BF-13 | Бонусы "Получить" (x4) → ничего | onClick отсутствует, нет BonusReward-модели | P2 |
+| BF-14 | Медкарта "Скачать PDF" → ничего | onClick отсутствует | P2 |
+| BF-15 | Профиль врача "В избранное ♡" → ничего | onClick отсутствует, нет Favorite-модели | P1 |
+| BF-16 | Настройки клиники → нельзя изменить | Нет формы, нет PATCH /clinics/{id} | P1 |
+
+### Матрица данных (итог по всем 22 страницам)
+
+| Страница | Данные | Критичность |
+|---|---|---|
+| /cabinet/clinic (6 стр.) | 100% реальные из API | ✅ |
+| /cabinet/doctor | Реальные | ✅ |
+| /cabinet/patient/bonuses | Реальные | ✅ |
+| /login, /register | Реальные | ✅ (звонки pending) |
+| /search | API врачи, сломанные фильтры | ⚠️ |
+| /clinics | API клиники, 3/5 → 404 | ⚠️ |
+| /cabinet/patient (главная) | Записи реальные, бонусы/stats hardcoded | ⚠️ |
+| /doctor/[slug] | Слоты реальные, профиль статика | ⚠️ |
+| /doctors, /services, /about | 100% статика | ⚠️ |
+| /clinic/[slug] | 100% статика из lib/clinics.ts | ⚠️ |
+| /cabinet/patient/medcard | Чужие данные (критично!) | ❌ |
+| /cabinet/patient/family | Чужие данные | ❌ |
+| /cabinet/patient/appointments | ОТСУТСТВУЕТ → 404 | ❌ |
+| /cabinet/patient/favorites | ОТСУТСТВУЕТ → 404 | ❌ |
+| /cabinet/doctor/schedule | ОТСУТСТВУЕТ → 404 | ❌ |
+| /cabinet/doctor/settings | ОТСУТСТВУЕТ → 404 | ❌ |
 
 ---
 
 ## Phases
+
+---
+
+### Фаза P0 — Критические исправления ⏸️ pending (ждём подтверждения Игоря)
+
+**Зачем:** 6 задач, без которых платформа неработоспособна для показа клиентам и инвесторам. Источник: аудит MASTER_TZ.md v2.0.
+**Критерий готовности:** 0 404-ошибок при стандартной навигации пользователя.
+
+#### P0-1 — Профили 3 врачей (elena-morozova-sm, pavel-ivanov-sm, aleksey-sidorov-sm)
+Status: pending
+- Файл: `frontend/src/app/doctor/[slug]/page.tsx`
+- Изменение: `getDoctorBySlug(slug)` → `fetchDoctorBySlug(slug)` из lib/api.ts
+- Backend: GET /doctors/{slug} уже работает ✅
+- Результат: все 6 API-врачей получат рабочие страницы профиля
+
+#### P0-2 — Профили 3 клиник (medicina-na-tsvetnoy, evromedservice, sm-klinika)
+Status: pending
+- Файл: `frontend/src/app/clinic/[slug]/page.tsx`
+- Изменение: `getClinicBySlug(slug)` → `fetchClinicBySlug(slug)` (добавить в lib/api.ts)
+- Backend: GET /clinics/{slug} уже работает ✅
+- Результат: все 5 API-клиник получат рабочие страницы
+
+#### P0-3 — Создать страницу /cabinet/patient/appointments
+Status: pending
+- Создать: `frontend/src/app/cabinet/patient/appointments/page.tsx`
+- Backend: GET /appointments/patient уже работает ✅
+- Включить: пагинация, фильтр по статусу/дате, карточки записей, "Отменить"
+
+#### P0-4 — Создать страницу /cabinet/doctor/schedule
+Status: pending
+- Создать: `frontend/src/app/cabinet/doctor/schedule/page.tsx`
+- Backend: GET /doctors/{id}/schedule, POST/DELETE /doctors/{id}/day-offs уже работают ✅
+- UI: переиспользовать компоненты из /cabinet/clinic/schedule
+
+#### P0-5 — ClinicsSection на главной → реальные данные
+Status: pending
+- Файл: `frontend/src/components/home/ClinicsSection.tsx`
+- Изменение: заменить массив [st-ethos, lumina-dental...] на fetchClinics(), ссылки → /clinic/{slug}
+- Backend: GET /clinics уже работает ✅
+
+#### P0-6 — Медкарта: убрать чужие данные (минимум — реальное имя)
+Status: pending
+- Файл: `frontend/src/app/cabinet/patient/medcard/page.tsx`
+- Изменение: добавить GET /auth/me, показывать реальное имя вместо "Алекс Стерлинг"
+- Backend: GET /auth/me уже работает ✅
+
+---
+
+### Фаза P1 — Важные улучшения ⏸️ pending (после P0)
+
+**Зачем:** убрать самые раздражающие UX-проблемы, достроить недостающий функционал.
+
+#### P1-1 — Фильтры поиска ДМС/Метро/Онлайн/Выезд
+Status: pending
+- Backend: добавить поля accepts_dms, online, home_visit, metro, gender в Doctor-модель + Alembic-миграция
+- Frontend: обновить apiDoctorToDoctor в lib/api.ts
+- Результат: 4 из 8 фильтров /search начнут работать
+
+#### P1-2 — Избранные врачи (полная фича)
+Status: pending
+- Backend: модель Favorite + миграция + endpoints POST/DELETE /favorites/{slug}, GET /favorites/my
+- Frontend: кнопка ♡ на /doctor/[slug] + страница /cabinet/patient/favorites
+
+#### P1-3 — Создать страницу /cabinet/doctor/settings
+Status: pending
+- Backend: PATCH /doctors/{id}/profile
+- Frontend: `frontend/src/app/cabinet/doctor/settings/page.tsx`
+
+#### P1-4 — /cabinet/clinic/settings — форма редактирования
+Status: pending
+- Backend: PATCH /clinics/{id}
+- Frontend: добавить форму редактирования в settings/page.tsx
+
+#### P1-5 — Бонусы на главной ЛК — реальная сумма
+Status: pending
+- Файл: `frontend/src/app/cabinet/patient/page.tsx`
+- Изменение: бонус-виджет → client component, GET /auth/me → bonus_balance
+
+#### P1-6 — Имя пациента в medcard и family из API
+Status: pending
+- Файлы: medcard/page.tsx, family/page.tsx
+- Изменение: GET /auth/me → реальное имя (помимо P0-6)
+
+---
+
+### Фаза P2 — Дорожная карта ⏸️ pending (долгосрочно)
+
+#### P2-1 — Медкарта — реальные данные
+Status: pending
+Нужно: модель MedicalRecord + миграция + 4 endpoints + redesign страницы
+
+#### P2-2 — Семейный профиль — реальные данные
+Status: pending
+Нужно: модель FamilyMember + миграция + API + redesign страницы
+
+#### P2-3 — Бонусы "Получить" — реальное погашение
+Status: pending
+Нужно: модель BonusReward + endpoint POST /bonuses/redeem + UI
+
+#### P2-4 — PDF-экспорт медкарты
+Status: pending
+Нужно: puppeteer или pdfmake на бэкенде + кнопка "Скачать PDF"
+
+#### P2-5 — Реальные отзывы на /doctor/[slug]
+Status: pending
+Нужно: модель Review + API + компонент ReviewList
+
+#### P2-6 — Статьи и блог
+Status: pending
+Нужно: модель Article + CMS API + /articles страница
+
+#### P2-7 — StatsSection на главной — реальные цифры
+Status: pending
+Нужно: GET /stats/platform + render
 
 ---
 
@@ -944,6 +1114,87 @@ Status: pending
 #### Т2 — ЮKassa интеграция
 - [ ] POST /payments/create → redirect на оплату
 - [ ] Webhook: payment.succeeded → update Subscription
+
+---
+
+### Фаза А7 — Критические 404 фиксы ЛК
+Status: pending
+
+**Зачем:** аудит 2026-06-16 выявил 4 страницы с 404 в навигации ЛК. Пользователи видят ошибки при каждом клике.
+**Критерий:** 0 404 в навигации ЛК пациента и врача.
+
+#### А7-1 — /cabinet/patient/appointments
+Status: pending
+- [ ] Отдельная страница с историей записей пациента
+- [ ] GET /appointments/my → реальные данные + пагинация
+- [ ] Фильтры: upcoming / past / all
+- [ ] Отмена записи с подтверждением
+
+#### А7-2 — /cabinet/doctor/schedule
+Status: pending
+- [ ] Страница расписания врача
+- [ ] GET /doctors/{id}/schedule → показать рабочие дни/часы
+- [ ] Просмотр DoctorDayOff (заблокированные даты)
+- [ ] (MVP: только просмотр, редактирование — через клинику)
+
+#### А7-3 — /cabinet/doctor/settings
+Status: pending
+- [ ] Профиль врача (read-only MVP)
+- [ ] GET /auth/me → имя, телефон, специализация
+- [ ] Плашка "Данные управляются клиникой"
+
+#### А7-4 — /cabinet/patient/favorites
+Status: pending
+- [ ] Заглушка с UI "Скоро появится"
+- [ ] Кнопка "Найти врача" → /search
+- [ ] (Backend API для избранных — следующая фаза)
+
+---
+
+### Фаза А8 — Клиника: редактирование профиля
+Status: pending
+
+#### А8-1 — Backend PATCH /clinics/my
+Status: pending
+- [ ] Endpoint: PATCH /clinics/my, только для role=clinic
+- [ ] Поля: name, address, phone, description, working_hours
+- [ ] Валидация + Pydantic schema
+
+#### А8-2 — Frontend /cabinet/clinic/settings редактирование
+Status: pending
+- [ ] Форма редактирования (текущие: read-only MVP → полноценная форма)
+- [ ] PATCH /clinics/my → toast успех/ошибка
+
+---
+
+### Фаза А9 — Онбординг B2B (новые клиники)
+Status: pending
+
+#### А9-1 — /for-clinics лендинг
+Status: pending
+- [ ] Лендинг для привлечения клиник
+- [ ] Форма заявки (название, контакт, кол-во врачей)
+- [ ] POST /clinics/apply
+
+#### А9-2 — Backend POST /clinics/apply
+Status: pending
+- [ ] Модель ClinicApplication(name, contact_phone, contact_name, doctor_count, status)
+- [ ] Email алерт суперадмину MEDAS
+
+---
+
+### Фаза А10 — Врач: инвайт и связка
+Status: pending
+
+#### А10-1 — Backend POST /clinics/{id}/doctors/invite
+Status: pending
+- [ ] Создаёт invite_token (UUID, TTL 72ч) + отправляет SMS
+- [ ] POST /doctors/accept-invite?token=... → связывает User.doctor_id
+
+#### А10-2 — /for-doctors лендинг
+Status: pending
+- [ ] Лендинг для врачей
+- [ ] Форма заявки / принятие инвайта
 
 ---
 
