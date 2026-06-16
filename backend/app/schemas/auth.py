@@ -39,6 +39,6 @@ class UserResponse(BaseModel):
     bonus_balance: int
     role: str
     clinic_id: int | None
-    doctor_id: int | None
+    doctor_id: int | None = None
 
     model_config = {"from_attributes": True}

@@ -10,6 +10,7 @@ from app.core.database import get_db
 from app.core.otp import generate_otp, send_flash_call, send_sms, send_telegram_alert
 from app.core.security import create_access_token, verify_token
 from app.core.config import settings
+from app.models.bonus import BonusTransaction
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
@@ -122,6 +123,11 @@ async def verify_otp(body: OTPVerifyRequest, db: AsyncSession = Depends(get_db))
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
         if not user.is_verified:
             user.is_verified = True
+            user.bonus_balance += 500
+            db.add(BonusTransaction(
+                user_id=user.id, amount=500, type="welcome",
+                description="Приветственный бонус за регистрацию",
+            ))
             await db.commit()
         return TokenResponse(access_token=create_access_token(user.id, user.phone))
 
@@ -182,6 +188,11 @@ async def verify_otp(body: OTPVerifyRequest, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     if not user.is_verified:
         user.is_verified = True
+        user.bonus_balance += 500
+        db.add(BonusTransaction(
+            user_id=user.id, amount=500, type="welcome",
+            description="Приветственный бонус за регистрацию",
+        ))
         await db.commit()
     return TokenResponse(access_token=create_access_token(user.id, user.phone))
 
