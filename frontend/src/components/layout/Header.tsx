@@ -9,7 +9,8 @@ const navLinks = [
   { href: "/search",  label: "Найти врача" },
   { href: "/doctors", label: "Врачи" },
   { href: "/clinics", label: "Клиники" },
-  { href: "/promotions", label: "Акции" },
+  { href: "/services", label: "Услуги" },
+  { href: "/about", label: "О нас" },
 ];
 
 
