@@ -415,7 +415,7 @@ export default function LoginForm() {
           {step === "otp" && (
             <div className="space-y-5">
               <div>
-                <label className="block text-xs text-[#737686] mb-2">
+                <label className="block text-xs text-[#737686] mb-2 text-center">
                   {method === "flash" ? "Последние 4 цифры входящего номера" : "Код из SMS"}
                 </label>
                 <input
